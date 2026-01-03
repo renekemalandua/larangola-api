@@ -1,0 +1,342 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+// ============================================
+// User Base Table
+// ============================================
+
+model User {
+    id        String   @id @default(uuid())
+    email     String   @unique
+    phone     String   @unique
+    password  String
+    name      String
+    avatar    String?
+    isActive  Boolean  @default(true)
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    // Relations
+    agent               Agent?
+    roommate            Roommate?
+    listings            Listing[]
+    properties          Property[]
+    reviewsGiven        Review[]            @relation("ReviewFromUser")
+    reviewsReceived     Review[]            @relation("ReviewToUser")
+    chatsAsUser1        Chat[]              @relation("ChatUser1")
+    chatsAsUser2        Chat[]              @relation("ChatUser2")
+    messages            Message[]
+    scheduledVisits     ScheduledVisit[]
+    closedDealsAsAgent  ClosedDeal[]        @relation("ClosedDealAgent")
+    closedDealsAsClient ClosedDeal[]        @relation("ClosedDealClient")
+    agentSubscriptions  AgentSubscription[]
+    propertyInterests   PropertyInterest[]
+}
+
+// ============================================
+// Property Tables
+// ============================================
+
+model PropertyCategory {
+    id          String   @id @default(uuid())
+    name        String
+    description String?
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+
+    properties Property[]
+}
+
+model Property {
+    id           String   @id @default(uuid())
+    ownerId      String
+    categoryId   String
+    title        String
+    description  String?
+    address      String?
+    city         String?
+    state        String?
+    country      String   @default("Angola")
+    latitude     Float?
+    longitude    Float?
+    bedrooms     Int?
+    bathrooms    Int?
+    area         Float? // in m²
+    propertyType String // apartment, house, studio, room
+    amenities    Json? // array of amenities
+    images       Json? // array of image URLs
+    createdAt    DateTime @default(now())
+    updatedAt    DateTime @updatedAt
+
+    owner    User             @relation(fields: [ownerId], references: [id])
+    category PropertyCategory @relation(fields: [categoryId], references: [id])
+    listings Listing[]
+}
+
+enum ListingType {
+    rent
+    buy
+}
+
+enum ListingStatus {
+    draft
+    published
+    finished
+}
+
+model Listing {
+    id          String        @id @default(uuid())
+    propertyId  String
+    ownerId     String
+    listingType ListingType
+    price       Float
+    currency    String        @default("AOA")
+    status      ListingStatus @default(draft)
+    listedBy    String // "agent" or "owner"
+    agentId     String?
+    createdAt   DateTime      @default(now())
+    updatedAt   DateTime      @updatedAt
+
+    property          Property           @relation(fields: [propertyId], references: [id])
+    owner             User               @relation(fields: [ownerId], references: [id])
+    scheduledVisits   ScheduledVisit[]
+    propertyInterests PropertyInterest[]
+    closedDeals       ClosedDeal[]
+    reviews           Review[]           @relation("ListingReview")
+}
+
+// ============================================
+// Agent & Roommate Tables
+// ============================================
+
+model Agent {
+    id                  String   @id @default(uuid())
+    userId              String   @unique
+    profession          String?
+    company             String?
+    location            String?
+    bio                 String?
+    description         String? // Agent-specific description
+    isVerified          Boolean  @default(false)
+    responseRate        Int? // percentage
+    averageResponseTime String? // e.g., "2 horas"
+    propertiesCount     Int      @default(0)
+    averageRating       Float    @default(0)
+    createdAt           DateTime @default(now())
+    updatedAt           DateTime @updatedAt
+
+    user          User                @relation(fields: [userId], references: [id])
+    subscriptions AgentSubscription[]
+    closedDeals   ClosedDeal[]        @relation("ClosedDealAgent")
+    reviews       Review[]            @relation("ReviewToUser")
+}
+
+model Roommate {
+    id                  String    @id @default(uuid())
+    userId              String    @unique
+    age                 Int?
+    profession          String?
+    company             String?
+    location            String?
+    budget              Float?
+    moveInDate          DateTime?
+    bio                 String?
+    isVerified          Boolean   @default(false)
+    responseRate        Int? // percentage
+    averageResponseTime String? // e.g., "2 horas"
+    rating              Float? // average rating
+    lookingForRoommate  Boolean   @default(false)
+    preferences         Json? // { smoking, pets, guests, quietHours, cleaning }
+    lifestyle           Json? // { workSchedule, socialLevel, partyFrequency }
+    interests           Json? // array of interests
+    languages           Json? // array of languages
+    joinDate            DateTime  @default(now())
+    createdAt           DateTime  @default(now())
+    updatedAt           DateTime  @updatedAt
+
+    user User @relation(fields: [userId], references: [id])
+}
+
+// ============================================
+// Visit & Review Tables
+// ============================================
+
+enum VisitStatus {
+    pending
+    confirmed
+    completed
+    cancelled
+}
+
+model ScheduledVisit {
+    id            String      @id @default(uuid())
+    listingId     String
+    userId        String // client who scheduled
+    scheduledDate DateTime
+    scheduledTime String // HH:mm format
+    status        VisitStatus @default(pending)
+    notes         String?
+    createdAt     DateTime    @default(now())
+    updatedAt     DateTime    @updatedAt
+
+    listing Listing @relation(fields: [listingId], references: [id])
+    user    User    @relation(fields: [userId], references: [id])
+}
+
+enum ReviewRating {
+    ONE
+    TWO
+    THREE
+    FOUR
+    FIVE
+}
+
+model Review {
+    id         String   @id @default(uuid())
+    listingId  String?
+    fromUserId String // user who wrote the review
+    toUserId   String // user being reviewed (agent or roommate)
+    rating     Int // 1-5
+    comment    String?
+    createdAt  DateTime @default(now())
+    updatedAt  DateTime @updatedAt
+
+    listing  Listing? @relation("ListingReview", fields: [listingId], references: [id])
+    fromUser User     @relation("ReviewFromUser", fields: [fromUserId], references: [id])
+    toUser   User     @relation("ReviewToUser", fields: [toUserId], references: [id])
+    agent    Agent?   @relation(fields: [agentId], references: [id])
+    agentId  String?
+}
+
+// ============================================
+// Chat & Message Tables
+// ============================================
+
+model Chat {
+    id               String    @id @default(uuid())
+    user1Id          String
+    user2Id          String
+    lastMessage      String?
+    lastMessageTime  DateTime?
+    unreadCountUser1 Int       @default(0)
+    unreadCountUser2 Int       @default(0)
+    isBlocked        Boolean   @default(false)
+    createdAt        DateTime  @default(now())
+    updatedAt        DateTime  @updatedAt
+
+    user1    User      @relation("ChatUser1", fields: [user1Id], references: [id])
+    user2    User      @relation("ChatUser2", fields: [user2Id], references: [id])
+    messages Message[]
+
+    @@unique([user1Id, user2Id])
+}
+
+model Message {
+    id        String   @id @default(uuid())
+    chatId    String
+    senderId  String
+    text      String
+    isRead    Boolean  @default(false)
+    createdAt DateTime @default(now())
+
+    chat   Chat @relation(fields: [chatId], references: [id])
+    sender User @relation(fields: [senderId], references: [id])
+}
+
+// ============================================
+// Deal & Commission Tables
+// ============================================
+
+enum ClosedDealStatus {
+    completed
+    pending_payment
+}
+
+model ClosedDeal {
+    id               String           @id @default(uuid())
+    listingId        String
+    agentId          String
+    clientId         String
+    commissionAmount Float
+    commissionRate   Float // percentage
+    status           ClosedDealStatus @default(pending_payment)
+    closedDate       DateTime
+    createdAt        DateTime         @default(now())
+    updatedAt        DateTime         @updatedAt
+
+    listing Listing @relation(fields: [listingId], references: [id])
+    agent   Agent   @relation("ClosedDealAgent", fields: [agentId], references: [id])
+    client  User    @relation("ClosedDealClient", fields: [clientId], references: [id])
+    user    User?   @relation(fields: [userId], references: [id])
+    userId  String?
+}
+
+// ============================================
+// Agent Plans & Subscriptions
+// ============================================
+
+enum PlanType {
+    basic
+    premium
+    professional
+    enterprise
+}
+
+model AgentPlan {
+    id          String   @id @default(uuid())
+    type        PlanType @unique
+    name        String
+    price       Float    @default(0)
+    pricePeriod String? // "month" or "year"
+    description String?
+    features    Json? // array of features
+    isPopular   Boolean  @default(false)
+    badge       String?
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+
+    subscriptions AgentSubscription[]
+}
+
+enum SubscriptionStatus {
+    active
+    cancelled
+    expired
+}
+
+model AgentSubscription {
+    id        String             @id @default(uuid())
+    agentId   String
+    planId    String
+    status    SubscriptionStatus @default(active)
+    startDate DateTime
+    endDate   DateTime?
+    createdAt DateTime           @default(now())
+    updatedAt DateTime           @updatedAt
+
+    agent User      @relation(fields: [agentId], references: [id])
+    plan  AgentPlan @relation(fields: [planId], references: [id])
+    agent Agent     @relation(fields: [agentId], references: [id])
+}
+
+// ============================================
+// Property Interest Table
+// ============================================
+
+model PropertyInterest {
+    id        String   @id @default(uuid())
+    listingId String
+    userId    String
+    message   String?
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    listing Listing @relation(fields: [listingId], references: [id])
+    user    User    @relation(fields: [userId], references: [id])
+}
