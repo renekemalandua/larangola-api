@@ -7,3 +7,4 @@ import { PrismaService } from '../db-conection';
 })
 export class ProviderModule { }
 
+
