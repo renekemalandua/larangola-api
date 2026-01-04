@@ -22,7 +22,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: renekemalandua/larangola-nest-api:1.0.1
+    image: renekemalandua/larangola-nest-api:latest
     container_name: larangola-api
     ports:
       - '8000:8000'
