@@ -7,13 +7,13 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: larangola-db
     ports:
-      - "5432:5432"
+      - '5432:5432'
     volumes:
       - larangola-data:/var/lib/postgresql/data
     networks:
       - larangolanet
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
       interval: 5s
       timeout: 5s
       retries: 5
@@ -22,10 +22,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: renekemalandua/larangola-nest-api:1.0.0
+    image: renekemalandua/larangola-nest-api:1.0.1
     container_name: larangola-api
     ports:
-      - "8000:8000"
+      - '8000:8000'
     depends_on:
       db:
         condition: service_healthy

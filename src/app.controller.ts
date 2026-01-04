@@ -4,11 +4,8 @@ import { ApiTags } from '@nestjs/swagger';
 @ApiTags('App')
 @Controller()
 export class AppController {
-	@Get()
-	getHello(): { message: string } {
-		return { message: 'LarAngola API' };
-	}
+  @Get()
+  getHello(): { message: string } {
+    return { message: 'LarAngola API' };
+  }
 }
-
-
-

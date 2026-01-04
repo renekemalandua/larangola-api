@@ -50,303 +50,320 @@ import { PrismaMessageRepository } from './repositories/implementation/PrismaMes
 
 // Use Cases - PropertyCategory
 import {
-	CreatePropertyCategoryUseCase,
-	UpdatePropertyCategoryUseCase,
-	DeletePropertyCategoryUseCase,
-	ListPropertyCategoriesUseCase,
-	FindPropertyCategoryByIdUseCase,
+  CreatePropertyCategoryUseCase,
+  UpdatePropertyCategoryUseCase,
+  DeletePropertyCategoryUseCase,
+  ListPropertyCategoriesUseCase,
+  FindPropertyCategoryByIdUseCase,
 } from './usecases/property-category.usecases';
 
 // Use Cases - User
 import {
-	CreateUserUseCase,
-	UpdateUserUseCase,
-	DeleteUserUseCase,
-	ListUsersUseCase,
-	FindUserByIdUseCase,
-	FindUserByEmailUseCase,
+  CreateUserUseCase,
+  UpdateUserUseCase,
+  DeleteUserUseCase,
+  ListUsersUseCase,
+  FindUserByIdUseCase,
+  FindUserByEmailUseCase,
 } from './usecases/user.usecases';
 
 // Use Cases - Property
 import {
-	CreatePropertyUseCase,
-	UpdatePropertyUseCase,
-	DeletePropertyUseCase,
-	ListPropertiesUseCase,
-	ListPropertiesByOwnerUseCase,
-	ListPropertiesByCategoryUseCase,
-	FindPropertyByIdUseCase,
+  CreatePropertyUseCase,
+  UpdatePropertyUseCase,
+  DeletePropertyUseCase,
+  ListPropertiesUseCase,
+  ListPropertiesByOwnerUseCase,
+  ListPropertiesByCategoryUseCase,
+  FindPropertyByIdUseCase,
 } from './usecases/property.usecases';
 
 // Use Cases - Listing
 import {
-	CreateListingUseCase,
-	UpdateListingUseCase,
-	DeleteListingUseCase,
-	ListListingsUseCase,
-	ListListingsByOwnerUseCase,
-	ListListingsByPropertyUseCase,
-	FindListingByIdUseCase,
+  CreateListingUseCase,
+  UpdateListingUseCase,
+  DeleteListingUseCase,
+  ListListingsUseCase,
+  ListListingsByOwnerUseCase,
+  ListListingsByPropertyUseCase,
+  FindListingByIdUseCase,
 } from './usecases/listing.usecases';
 
 // Use Cases - Agent
 import {
-	CreateAgentUseCase,
-	UpdateAgentUseCase,
-	DeleteAgentUseCase,
-	ListAgentsUseCase,
-	FindAgentByIdUseCase,
-	FindAgentByUserIdUseCase,
+  CreateAgentUseCase,
+  UpdateAgentUseCase,
+  DeleteAgentUseCase,
+  ListAgentsUseCase,
+  FindAgentByIdUseCase,
+  FindAgentByUserIdUseCase,
 } from './usecases/agent.usecases';
 
 // Use Cases - Roommate
 import {
-	CreateRoommateUseCase,
-	UpdateRoommateUseCase,
-	DeleteRoommateUseCase,
-	ListRoommatesUseCase,
-	FindRoommateByIdUseCase,
-	FindRoommateByUserIdUseCase,
+  CreateRoommateUseCase,
+  UpdateRoommateUseCase,
+  DeleteRoommateUseCase,
+  ListRoommatesUseCase,
+  FindRoommateByIdUseCase,
+  FindRoommateByUserIdUseCase,
 } from './usecases/roommate.usecases';
 
 // Use Cases - ScheduledVisit
 import {
-	CreateScheduledVisitUseCase,
-	UpdateScheduledVisitUseCase,
-	DeleteScheduledVisitUseCase,
-	ListScheduledVisitsUseCase,
-	ListScheduledVisitsByListingUseCase,
-	ListScheduledVisitsByUserUseCase,
-	FindScheduledVisitByIdUseCase,
+  CreateScheduledVisitUseCase,
+  UpdateScheduledVisitUseCase,
+  DeleteScheduledVisitUseCase,
+  ListScheduledVisitsUseCase,
+  ListScheduledVisitsByListingUseCase,
+  ListScheduledVisitsByUserUseCase,
+  FindScheduledVisitByIdUseCase,
 } from './usecases/scheduled-visit.usecases';
 
 // Use Cases - Review
 import {
-	CreateReviewUseCase,
-	UpdateReviewUseCase,
-	DeleteReviewUseCase,
-	ListReviewsUseCase,
-	ListReviewsByListingUseCase,
-	ListReviewsByToUserUseCase,
-	FindReviewByIdUseCase,
+  CreateReviewUseCase,
+  UpdateReviewUseCase,
+  DeleteReviewUseCase,
+  ListReviewsUseCase,
+  ListReviewsByListingUseCase,
+  ListReviewsByToUserUseCase,
+  FindReviewByIdUseCase,
 } from './usecases/review.usecases';
 
 // Use Cases - PropertyInterest
 import {
-	CreatePropertyInterestUseCase,
-	UpdatePropertyInterestUseCase,
-	DeletePropertyInterestUseCase,
-	ListPropertyInterestsUseCase,
-	ListPropertyInterestsByListingUseCase,
-	ListPropertyInterestsByUserUseCase,
-	FindPropertyInterestByIdUseCase,
+  CreatePropertyInterestUseCase,
+  UpdatePropertyInterestUseCase,
+  DeletePropertyInterestUseCase,
+  ListPropertyInterestsUseCase,
+  ListPropertyInterestsByListingUseCase,
+  ListPropertyInterestsByUserUseCase,
+  FindPropertyInterestByIdUseCase,
 } from './usecases/property-interest.usecases';
 
 // Use Cases - ClosedDeal
 import {
-	CreateClosedDealUseCase,
-	UpdateClosedDealUseCase,
-	DeleteClosedDealUseCase,
-	ListClosedDealsUseCase,
-	ListClosedDealsByAgentUseCase,
-	ListClosedDealsByClientUseCase,
-	FindClosedDealByIdUseCase,
+  CreateClosedDealUseCase,
+  UpdateClosedDealUseCase,
+  DeleteClosedDealUseCase,
+  ListClosedDealsUseCase,
+  ListClosedDealsByAgentUseCase,
+  ListClosedDealsByClientUseCase,
+  FindClosedDealByIdUseCase,
 } from './usecases/closed-deal.usecases';
 
 // Use Cases - AgentPlan
 import {
-	CreateAgentPlanUseCase,
-	UpdateAgentPlanUseCase,
-	DeleteAgentPlanUseCase,
-	ListAgentPlansUseCase,
-	FindAgentPlanByIdUseCase,
+  CreateAgentPlanUseCase,
+  UpdateAgentPlanUseCase,
+  DeleteAgentPlanUseCase,
+  ListAgentPlansUseCase,
+  FindAgentPlanByIdUseCase,
 } from './usecases/agent-plan.usecases';
 
 // Use Cases - AgentSubscription
 import {
-	CreateAgentSubscriptionUseCase,
-	UpdateAgentSubscriptionUseCase,
-	DeleteAgentSubscriptionUseCase,
-	ListAgentSubscriptionsUseCase,
-	ListAgentSubscriptionsByAgentUseCase,
-	FindAgentSubscriptionByIdUseCase,
+  CreateAgentSubscriptionUseCase,
+  UpdateAgentSubscriptionUseCase,
+  DeleteAgentSubscriptionUseCase,
+  ListAgentSubscriptionsUseCase,
+  ListAgentSubscriptionsByAgentUseCase,
+  FindAgentSubscriptionByIdUseCase,
 } from './usecases/agent-subscription.usecases';
 
 // Use Cases - Chat
 import {
-	CreateChatUseCase,
-	UpdateChatUseCase,
-	DeleteChatUseCase,
-	ListChatsUseCase,
-	ListChatsByUserUseCase,
-	FindChatByIdUseCase,
-	FindChatByUsersUseCase,
+  CreateChatUseCase,
+  UpdateChatUseCase,
+  DeleteChatUseCase,
+  ListChatsUseCase,
+  ListChatsByUserUseCase,
+  FindChatByIdUseCase,
+  FindChatByUsersUseCase,
 } from './usecases/chat.usecases';
 
 // Use Cases - Message
 import {
-	CreateMessageUseCase,
-	UpdateMessageUseCase,
-	DeleteMessageUseCase,
-	ListMessagesUseCase,
-	ListMessagesByChatUseCase,
-	FindMessageByIdUseCase,
-	MarkMessagesAsReadUseCase,
+  CreateMessageUseCase,
+  UpdateMessageUseCase,
+  DeleteMessageUseCase,
+  ListMessagesUseCase,
+  ListMessagesByChatUseCase,
+  FindMessageByIdUseCase,
+  MarkMessagesAsReadUseCase,
 } from './usecases/message.usecases';
 
 @Module({
-	imports: [ProviderModule],
-	controllers: [
-		PropertyCategoryController,
-		UserController,
-		PropertyController,
-		ListingController,
-		AgentController,
-		RoommateController,
-		ScheduledVisitController,
-		ReviewController,
-		PropertyInterestController,
-		ClosedDealController,
-		AgentPlanController,
-		AgentSubscriptionController,
-		ChatController,
-		MessageController,
-	],
-	providers: [
-		// Repositories
-		{ provide: IPropertyCategoryRepository, useClass: PrismaPropertyCategoryRepository },
-		{ provide: IUserRepository, useClass: PrismaUserRepository },
-		{ provide: IPropertyRepository, useClass: PrismaPropertyRepository },
-		{ provide: IListingRepository, useClass: PrismaListingRepository },
-		{ provide: IAgentRepository, useClass: PrismaAgentRepository },
-		{ provide: IRoommateRepository, useClass: PrismaRoommateRepository },
-		{ provide: IScheduledVisitRepository, useClass: PrismaScheduledVisitRepository },
-		{ provide: IReviewRepository, useClass: PrismaReviewRepository },
-		{ provide: IPropertyInterestRepository, useClass: PrismaPropertyInterestRepository },
-		{ provide: IClosedDealRepository, useClass: PrismaClosedDealRepository },
-		{ provide: IAgentPlanRepository, useClass: PrismaAgentPlanRepository },
-		{ provide: IAgentSubscriptionRepository, useClass: PrismaAgentSubscriptionRepository },
-		{ provide: IChatRepository, useClass: PrismaChatRepository },
-		{ provide: IMessageRepository, useClass: PrismaMessageRepository },
+  imports: [ProviderModule],
+  controllers: [
+    PropertyCategoryController,
+    UserController,
+    PropertyController,
+    ListingController,
+    AgentController,
+    RoommateController,
+    ScheduledVisitController,
+    ReviewController,
+    PropertyInterestController,
+    ClosedDealController,
+    AgentPlanController,
+    AgentSubscriptionController,
+    ChatController,
+    MessageController,
+  ],
+  providers: [
+    // Repositories
+    {
+      provide: IPropertyCategoryRepository,
+      useClass: PrismaPropertyCategoryRepository,
+    },
+    { provide: IUserRepository, useClass: PrismaUserRepository },
+    { provide: IPropertyRepository, useClass: PrismaPropertyRepository },
+    { provide: IListingRepository, useClass: PrismaListingRepository },
+    { provide: IAgentRepository, useClass: PrismaAgentRepository },
+    { provide: IRoommateRepository, useClass: PrismaRoommateRepository },
+    {
+      provide: IScheduledVisitRepository,
+      useClass: PrismaScheduledVisitRepository,
+    },
+    { provide: IReviewRepository, useClass: PrismaReviewRepository },
+    {
+      provide: IPropertyInterestRepository,
+      useClass: PrismaPropertyInterestRepository,
+    },
+    { provide: IClosedDealRepository, useClass: PrismaClosedDealRepository },
+    { provide: IAgentPlanRepository, useClass: PrismaAgentPlanRepository },
+    {
+      provide: IAgentSubscriptionRepository,
+      useClass: PrismaAgentSubscriptionRepository,
+    },
+    { provide: IChatRepository, useClass: PrismaChatRepository },
+    { provide: IMessageRepository, useClass: PrismaMessageRepository },
 
-		// Use Cases - PropertyCategory
-		CreatePropertyCategoryUseCase,
-		UpdatePropertyCategoryUseCase,
-		DeletePropertyCategoryUseCase,
-		ListPropertyCategoriesUseCase,
-		FindPropertyCategoryByIdUseCase,
+    // Use Cases - PropertyCategory
+    CreatePropertyCategoryUseCase,
+    UpdatePropertyCategoryUseCase,
+    DeletePropertyCategoryUseCase,
+    ListPropertyCategoriesUseCase,
+    FindPropertyCategoryByIdUseCase,
 
-		// Use Cases - User
-		CreateUserUseCase,
-		UpdateUserUseCase,
-		DeleteUserUseCase,
-		ListUsersUseCase,
-		FindUserByIdUseCase,
-		FindUserByEmailUseCase,
+    // Use Cases - User
+    CreateUserUseCase,
+    UpdateUserUseCase,
+    DeleteUserUseCase,
+    ListUsersUseCase,
+    FindUserByIdUseCase,
+    FindUserByEmailUseCase,
 
-		// Use Cases - Property
-		CreatePropertyUseCase,
-		UpdatePropertyUseCase,
-		DeletePropertyUseCase,
-		ListPropertiesUseCase,
-		ListPropertiesByOwnerUseCase,
-		ListPropertiesByCategoryUseCase,
-		FindPropertyByIdUseCase,
+    // Use Cases - Property
+    CreatePropertyUseCase,
+    UpdatePropertyUseCase,
+    DeletePropertyUseCase,
+    ListPropertiesUseCase,
+    ListPropertiesByOwnerUseCase,
+    ListPropertiesByCategoryUseCase,
+    FindPropertyByIdUseCase,
 
-		// Use Cases - Listing
-		CreateListingUseCase,
-		UpdateListingUseCase,
-		DeleteListingUseCase,
-		ListListingsUseCase,
-		ListListingsByOwnerUseCase,
-		ListListingsByPropertyUseCase,
-		FindListingByIdUseCase,
+    // Use Cases - Listing
+    CreateListingUseCase,
+    UpdateListingUseCase,
+    DeleteListingUseCase,
+    ListListingsUseCase,
+    ListListingsByOwnerUseCase,
+    ListListingsByPropertyUseCase,
+    FindListingByIdUseCase,
 
-		// Use Cases - Agent
-		CreateAgentUseCase,
-		UpdateAgentUseCase,
-		DeleteAgentUseCase,
-		ListAgentsUseCase,
-		FindAgentByIdUseCase,
-		FindAgentByUserIdUseCase,
+    // Use Cases - Agent
+    CreateAgentUseCase,
+    UpdateAgentUseCase,
+    DeleteAgentUseCase,
+    ListAgentsUseCase,
+    FindAgentByIdUseCase,
+    FindAgentByUserIdUseCase,
 
-		// Use Cases - Roommate
-		CreateRoommateUseCase,
-		UpdateRoommateUseCase,
-		DeleteRoommateUseCase,
-		ListRoommatesUseCase,
-		FindRoommateByIdUseCase,
-		FindRoommateByUserIdUseCase,
+    // Use Cases - Roommate
+    CreateRoommateUseCase,
+    UpdateRoommateUseCase,
+    DeleteRoommateUseCase,
+    ListRoommatesUseCase,
+    FindRoommateByIdUseCase,
+    FindRoommateByUserIdUseCase,
 
-		// Use Cases - ScheduledVisit
-		CreateScheduledVisitUseCase,
-		UpdateScheduledVisitUseCase,
-		DeleteScheduledVisitUseCase,
-		ListScheduledVisitsUseCase,
-		ListScheduledVisitsByListingUseCase,
-		ListScheduledVisitsByUserUseCase,
-		FindScheduledVisitByIdUseCase,
+    // Use Cases - ScheduledVisit
+    CreateScheduledVisitUseCase,
+    UpdateScheduledVisitUseCase,
+    DeleteScheduledVisitUseCase,
+    ListScheduledVisitsUseCase,
+    ListScheduledVisitsByListingUseCase,
+    ListScheduledVisitsByUserUseCase,
+    FindScheduledVisitByIdUseCase,
 
-		// Use Cases - Review
-		CreateReviewUseCase,
-		UpdateReviewUseCase,
-		DeleteReviewUseCase,
-		ListReviewsUseCase,
-		ListReviewsByListingUseCase,
-		ListReviewsByToUserUseCase,
-		FindReviewByIdUseCase,
+    // Use Cases - Review
+    CreateReviewUseCase,
+    UpdateReviewUseCase,
+    DeleteReviewUseCase,
+    ListReviewsUseCase,
+    ListReviewsByListingUseCase,
+    ListReviewsByToUserUseCase,
+    FindReviewByIdUseCase,
 
-		// Use Cases - PropertyInterest
-		CreatePropertyInterestUseCase,
-		UpdatePropertyInterestUseCase,
-		DeletePropertyInterestUseCase,
-		ListPropertyInterestsUseCase,
-		ListPropertyInterestsByListingUseCase,
-		ListPropertyInterestsByUserUseCase,
-		FindPropertyInterestByIdUseCase,
+    // Use Cases - PropertyInterest
+    CreatePropertyInterestUseCase,
+    UpdatePropertyInterestUseCase,
+    DeletePropertyInterestUseCase,
+    ListPropertyInterestsUseCase,
+    ListPropertyInterestsByListingUseCase,
+    ListPropertyInterestsByUserUseCase,
+    FindPropertyInterestByIdUseCase,
 
-		// Use Cases - ClosedDeal
-		CreateClosedDealUseCase,
-		UpdateClosedDealUseCase,
-		DeleteClosedDealUseCase,
-		ListClosedDealsUseCase,
-		ListClosedDealsByAgentUseCase,
-		ListClosedDealsByClientUseCase,
-		FindClosedDealByIdUseCase,
+    // Use Cases - ClosedDeal
+    CreateClosedDealUseCase,
+    UpdateClosedDealUseCase,
+    DeleteClosedDealUseCase,
+    ListClosedDealsUseCase,
+    ListClosedDealsByAgentUseCase,
+    ListClosedDealsByClientUseCase,
+    FindClosedDealByIdUseCase,
 
-		// Use Cases - AgentPlan
-		CreateAgentPlanUseCase,
-		UpdateAgentPlanUseCase,
-		DeleteAgentPlanUseCase,
-		ListAgentPlansUseCase,
-		FindAgentPlanByIdUseCase,
+    // Use Cases - AgentPlan
+    CreateAgentPlanUseCase,
+    UpdateAgentPlanUseCase,
+    DeleteAgentPlanUseCase,
+    ListAgentPlansUseCase,
+    FindAgentPlanByIdUseCase,
 
-		// Use Cases - AgentSubscription
-		CreateAgentSubscriptionUseCase,
-		UpdateAgentSubscriptionUseCase,
-		DeleteAgentSubscriptionUseCase,
-		ListAgentSubscriptionsUseCase,
-		ListAgentSubscriptionsByAgentUseCase,
-		FindAgentSubscriptionByIdUseCase,
+    // Use Cases - AgentSubscription
+    CreateAgentSubscriptionUseCase,
+    UpdateAgentSubscriptionUseCase,
+    DeleteAgentSubscriptionUseCase,
+    ListAgentSubscriptionsUseCase,
+    ListAgentSubscriptionsByAgentUseCase,
+    FindAgentSubscriptionByIdUseCase,
 
-		// Use Cases - Chat
-		CreateChatUseCase,
-		UpdateChatUseCase,
-		DeleteChatUseCase,
-		ListChatsUseCase,
-		ListChatsByUserUseCase,
-		FindChatByIdUseCase,
-		FindChatByUsersUseCase,
+    // Use Cases - Chat
+    CreateChatUseCase,
+    UpdateChatUseCase,
+    DeleteChatUseCase,
+    ListChatsUseCase,
+    ListChatsByUserUseCase,
+    FindChatByIdUseCase,
+    FindChatByUsersUseCase,
 
-		// Use Cases - Message
-		CreateMessageUseCase,
-		UpdateMessageUseCase,
-		DeleteMessageUseCase,
-		ListMessagesUseCase,
-		ListMessagesByChatUseCase,
-		FindMessageByIdUseCase,
-		MarkMessagesAsReadUseCase,
-	],
-	exports: [FindPropertyCategoryByIdUseCase, FindPropertyByIdUseCase, FindUserByIdUseCase, FindListingByIdUseCase],
+    // Use Cases - Message
+    CreateMessageUseCase,
+    UpdateMessageUseCase,
+    DeleteMessageUseCase,
+    ListMessagesUseCase,
+    ListMessagesByChatUseCase,
+    FindMessageByIdUseCase,
+    MarkMessagesAsReadUseCase,
+  ],
+  exports: [
+    FindPropertyCategoryByIdUseCase,
+    FindPropertyByIdUseCase,
+    FindUserByIdUseCase,
+    FindListingByIdUseCase,
+  ],
 })
-export class AppModule { }
+export class AppModule {}
