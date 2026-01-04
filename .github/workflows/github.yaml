@@ -65,4 +65,3 @@ jobs:
           tags: |
             renekemalandua/larangola-nest-api:latest
             renekemalandua/larangola-nest-api:${{ github.sha }}
-
