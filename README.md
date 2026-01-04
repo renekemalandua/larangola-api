@@ -23,27 +23,32 @@ This project follows Clean Architecture / Hexagonal Architecture patterns:
 ## Setup
 
 1. Install dependencies:
+
 ```bash
 npm install
 ```
 
 2. Set up environment variables:
+
 ```bash
 cp .env.example .env
 # Edit .env with your database credentials
 ```
 
 3. Run database migrations:
+
 ```bash
 npx prisma migrate dev
 ```
 
 4. Generate Prisma Client:
+
 ```bash
 npx prisma generate
 ```
 
 5. Start development server:
+
 ```bash
 npm run start:dev
 ```
@@ -51,5 +56,3 @@ npm run start:dev
 ## API Documentation
 
 Swagger documentation is available at: `http://localhost:3000/api/doc`
-
-
