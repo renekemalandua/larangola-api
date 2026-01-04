@@ -13,14 +13,13 @@ COPY . .
 RUN npm run build
 
 # ===== STAGE 2: RUNTIME =====
-FROM node:22.21.1-alpine
+FROM node:22.21.1
 
 WORKDIR /app
 
+COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
-COPY package.json .
-
-RUN npm ci --omit=dev
+COPY package*.json ./
 
 EXPOSE 8000
 
