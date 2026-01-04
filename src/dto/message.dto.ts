@@ -27,3 +27,4 @@ export class UpdateMessageRequestDTO {
 	isRead?: boolean;
 }
 
+

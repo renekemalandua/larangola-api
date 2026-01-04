@@ -74,3 +74,4 @@ export class AgentSubscriptionEntity extends AggregateRoot<IAgentSubscriptionPro
 	}
 }
 
+

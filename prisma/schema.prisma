@@ -27,15 +27,13 @@ model User {
     roommate            Roommate?
     listings            Listing[]
     properties          Property[]
-    reviewsGiven        Review[]            @relation("ReviewFromUser")
-    reviewsReceived     Review[]            @relation("ReviewToUser")
-    chatsAsUser1        Chat[]              @relation("ChatUser1")
-    chatsAsUser2        Chat[]              @relation("ChatUser2")
+    reviewsGiven        Review[]           @relation("ReviewFromUser")
+    reviewsReceived     Review[]           @relation("ReviewToUser")
+    chatsAsUser1        Chat[]             @relation("ChatUser1")
+    chatsAsUser2        Chat[]             @relation("ChatUser2")
     messages            Message[]
     scheduledVisits     ScheduledVisit[]
-    closedDealsAsAgent  ClosedDeal[]        @relation("ClosedDealAgent")
-    closedDealsAsClient ClosedDeal[]        @relation("ClosedDealClient")
-    agentSubscriptions  AgentSubscription[]
+    closedDealsAsClient ClosedDeal[]       @relation("ClosedDealClient")
     propertyInterests   PropertyInterest[]
 }
 
@@ -134,7 +132,6 @@ model Agent {
     user          User                @relation(fields: [userId], references: [id])
     subscriptions AgentSubscription[]
     closedDeals   ClosedDeal[]        @relation("ClosedDealAgent")
-    reviews       Review[]            @relation("ReviewToUser")
 }
 
 model Roommate {
@@ -210,8 +207,6 @@ model Review {
     listing  Listing? @relation("ListingReview", fields: [listingId], references: [id])
     fromUser User     @relation("ReviewFromUser", fields: [fromUserId], references: [id])
     toUser   User     @relation("ReviewToUser", fields: [toUserId], references: [id])
-    agent    Agent?   @relation(fields: [agentId], references: [id])
-    agentId  String?
 }
 
 // ============================================
@@ -273,8 +268,6 @@ model ClosedDeal {
     listing Listing @relation(fields: [listingId], references: [id])
     agent   Agent   @relation("ClosedDealAgent", fields: [agentId], references: [id])
     client  User    @relation("ClosedDealClient", fields: [clientId], references: [id])
-    user    User?   @relation(fields: [userId], references: [id])
-    userId  String?
 }
 
 // ============================================
@@ -320,9 +313,8 @@ model AgentSubscription {
     createdAt DateTime           @default(now())
     updatedAt DateTime           @updatedAt
 
-    agent User      @relation(fields: [agentId], references: [id])
-    plan  AgentPlan @relation(fields: [planId], references: [id])
     agent Agent     @relation(fields: [agentId], references: [id])
+    plan  AgentPlan @relation(fields: [planId], references: [id])
 }
 
 // ============================================

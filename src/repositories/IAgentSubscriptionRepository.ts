@@ -9,3 +9,4 @@ export abstract class IAgentSubscriptionRepository {
 	abstract delete(id: string): Promise<void>;
 }
 
+

@@ -172,6 +172,28 @@ import {
 	FindAgentSubscriptionByIdUseCase,
 } from './usecases/agent-subscription.usecases';
 
+// Use Cases - Chat
+import {
+	CreateChatUseCase,
+	UpdateChatUseCase,
+	DeleteChatUseCase,
+	ListChatsUseCase,
+	ListChatsByUserUseCase,
+	FindChatByIdUseCase,
+	FindChatByUsersUseCase,
+} from './usecases/chat.usecases';
+
+// Use Cases - Message
+import {
+	CreateMessageUseCase,
+	UpdateMessageUseCase,
+	DeleteMessageUseCase,
+	ListMessagesUseCase,
+	ListMessagesByChatUseCase,
+	FindMessageByIdUseCase,
+	MarkMessagesAsReadUseCase,
+} from './usecases/message.usecases';
+
 @Module({
 	imports: [ProviderModule],
 	controllers: [

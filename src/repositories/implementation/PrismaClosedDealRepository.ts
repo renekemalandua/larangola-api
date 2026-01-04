@@ -54,3 +54,4 @@ export class PrismaClosedDealRepository implements IClosedDealRepository {
 	}
 }
 
+

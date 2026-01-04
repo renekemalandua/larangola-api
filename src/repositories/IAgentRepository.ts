@@ -9,3 +9,4 @@ export abstract class IAgentRepository {
 	abstract delete(id: string): Promise<void>;
 }
 
+

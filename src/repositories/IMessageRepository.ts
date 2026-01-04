@@ -10,3 +10,4 @@ export abstract class IMessageRepository {
 	abstract markAsRead(chatId: string, userId: string): Promise<void>;
 }
 
+

@@ -74,3 +74,4 @@ export class FindPropertyInterestByIdUseCase implements UseCase<string, Property
 	}
 }
 
+

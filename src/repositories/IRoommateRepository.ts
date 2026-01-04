@@ -9,3 +9,4 @@ export abstract class IRoommateRepository {
 	abstract delete(id: string): Promise<void>;
 }
 
+

@@ -8,3 +8,4 @@ export abstract class IPropertyCategoryRepository {
 	abstract delete(id: string): Promise<void>;
 }
 
+

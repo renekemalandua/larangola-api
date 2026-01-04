@@ -24,3 +24,4 @@ export class UpdatePropertyCategoryRequestDTO {
 	description?: string;
 }
 
+

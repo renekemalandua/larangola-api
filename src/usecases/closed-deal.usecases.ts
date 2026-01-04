@@ -84,3 +84,4 @@ export class FindClosedDealByIdUseCase implements UseCase<string, ClosedDealEnti
 	}
 }
 
+

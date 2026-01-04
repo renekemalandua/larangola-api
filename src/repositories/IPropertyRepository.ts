@@ -10,3 +10,4 @@ export abstract class IPropertyRepository {
 	abstract delete(id: string): Promise<void>;
 }
 
+

@@ -87,3 +87,4 @@ export class ClosedDealEntity extends AggregateRoot<IClosedDealProps> {
 	}
 }
 
+

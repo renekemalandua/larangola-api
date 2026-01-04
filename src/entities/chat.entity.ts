@@ -86,3 +86,4 @@ export class ChatEntity extends AggregateRoot<IChatProps> {
 	}
 }
 
+

@@ -185,3 +185,4 @@ export class RoommateEntity extends AggregateRoot<IRoommateProps> {
 	}
 }
 
+

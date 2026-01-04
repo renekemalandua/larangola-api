@@ -49,3 +49,4 @@ export class PrismaPropertyRepository implements IPropertyRepository {
 	}
 }
 
+

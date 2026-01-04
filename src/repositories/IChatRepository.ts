@@ -10,3 +10,4 @@ export abstract class IChatRepository {
 	abstract delete(id: string): Promise<void>;
 }
 
+

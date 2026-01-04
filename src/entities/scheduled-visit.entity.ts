@@ -84,3 +84,4 @@ export class ScheduledVisitEntity extends AggregateRoot<IScheduledVisitProps> {
 	}
 }
 
+

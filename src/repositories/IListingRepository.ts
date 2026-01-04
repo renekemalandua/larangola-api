@@ -10,3 +10,4 @@ export abstract class IListingRepository {
 	abstract delete(id: string): Promise<void>;
 }
 
+

@@ -10,3 +10,4 @@ export abstract class IScheduledVisitRepository {
 	abstract delete(id: string): Promise<void>;
 }
 
+

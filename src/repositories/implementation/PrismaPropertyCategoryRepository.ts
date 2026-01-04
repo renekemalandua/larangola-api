@@ -39,3 +39,4 @@ export class PrismaPropertyCategoryRepository implements IPropertyCategoryReposi
 	}
 }
 
+

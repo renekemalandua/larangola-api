@@ -23,7 +23,7 @@ interface IPropertyProps {
 
 export class PropertyEntity extends AggregateRoot<IPropertyProps> {
 	static create(
-		props: Optional<IPropertyProps, 'description' | 'address' | 'city' | 'state' | 'latitude' | 'longitude' | 'bedrooms' | 'bathrooms' | 'area' | 'amenities' | 'images' | 'createdAt' | 'updatedAt'>,
+		props: Optional<IPropertyProps, 'description' | 'address' | 'city' | 'state' | 'country' | 'latitude' | 'longitude' | 'bedrooms' | 'bathrooms' | 'area' | 'amenities' | 'images' | 'createdAt' | 'updatedAt'>,
 		id?: IdValueObject,
 	) {
 		return new PropertyEntity(
@@ -166,4 +166,5 @@ export class PropertyEntity extends AggregateRoot<IPropertyProps> {
 		return this.props.updatedAt;
 	}
 }
+
 

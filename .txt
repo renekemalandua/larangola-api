@@ -1,0 +1,28 @@
+O meu plano é fazer as seguintes actualizações em 3 steps:
+
+1 - Docker:
+	- criar um dockerfile e com imagem do nodejs (a api é Nestjs) e configurar tudo
+	- Criar um docker-compose e configuar a api, a bd e etc
+	- Preparar a imgaem completa do projecto pra push
+
+2 - Git avançado:
+	- Criar uma branch develop e torna-la a branch default
+	- Proteger ambas as branchs pra não aceitarem push de ninguem incluindo (admin)
+	- Permitir contribuição em ambas apenas por PR
+	- Só pode ter merge depois de passar pelo criar
+	- todas as outras branchs que serão criadas seruirã o padrão do gitflow (feature/*, bugfix/*, realese/* e etc) mas não vou iniciar o gitflow vou fazer isso manualmente
+	- e todas as branchs serão deletadas automaticamente quando opr for aceito
+	- e todas os pr serão feitos por default na branch develop, enquanto que a branch hospedada é a main
+
+3 - CI:
+	- Criar uma papiline que reage a push e pr nas brnaches develop e main
+	- Vai rodar num ubuntu com o node v22.21.1 que é uma versão estavel
+	- vai rodar verificações de lint, prettier e tsc (bem limpo e explicito e que quebra o caso falhe)
+	- vou configuar o sonar cloud pra verificações adicionais
+
+Duvidas:
+	- Como controlar a versão pra garantir rollback?
+
+O que achas do meu plano é profissional, e mostra que entendi os cursos?
+
+

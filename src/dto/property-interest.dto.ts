@@ -23,3 +23,4 @@ export class UpdatePropertyInterestRequestDTO {
 	message?: string;
 }
 
+

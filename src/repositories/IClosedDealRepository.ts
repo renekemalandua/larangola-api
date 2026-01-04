@@ -11,3 +11,4 @@ export abstract class IClosedDealRepository {
 	abstract delete(id: string): Promise<void>;
 }
 
+

@@ -10,3 +10,4 @@ export abstract class IReviewRepository {
 	abstract delete(id: string): Promise<void>;
 }
 
+

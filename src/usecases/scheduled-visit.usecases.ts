@@ -80,3 +80,4 @@ export class FindScheduledVisitByIdUseCase implements UseCase<string, ScheduledV
 	}
 }
 
+

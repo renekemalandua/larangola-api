@@ -10,3 +10,4 @@ export abstract class IUserRepository {
 	abstract delete(id: string): Promise<void>;
 }
 
+

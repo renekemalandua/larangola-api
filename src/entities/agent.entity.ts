@@ -126,3 +126,4 @@ export class AgentEntity extends AggregateRoot<IAgentProps> {
 	}
 }
 
+

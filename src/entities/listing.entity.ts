@@ -106,3 +106,4 @@ export class ListingEntity extends AggregateRoot<IListingProps> {
 	}
 }
 
+

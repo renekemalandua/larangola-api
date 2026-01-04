@@ -59,3 +59,4 @@ export class UpdateClosedDealRequestDTO {
 	closedDate?: string;
 }
 
+

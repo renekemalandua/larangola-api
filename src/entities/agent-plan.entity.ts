@@ -106,3 +106,4 @@ export class AgentPlanEntity extends AggregateRoot<IAgentPlanProps> {
 	}
 }
 
+

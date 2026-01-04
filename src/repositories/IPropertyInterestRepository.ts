@@ -10,3 +10,4 @@ export abstract class IPropertyInterestRepository {
 	abstract delete(id: string): Promise<void>;
 }
 
+

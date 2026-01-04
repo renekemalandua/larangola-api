@@ -48,3 +48,4 @@ export class MessageEntity extends AggregateRoot<IMessageProps> {
 	}
 }
 
+
