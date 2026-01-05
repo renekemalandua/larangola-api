@@ -40,7 +40,7 @@ jobs:
           echo "🔍 Checking code formatting with Prettier..."
           npm run format:check
           echo "✅ Code formatting verified successfully!"
-          
+
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v6
         env:
@@ -67,6 +67,4 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: |
-            renekemalandua/larangola-nest-api:latest
-            renekemalandua/larangola-nest-api:${{ github.sha }}
+          tags: renekemalandua/larangola-nest-api:1.1.0
