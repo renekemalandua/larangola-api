@@ -17,9 +17,14 @@ FROM node:22.21.1
 
 WORKDIR /app
 
+RUN groupadd -r appuser && useradd -r -g appuser appuser
+
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 COPY package*.json ./
+
+RUN chown -R appuser:appuser /app
+USER appuser
 
 EXPOSE 8000
 

@@ -9,8 +9,8 @@ O meu plano é fazer as seguintes actualizações em 3 steps:
 	- Criar uma branch develop e torna-la a branch default
 	- Proteger ambas as branchs pra não aceitarem push de ninguem incluindo (admin)
 	- Permitir contribuição em ambas apenas por PR
-	- Só pode ter merge depois de passar pelo criar
-	- todas as outras branchs que serão criadas seruirã o padrão do gitflow (feature/*, bugfix/*, realese/* e etc) mas não vou iniciar o gitflow vou fazer isso manualmente
+	- Só pode ter merge depois de passar pelo ci
+	- todas as outras branchs que serão criadas seguirã o padrão do gitflow (feature/*, bugfix/*, realese/* e etc) mas não vou iniciar o gitflow vou fazer isso manualmente
 	- e todas as branchs serão deletadas automaticamente quando opr for aceito
 	- e todas os pr serão feitos por default na branch develop, enquanto que a branch hospedada é a main
 
