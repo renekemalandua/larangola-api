@@ -40,6 +40,11 @@ jobs:
           echo "🔍 Checking code formatting with Prettier..."
           npm run format:check
           echo "✅ Code formatting verified successfully!"
+          
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v6
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   build-docker:
     runs-on: ubuntu-latest
