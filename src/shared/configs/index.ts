@@ -1,1 +1,1 @@
-// Configs will be added here
+export * from './global.config';

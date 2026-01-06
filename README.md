@@ -71,34 +71,40 @@ src/
 ### Configuração Inicial
 
 1. **Clone o repositório**:
+
 ```bash
 git clone <repository-url>
 cd LarAngola/api
 ```
 
 2. **Configure as variáveis de ambiente**:
+
 ```bash
 cp .env.example .env
 # Edite o arquivo .env com suas credenciais
 ```
 
 3. **Inicie os serviços com Docker Compose**:
+
 ```bash
 docker-compose up -d
 ```
 
 Este comando irá:
+
 - ✅ Construir a imagem Docker da API
 - ✅ Iniciar o container PostgreSQL
 - ✅ Executar migrações do Prisma
 - ✅ Iniciar a API na porta `8000`
 
 4. **Verifique os logs**:
+
 ```bash
 docker-compose logs -f backend
 ```
 
 5. **Acesse a documentação Swagger**:
+
 ```
 http://localhost:8000/api/doc
 ```
@@ -161,6 +167,7 @@ Este projeto utiliza um **Git Flow manual** com branches protegidas e políticas
    - Branches são deletadas automaticamente após merge
 
 3. **Padrão de Nomenclatura**:
+
    ```bash
    feature/nome-da-feature
    bugfix/descricao-do-bug
@@ -168,6 +175,7 @@ Este projeto utiliza um **Git Flow manual** com branches protegidas e políticas
    ```
 
 4. **Workflow Manual**:
+
    ```bash
    # Criar feature branch
    git checkout develop
@@ -238,6 +246,7 @@ Authorization: Bearer <seu-token-jwt>
 #### 1. Usuários
 
 **Criar Usuário**
+
 ```http
 POST /api/v1/users/create
 Content-Type: application/json
@@ -251,6 +260,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "status": true,
@@ -265,16 +275,19 @@ Content-Type: application/json
 ```
 
 **Listar Usuários**
+
 ```http
 GET /api/v1/users/list
 ```
 
 **Buscar Usuário por ID**
+
 ```http
 GET /api/v1/users/:id
 ```
 
 **Atualizar Usuário**
+
 ```http
 PUT /api/v1/users/:id
 Content-Type: application/json
@@ -286,6 +299,7 @@ Content-Type: application/json
 ```
 
 **Deletar Usuário**
+
 ```http
 DELETE /api/v1/users/:id
 ```
@@ -293,6 +307,7 @@ DELETE /api/v1/users/:id
 #### 2. Propriedades
 
 **Criar Propriedade**
+
 ```http
 POST /api/v1/properties/create
 Content-Type: application/json
@@ -309,21 +324,25 @@ Authorization: Bearer <token>
 ```
 
 **Listar Propriedades**
+
 ```http
 GET /api/v1/properties/list
 ```
 
 **Buscar Propriedade por ID**
+
 ```http
 GET /api/v1/properties/:id
 ```
 
 **Listar Propriedades por Proprietário**
+
 ```http
 GET /api/v1/properties/owner/:ownerId
 ```
 
 **Listar Propriedades por Categoria**
+
 ```http
 GET /api/v1/properties/category/:categoryId
 ```
@@ -331,6 +350,7 @@ GET /api/v1/properties/category/:categoryId
 #### 3. Outros Recursos
 
 A API também fornece endpoints para:
+
 - **Agentes** (`/api/v1/agents`)
 - **Propriedades de Interesse** (`/api/v1/property-interests`)
 - **Visitas Agendadas** (`/api/v1/scheduled-visits`)
@@ -342,11 +362,13 @@ A API também fornece endpoints para:
 ### Documentação Interativa
 
 Acesse a documentação Swagger completa em:
+
 ```
 http://localhost:8000/api/doc
 ```
 
 A documentação inclui:
+
 - ✅ Descrição de todos os endpoints
 - ✅ Schemas de request/response
 - ✅ Teste interativo de endpoints
@@ -361,6 +383,7 @@ Contribuições são bem-vindas! Este projeto segue um workflow rigoroso para ga
 1. **Fork o repositório** (se aplicável)
 
 2. **Crie uma branch a partir de `develop`**:
+
    ```bash
    git checkout develop
    git pull origin develop
@@ -375,6 +398,7 @@ Contribuições são bem-vindas! Este projeto segue um workflow rigoroso para ga
    - Adicione documentação quando necessário
 
 4. **Execute verificações locais**:
+
    ```bash
    npm run lint
    npm run format:check
@@ -383,6 +407,7 @@ Contribuições são bem-vindas! Este projeto segue um workflow rigoroso para ga
    ```
 
 5. **Commit suas mudanças**:
+
    ```bash
    git add .
    git commit -m "feat: descrição da feature"
@@ -400,6 +425,7 @@ Contribuições são bem-vindas! Este projeto segue um workflow rigoroso para ga
    - `chore:` Manutenção
 
 6. **Push e crie um Pull Request**:
+
    ```bash
    git push origin feature/sua-feature
    ```

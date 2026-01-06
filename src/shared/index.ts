@@ -3,3 +3,4 @@ export * from './filter';
 export * from './contracts';
 export * from './dto';
 export * from './providers';
+export * from './services';
