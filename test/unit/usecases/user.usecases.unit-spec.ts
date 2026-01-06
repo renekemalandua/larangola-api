@@ -8,11 +8,13 @@ import {
   FindUserByEmailUseCase,
 } from '../../../src/usecases/user.usecases';
 import { IUserRepository } from '../../../src/repositories/IUserRepository';
+import { ICryptoService } from '../../../src/shared/services/ICryptoService';
 import { UserEntity } from '../../../src/entities/user.entity';
 import { IdValueObject } from '../../../src/shared';
 
 describe('User Use Cases (Unit)', () => {
   let mockRepository: jest.Mocked<IUserRepository>;
+  let mockCryptoService: jest.Mocked<ICryptoService>;
   let createUseCase: CreateUserUseCase;
   let updateUseCase: UpdateUserUseCase;
   let deleteUseCase: DeleteUserUseCase;
@@ -31,8 +33,13 @@ describe('User Use Cases (Unit)', () => {
       delete: jest.fn(),
     } as any;
 
-    createUseCase = new CreateUserUseCase(mockRepository);
-    updateUseCase = new UpdateUserUseCase(mockRepository);
+    mockCryptoService = {
+      hash: jest.fn().mockResolvedValue('hashed-password'),
+      compare: jest.fn(),
+    } as any;
+
+    createUseCase = new CreateUserUseCase(mockRepository, mockCryptoService);
+    updateUseCase = new UpdateUserUseCase(mockRepository, mockCryptoService);
     deleteUseCase = new DeleteUserUseCase(mockRepository);
     listUseCase = new ListUsersUseCase(mockRepository);
     findByIdUseCase = new FindUserByIdUseCase(mockRepository);

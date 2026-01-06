@@ -3,6 +3,7 @@ import { AppController } from './app.controller';
 import { ProviderModule } from './shared';
 
 // Controllers
+import { AuthController } from './controllers/auth.controller';
 import { PropertyCategoryController } from './controllers/property-category.controller';
 import { UserController } from './controllers/user.controller';
 import { PropertyController } from './controllers/property.controller';
@@ -47,6 +48,12 @@ import { IChatRepository } from './repositories/IChatRepository';
 import { PrismaChatRepository } from './repositories/implementation/PrismaChatRepository';
 import { IMessageRepository } from './repositories/IMessageRepository';
 import { PrismaMessageRepository } from './repositories/implementation/PrismaMessageRepository';
+
+// Use Cases - Auth
+import {
+  AuthLoginUseCase,
+  AuthRegisterUseCase,
+} from './usecases/auth.usecases';
 
 // Use Cases - PropertyCategory
 import {
@@ -197,6 +204,8 @@ import {
 @Module({
   imports: [ProviderModule],
   controllers: [
+    AppController,
+    AuthController,
     PropertyCategoryController,
     UserController,
     PropertyController,
@@ -240,6 +249,10 @@ import {
     },
     { provide: IChatRepository, useClass: PrismaChatRepository },
     { provide: IMessageRepository, useClass: PrismaMessageRepository },
+
+    // Use Cases - Auth
+    AuthLoginUseCase,
+    AuthRegisterUseCase,
 
     // Use Cases - PropertyCategory
     CreatePropertyCategoryUseCase,
