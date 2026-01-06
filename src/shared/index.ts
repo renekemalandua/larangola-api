@@ -4,3 +4,4 @@ export * from './contracts';
 export * from './dto';
 export * from './providers';
 export * from './services';
+export * from './configs';

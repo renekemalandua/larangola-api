@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { UseCase } from '../shared';
+import { UseCase, ICryptoService } from '../shared';
 import { UserEntity } from '../entities/user.entity';
 import { IUserRepository } from '../repositories/IUserRepository';
 import { CreateUserRequestDTO, UpdateUserRequestDTO } from '../dto/user.dto';
@@ -9,13 +9,23 @@ export class CreateUserUseCase implements UseCase<
   CreateUserRequestDTO,
   UserEntity
 > {
-  constructor(private readonly repository: IUserRepository) {}
+  constructor(
+    private readonly repository: IUserRepository,
+    private readonly cryptoService: ICryptoService
+  ) {}
   async execute(request: CreateUserRequestDTO): Promise<UserEntity> {
     const existingEmail = await this.repository.findByEmail(request.email);
     if (existingEmail) throw new BadRequestException('Email already exists');
     const existingPhone = await this.repository.findByPhone(request.phone);
     if (existingPhone) throw new BadRequestException('Phone already exists');
-    const entity = UserEntity.create(request);
+
+    // Hash da senha
+    const hashPassword = await this.cryptoService.hash(request.password);
+
+    const entity = UserEntity.create({
+      ...request,
+      password: hashPassword,
+    });
     return this.repository.create(entity);
   }
 }
@@ -25,7 +35,10 @@ export class UpdateUserUseCase implements UseCase<
   { id: string; data: UpdateUserRequestDTO },
   UserEntity
 > {
-  constructor(private readonly repository: IUserRepository) {}
+  constructor(
+    private readonly repository: IUserRepository,
+    private readonly cryptoService: ICryptoService
+  ) {}
   async execute({
     id,
     data,
@@ -47,7 +60,11 @@ export class UpdateUserUseCase implements UseCase<
         throw new BadRequestException('Phone already exists');
       entity.phone = data.phone;
     }
-    if (data.password !== undefined) entity.password = data.password;
+    if (data.password !== undefined) {
+      // Hash da senha ao atualizar
+      const hashPassword = await this.cryptoService.hash(data.password);
+      entity.password = hashPassword;
+    }
     if (data.name !== undefined) entity.name = data.name;
     if (data.avatar !== undefined) entity.avatar = data.avatar ?? null;
     if (data.isActive !== undefined) entity.isActive = data.isActive;

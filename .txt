@@ -25,4 +25,6 @@ Duvidas:
 
 O que achas do meu plano é profissional, e mostra que entendi os cursos?
 
+Preciso ter autenticação, crei o dto, usecase, controller etc, e use a logica que fiz em /home/rkemalandua/Documents/Growthly/LarAngola/api/src/shared/providers/auth e a sua
+abstração /home/rkemalandua/Documents/Growthly/LarAngola/api/src/shared/services, entendes? me diz que entendeu sem escrever codigo 
 
