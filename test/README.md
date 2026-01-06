@@ -32,13 +32,13 @@ test/
 ✅ Mocks criados (PrismaService)
 ✅ Testes E2E: 14 controllers (todos criados)
 ✅ Testes Unitários:
-  - 14 use cases
-  - 14 repositories
-  - 14 adapters
-  - 14 entities
-✅ Total: 72 arquivos de teste criados
+
+- 14 use cases
+- 14 repositories
+- 14 adapters
+- 14 entities
+  ✅ Total: 72 arquivos de teste criados
 
 ## Nota
 
 Os testes foram criados com estrutura básica. Alguns testes podem precisar de implementação completa dos casos de teste específicos de cada módulo. Os testes do módulo `User` estão completamente implementados como referência.
-
