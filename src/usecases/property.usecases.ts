@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { UseCase } from '../shared';
+import { IUploadService, UseCase } from '../shared';
 import { PropertyEntity } from '../entities/property.entity';
 import { IPropertyRepository } from '../repositories/IPropertyRepository';
 import { IPropertyCategoryRepository } from '../repositories/IPropertyCategoryRepository';
@@ -15,11 +15,14 @@ export class CreatePropertyUseCase implements UseCase<
 > {
   constructor(
     private readonly repository: IPropertyRepository,
-    private readonly categoryRepository: IPropertyCategoryRepository
+    private readonly categoryRepository: IPropertyCategoryRepository,
+    private readonly uploadService: IUploadService,
+
   ) {}
   async execute(request: CreatePropertyRequestDTO): Promise<PropertyEntity> {
     const category = await this.categoryRepository.findById(request.categoryId);
     if (!category) throw new BadRequestException('Category does not exist');
+	const imageUrl = await this.uploadService.uploadImage("proprieties",request.image);
     const entity = PropertyEntity.create(request);
     return this.repository.create(entity);
   }

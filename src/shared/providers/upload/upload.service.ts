@@ -3,7 +3,7 @@ import cloudinary from './cloudinary.config';
 
 @Injectable()
 export class UploadService {
-  async uploadImage(file: Express.Multer.File): Promise<string> {
+  async uploadImage(folder: string, file: Express.Multer.File): Promise<string> {
     try {
       const maxImageSize = 5 * 1024 * 1024;
       if (file.fieldname === "image") {
@@ -14,7 +14,7 @@ export class UploadService {
 
       const result = await new Promise<{ secure_url: string }>((resolve, reject) => {
         cloudinary.uploader.upload_stream(
-          { folder: 'sidias-join/profile-photo' },
+          { folder: `larangola/${folder}` },
           (error, result) => {
             if (error) return reject(error);
             resolve(result as any);
@@ -47,7 +47,7 @@ export class UploadService {
       cloudinary.uploader.upload_stream(
         {
           resource_type: 'raw',
-          folder: `sidias-join/${folder}`,
+          folder: `larangola/${folder}`,
         },
         (error, result) => {
           if (error) return reject(error);
