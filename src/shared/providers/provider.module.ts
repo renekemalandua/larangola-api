@@ -16,4 +16,4 @@ import { PrismaService } from '../db-conection';
   ],
   exports: [AuthModule, UploadModule, ICryptoService, PrismaService],
 })
-export class ProviderModule { }
+export class ProviderModule {}

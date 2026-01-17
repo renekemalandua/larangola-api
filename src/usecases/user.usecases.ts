@@ -13,7 +13,7 @@ export class CreateUserUseCase implements UseCase<
   constructor(
     private readonly repository: IUserRepository,
     private readonly cryptoService: ICryptoService
-  ) { }
+  ) {}
   async execute(request: CreateUserRequestDTO): Promise<UserEntity> {
     const existingEmail = await this.repository.findByEmail(request.email);
     if (existingEmail) throw new BadRequestException('Email already exists');
@@ -40,7 +40,7 @@ export class UpdateUserUseCase implements UseCase<
   constructor(
     private readonly repository: IUserRepository,
     private readonly cryptoService: ICryptoService
-  ) { }
+  ) {}
   async execute({
     id,
     data,
@@ -68,7 +68,8 @@ export class UpdateUserUseCase implements UseCase<
       entity.password = hashPassword;
     }
     if (data.name !== undefined) entity.name = data.name;
-    if (data.avatar !== undefined) entity.avatar = data.avatar ?? DEFAULT_USER_AVATAR;
+    if (data.avatar !== undefined)
+      entity.avatar = data.avatar ?? DEFAULT_USER_AVATAR;
     if (data.isActive !== undefined) entity.isActive = data.isActive;
     return this.repository.update(entity);
   }
@@ -76,7 +77,7 @@ export class UpdateUserUseCase implements UseCase<
 
 @Injectable()
 export class DeleteUserUseCase implements UseCase<string, void> {
-  constructor(private readonly repository: IUserRepository) { }
+  constructor(private readonly repository: IUserRepository) {}
   async execute(id: string): Promise<void> {
     const entity = await this.repository.findById(id);
     if (!entity) throw new BadRequestException('User not found');
@@ -86,7 +87,7 @@ export class DeleteUserUseCase implements UseCase<string, void> {
 
 @Injectable()
 export class ListUsersUseCase implements UseCase<void, UserEntity[]> {
-  constructor(private readonly repository: IUserRepository) { }
+  constructor(private readonly repository: IUserRepository) {}
   async execute(): Promise<UserEntity[]> {
     return this.repository.list();
   }
@@ -94,7 +95,7 @@ export class ListUsersUseCase implements UseCase<void, UserEntity[]> {
 
 @Injectable()
 export class FindUserByIdUseCase implements UseCase<string, UserEntity | null> {
-  constructor(private readonly repository: IUserRepository) { }
+  constructor(private readonly repository: IUserRepository) {}
   async execute(id: string): Promise<UserEntity | null> {
     const entity = await this.repository.findById(id);
     if (!entity) throw new BadRequestException('User not found');
@@ -107,7 +108,7 @@ export class FindUserByEmailUseCase implements UseCase<
   string,
   UserEntity | null
 > {
-  constructor(private readonly repository: IUserRepository) { }
+  constructor(private readonly repository: IUserRepository) {}
   async execute(email: string): Promise<UserEntity | null> {
     const entity = await this.repository.findByEmail(email);
     if (!entity) throw new BadRequestException('User not found');

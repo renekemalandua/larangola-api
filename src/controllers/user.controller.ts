@@ -12,7 +12,13 @@ import {
   UploadedFile,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiOperation, ApiParam, ApiResponse, ApiTags, ApiConsumes } from '@nestjs/swagger';
+import {
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+  ApiConsumes,
+} from '@nestjs/swagger';
 import { HttpErrorResponseDTO } from '../shared';
 import { UploadService } from '../shared/providers/upload/upload.service';
 import {
@@ -36,8 +42,8 @@ export class UserController {
     private readonly listUseCase: ListUsersUseCase,
     private readonly findByIdUseCase: FindUserByIdUseCase,
     private readonly findByEmailUseCase: FindUserByEmailUseCase,
-    private readonly uploadService: UploadService,
-  ) { }
+    private readonly uploadService: UploadService
+  ) {}
 
   @Post('create')
   @ApiOperation({ summary: 'Create a new User' })

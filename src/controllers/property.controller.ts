@@ -12,7 +12,13 @@ import {
   UploadedFiles,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { ApiOperation, ApiParam, ApiResponse, ApiTags, ApiConsumes } from '@nestjs/swagger';
+import {
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+  ApiConsumes,
+} from '@nestjs/swagger';
 import { HttpErrorResponseDTO } from '../shared';
 import { UploadService } from '../shared/providers/upload/upload.service';
 import {
@@ -41,8 +47,8 @@ export class PropertyController {
     private readonly listByOwnerUseCase: ListPropertiesByOwnerUseCase,
     private readonly listByCategoryUseCase: ListPropertiesByCategoryUseCase,
     private readonly findByIdUseCase: FindPropertyByIdUseCase,
-    private readonly uploadService: UploadService,
-  ) { }
+    private readonly uploadService: UploadService
+  ) {}
 
   @Post('create')
   @ApiOperation({ summary: 'Create a new Property' })
@@ -58,7 +64,9 @@ export class PropertyController {
     try {
       if (files && files.length > 0) {
         const imageUrls = await Promise.all(
-          files.map((file) => this.uploadService.uploadImage('properties', file)),
+          files.map((file) =>
+            this.uploadService.uploadImage('properties', file)
+          )
         );
         body.images = imageUrls;
       }
@@ -148,7 +156,9 @@ export class PropertyController {
     try {
       if (files && files.length > 0) {
         const imageUrls = await Promise.all(
-          files.map((file) => this.uploadService.uploadImage('properties', file)),
+          files.map((file) =>
+            this.uploadService.uploadImage('properties', file)
+          )
         );
         body.images = imageUrls;
       }
