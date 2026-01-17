@@ -8,9 +8,13 @@ import {
   Post,
   Put,
   Res,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiOperation, ApiParam, ApiResponse, ApiTags, ApiConsumes } from '@nestjs/swagger';
 import { HttpErrorResponseDTO } from '../shared';
+import { UploadService } from '../shared/providers/upload/upload.service';
 import {
   CreateUserUseCase,
   UpdateUserUseCase,
@@ -31,8 +35,9 @@ export class UserController {
     private readonly deleteUseCase: DeleteUserUseCase,
     private readonly listUseCase: ListUsersUseCase,
     private readonly findByIdUseCase: FindUserByIdUseCase,
-    private readonly findByEmailUseCase: FindUserByEmailUseCase
-  ) {}
+    private readonly findByEmailUseCase: FindUserByEmailUseCase,
+    private readonly uploadService: UploadService,
+  ) { }
 
   @Post('create')
   @ApiOperation({ summary: 'Create a new User' })
@@ -97,12 +102,23 @@ export class UserController {
   @ApiParam({ name: 'id' })
   @ApiResponse({ status: 200 })
   @ApiResponse({ status: 400, type: HttpErrorResponseDTO })
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('avatar')) // Alterado para 'avatar'
   async update(
     @Param('id') id: string,
     @Body() body: UpdateUserRequestDTO,
+    @UploadedFile() file: Express.Multer.File,
     @Res() response
   ) {
     try {
+      console.log('Update User - Body:', body);
+      console.log('Update User - File:', file);
+      if (file) {
+        const avatarUrl = await this.uploadService.uploadImage('users', file);
+        console.log('Generated Avatar URL:', avatarUrl);
+        body.avatar = avatarUrl;
+      }
+      console.log('Body before execution:', body);
       const entity = await this.updateUseCase.execute({ id, data: body });
       const data = UserAdapter.toHttp(entity);
       return response.status(200).json({ status: true, data });

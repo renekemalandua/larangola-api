@@ -8,9 +8,13 @@ import {
   Post,
   Put,
   Res,
+  UseInterceptors,
+  UploadedFiles,
 } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { FilesInterceptor } from '@nestjs/platform-express';
+import { ApiOperation, ApiParam, ApiResponse, ApiTags, ApiConsumes } from '@nestjs/swagger';
 import { HttpErrorResponseDTO } from '../shared';
+import { UploadService } from '../shared/providers/upload/upload.service';
 import {
   CreatePropertyUseCase,
   DeletePropertyUseCase,
@@ -36,15 +40,28 @@ export class PropertyController {
     private readonly listUseCase: ListPropertiesUseCase,
     private readonly listByOwnerUseCase: ListPropertiesByOwnerUseCase,
     private readonly listByCategoryUseCase: ListPropertiesByCategoryUseCase,
-    private readonly findByIdUseCase: FindPropertyByIdUseCase
-  ) {}
+    private readonly findByIdUseCase: FindPropertyByIdUseCase,
+    private readonly uploadService: UploadService,
+  ) { }
 
   @Post('create')
   @ApiOperation({ summary: 'Create a new Property' })
   @ApiResponse({ status: 201 })
   @ApiResponse({ status: 400, type: HttpErrorResponseDTO })
-  async create(@Body() body: CreatePropertyRequestDTO, @Res() response) {
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FilesInterceptor('images'))
+  async create(
+    @Body() body: CreatePropertyRequestDTO,
+    @UploadedFiles() files: Array<Express.Multer.File>,
+    @Res() response
+  ) {
     try {
+      if (files && files.length > 0) {
+        const imageUrls = await Promise.all(
+          files.map((file) => this.uploadService.uploadImage('properties', file)),
+        );
+        body.images = imageUrls;
+      }
       const entity = await this.createUseCase.execute(body);
       const data = PropertyAdapter.toHttp(entity);
       return response.status(201).json({ status: true, data });
@@ -120,12 +137,21 @@ export class PropertyController {
   @ApiParam({ name: 'id' })
   @ApiResponse({ status: 200 })
   @ApiResponse({ status: 400, type: HttpErrorResponseDTO })
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FilesInterceptor('images'))
   async update(
     @Param('id') id: string,
     @Body() body: UpdatePropertyRequestDTO,
+    @UploadedFiles() files: Array<Express.Multer.File>,
     @Res() response
   ) {
     try {
+      if (files && files.length > 0) {
+        const imageUrls = await Promise.all(
+          files.map((file) => this.uploadService.uploadImage('properties', file)),
+        );
+        body.images = imageUrls;
+      }
       const entity = await this.updateUseCase.execute({ id, data: body });
       const data = PropertyAdapter.toHttp(entity);
       return response.status(200).json({ status: true, data });
