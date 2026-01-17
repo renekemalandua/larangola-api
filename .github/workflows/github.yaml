@@ -62,6 +62,4 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: |
-            renekemalandua/larangola-nest-api:latest
-            renekemalandua/larangola-nest-api:${{ github.sha }}
+          tags: renekemalandua/larangola-nest-api:1.2.0

@@ -20,6 +20,7 @@ export class CreatePropertyUseCase implements UseCase<
   async execute(request: CreatePropertyRequestDTO): Promise<PropertyEntity> {
     const category = await this.categoryRepository.findById(request.categoryId);
     if (!category) throw new BadRequestException('Category does not exist');
+
     const entity = PropertyEntity.create(request);
     return this.repository.create(entity);
   }
