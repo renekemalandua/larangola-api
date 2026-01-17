@@ -1,4 +1,5 @@
 import { AggregateRoot, IdValueObject, Optional } from '../shared';
+import { DEFAULT_USER_AVATAR } from '../shared/constants';
 
 interface IUserProps {
   email: string;
@@ -25,7 +26,7 @@ export class UserEntity extends AggregateRoot<IUserProps> {
         phone: props.phone,
         password: props.password,
         name: props.name,
-        avatar: props.avatar ?? null,
+        avatar: props.avatar ?? DEFAULT_USER_AVATAR,
         isActive: props.isActive ?? true,
         createdAt: props.createdAt ?? new Date(),
         updatedAt: props.updatedAt ?? new Date(),

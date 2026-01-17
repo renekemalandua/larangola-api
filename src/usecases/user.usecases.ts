@@ -3,6 +3,7 @@ import { UseCase, ICryptoService } from '../shared';
 import { UserEntity } from '../entities/user.entity';
 import { IUserRepository } from '../repositories/IUserRepository';
 import { CreateUserRequestDTO, UpdateUserRequestDTO } from '../dto/user.dto';
+import { DEFAULT_USER_AVATAR } from '../shared/constants';
 
 @Injectable()
 export class CreateUserUseCase implements UseCase<
@@ -24,6 +25,7 @@ export class CreateUserUseCase implements UseCase<
 
     const entity = UserEntity.create({
       ...request,
+      avatar: request.avatar || DEFAULT_USER_AVATAR,
       password: hashPassword,
     });
     return this.repository.create(entity);
@@ -66,7 +68,8 @@ export class UpdateUserUseCase implements UseCase<
       entity.password = hashPassword;
     }
     if (data.name !== undefined) entity.name = data.name;
-    if (data.avatar !== undefined) entity.avatar = data.avatar ?? null;
+    if (data.avatar !== undefined)
+      entity.avatar = data.avatar ?? DEFAULT_USER_AVATAR;
     if (data.isActive !== undefined) entity.isActive = data.isActive;
     return this.repository.update(entity);
   }
