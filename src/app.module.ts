@@ -18,6 +18,7 @@ import { AgentPlanController } from './controllers/agent-plan.controller';
 import { AgentSubscriptionController } from './controllers/agent-subscription.controller';
 import { ChatController } from './controllers/chat.controller';
 import { MessageController } from './controllers/message.controller';
+import { UserVerificationController } from './controllers/user-verification.controller';
 
 // Repositories
 import { IPropertyCategoryRepository } from './repositories/IPropertyCategoryRepository';
@@ -48,6 +49,8 @@ import { IChatRepository } from './repositories/IChatRepository';
 import { PrismaChatRepository } from './repositories/implementation/PrismaChatRepository';
 import { IMessageRepository } from './repositories/IMessageRepository';
 import { PrismaMessageRepository } from './repositories/implementation/PrismaMessageRepository';
+import { IUserVerificationRepository } from './repositories/IUserVerificationRepository';
+import { PrismaUserVerificationRepository } from './repositories/implementation/PrismaUserVerificationRepository';
 
 // Use Cases - Auth
 import {
@@ -200,6 +203,11 @@ import {
   FindMessageByIdUseCase,
   MarkMessagesAsReadUseCase,
 } from './usecases/message.usecases';
+import {
+  RequestVerificationUseCase,
+  ReviewVerificationUseCase,
+  GetMyVerificationUseCase,
+} from './usecases/user-verification.usecases';
 
 @Module({
   imports: [ProviderModule],
@@ -220,6 +228,7 @@ import {
     AgentSubscriptionController,
     ChatController,
     MessageController,
+    UserVerificationController,
   ],
   providers: [
     // Repositories
@@ -249,6 +258,10 @@ import {
     },
     { provide: IChatRepository, useClass: PrismaChatRepository },
     { provide: IMessageRepository, useClass: PrismaMessageRepository },
+    {
+      provide: IUserVerificationRepository,
+      useClass: PrismaUserVerificationRepository,
+    },
 
     // Use Cases - Auth
     AuthLoginUseCase,
@@ -371,6 +384,11 @@ import {
     ListMessagesByChatUseCase,
     FindMessageByIdUseCase,
     MarkMessagesAsReadUseCase,
+
+    // Use Cases - UserVerification
+    RequestVerificationUseCase,
+    ReviewVerificationUseCase,
+    GetMyVerificationUseCase,
   ],
   exports: [
     FindPropertyCategoryByIdUseCase,
@@ -379,4 +397,4 @@ import {
     FindListingByIdUseCase,
   ],
 })
-export class AppModule {}
+export class AppModule { }

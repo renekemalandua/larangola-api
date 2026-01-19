@@ -17,16 +17,20 @@ FROM node:22.21.1
 
 WORKDIR /app
 
-RUN groupadd -r appuser && useradd -r -g appuser appuser
+# Install OpenSSL and dependencies (Required for Prisma Client)
+RUN apt-get update -y && apt-get install -y openssl ca-certificates libssl-dev && update-ca-certificates
+
+RUN groupadd -r appuser && useradd -m -r -g appuser appuser
 
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/prisma ./prisma
 COPY package*.json ./
+COPY entrypoint.sh ./entrypoint.sh
 
-RUN chown -R appuser:appuser /app
+RUN chmod +x ./entrypoint.sh
+RUN mkdir -p /app/prisma/migrations && chown -R appuser:appuser /app
 USER appuser
 
 EXPOSE 8000
-
-CMD ["node", "dist/main.js"]
+CMD ["./entrypoint.sh"]

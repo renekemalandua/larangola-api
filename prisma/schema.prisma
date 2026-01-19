@@ -35,6 +35,7 @@ model User {
     scheduledVisits     ScheduledVisit[]
     closedDealsAsClient ClosedDeal[]       @relation("ClosedDealClient")
     propertyInterests   PropertyInterest[]
+    verification        UserVerification?
 }
 
 // ============================================
@@ -331,4 +332,49 @@ model PropertyInterest {
 
     listing Listing @relation(fields: [listingId], references: [id])
     user    User    @relation(fields: [userId], references: [id])
+}
+
+// ============================================
+// Verification Tables
+// ============================================
+
+enum VerificationStepStatus {
+    PENDING
+    APPROVED
+    REJECTED
+}
+
+enum DocumentType {
+    ID
+    PASSPORT
+    DRIVER_LICENSE
+}
+
+model UserVerification {
+    id String @id @default(uuid())
+
+    userId String @unique
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    documentType   DocumentType
+    documentNumber String
+    nif            String?
+
+    documentFrontUrl String
+    documentBackUrl  String
+
+    selfieUrl String
+    videoUrl  String
+
+    step1Status     VerificationStepStatus @default(PENDING)
+    step1ReviewedAt DateTime?
+    step1ReviewedBy String?
+
+    step2Status     VerificationStepStatus?
+    step2ReviewedAt DateTime?
+    step2ReviewedBy String?
+    step2Notes      String?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 }
