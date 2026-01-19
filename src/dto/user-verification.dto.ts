@@ -1,4 +1,4 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import { IsEnum, IsOptional, IsString, IsUrl, IsUUID } from 'class-validator';
 import { DocumentType, VerificationStepStatus } from '@prisma/client';
 
@@ -15,23 +15,9 @@ export class SubmitVerificationRequestDTO {
     @IsOptional()
     @IsString()
     nif?: string;
-
-    @ApiProperty({ example: 'https://storage.com/front.jpg' })
-    @IsUrl()
-    documentFrontUrl: string;
-
-    @ApiProperty({ example: 'https://storage.com/back.jpg' })
-    @IsUrl()
-    documentBackUrl: string;
-
-    @ApiProperty({ example: 'https://storage.com/selfie.jpg' })
-    @IsUrl()
-    selfieUrl: string;
-
-    @ApiProperty({ example: 'https://storage.com/video.mp4' })
-    @IsUrl()
-    videoUrl: string;
 }
+
+export class UpdateVerificationRequestDTO extends PartialType(SubmitVerificationRequestDTO) { }
 
 export class ReviewVerificationStepRequestDTO {
     @ApiProperty({ example: 'uuid-of-user' })

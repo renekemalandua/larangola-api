@@ -8,37 +8,48 @@ import { IRoommateRepository } from '../repositories/IRoommateRepository';
 import {
     SubmitVerificationRequestDTO,
     ReviewVerificationStepRequestDTO,
+    UpdateVerificationRequestDTO,
 } from '../dto/user-verification.dto';
 import { VerificationStepStatus } from '@prisma/client';
 
+import { IUploadService } from '../shared/services/IUploadService';
+
 @Injectable()
 export class RequestVerificationUseCase implements UseCase<
-    { userId: string; data: SubmitVerificationRequestDTO },
+    { userId: string; data: SubmitVerificationRequestDTO; files: { [key: string]: Express.Multer.File[] } },
     UserVerificationEntity
 > {
     constructor(
         private readonly repository: IUserVerificationRepository,
         private readonly userRepository: IUserRepository,
         private readonly agentRepository: IAgentRepository,
-        private readonly roommateRepository: IRoommateRepository
+        private readonly roommateRepository: IRoommateRepository,
+        private readonly uploadService: IUploadService
     ) { }
 
     async execute({
         userId,
         data,
+        files
     }: {
         userId: string;
         data: SubmitVerificationRequestDTO;
+        files: { [key: string]: Express.Multer.File[] };
     }): Promise<UserVerificationEntity> {
         const user = await this.userRepository.findById(userId);
         if (!user) throw new NotFoundException('User not found');
 
-        const existing = await this.repository.findByUserId(userId);
-        if (existing && existing.step1Status === VerificationStepStatus.APPROVED) {
-            // If step 2 is null but user is agent, maybe we allow re-submission or just update.
-            // For simplicity, if it's already approved at step 1, we might not want to overwrite everything
-            // unless it's a re-verification.
+        // Verify required files
+        if (!files.documentFront?.[0] || !files.documentBack?.[0] || !files.selfie?.[0] || !files.video?.[0]) {
+            throw new BadRequestException('Todos os documentos (Frente, Verso, Selfie e Vídeo) são obrigatórios.');
         }
+
+        const documentFrontUrl = await this.uploadService.uploadImage('verifications', files.documentFront[0]);
+        const documentBackUrl = await this.uploadService.uploadImage('verifications', files.documentBack[0]);
+        const selfieUrl = await this.uploadService.uploadImage('verifications', files.selfie[0]);
+        const videoUrl = await this.uploadService.uploadVideo(files.video[0], 'verifications');
+
+        const existing = await this.repository.findByUserId(userId);
 
         // Check if user is Agent or Roommate to decide if step2 should be initialized
         const agent = await this.agentRepository.findByUserId(userId);
@@ -49,21 +60,72 @@ export class RequestVerificationUseCase implements UseCase<
             documentType: data.documentType,
             documentNumber: data.documentNumber,
             nif: data.nif,
-            documentFrontUrl: data.documentFrontUrl,
-            documentBackUrl: data.documentBackUrl,
-            selfieUrl: data.selfieUrl,
-            videoUrl: data.videoUrl,
+            documentFrontUrl,
+            documentBackUrl,
+            selfieUrl,
+            videoUrl,
             step1Status: VerificationStepStatus.PENDING,
             step2Status,
         });
 
         if (existing) {
-            // If already exists, we could either update or delete and re-create.
-            // Repository update expect ID.
             await this.repository.delete(existing.id);
         }
 
         return this.repository.create(entity);
+    }
+}
+
+@Injectable()
+export class UpdateVerificationUseCase implements UseCase<
+    { userId: string; data: UpdateVerificationRequestDTO; files?: { [key: string]: Express.Multer.File[] } },
+    UserVerificationEntity
+> {
+    constructor(
+        private readonly repository: IUserVerificationRepository,
+        private readonly uploadService: IUploadService,
+        private readonly agentRepository: IAgentRepository
+    ) { }
+
+    async execute({
+        userId,
+        data,
+        files
+    }: {
+        userId: string;
+        data: UpdateVerificationRequestDTO;
+        files?: { [key: string]: Express.Multer.File[] };
+    }): Promise<UserVerificationEntity> {
+        const verification = await this.repository.findByUserId(userId);
+        if (!verification) throw new NotFoundException('Verification request not found.');
+
+        if (data.documentType) verification.documentType = data.documentType;
+        if (data.documentNumber) verification.documentNumber = data.documentNumber;
+        if (data.nif) verification.nif = data.nif;
+
+        if (files) {
+            if (files.documentFront?.[0]) {
+                verification.documentFrontUrl = await this.uploadService.uploadImage('verifications', files.documentFront[0]);
+            }
+            if (files.documentBack?.[0]) {
+                verification.documentBackUrl = await this.uploadService.uploadImage('verifications', files.documentBack[0]);
+            }
+            if (files.selfie?.[0]) {
+                verification.selfieUrl = await this.uploadService.uploadImage('verifications', files.selfie[0]);
+            }
+            if (files.video?.[0]) {
+                verification.videoUrl = await this.uploadService.uploadVideo(files.video[0], 'verifications');
+            }
+        }
+
+        // Reset status to PENDING if data changed? 
+        // Usually updates require re-verification.
+        verification.step1Status = VerificationStepStatus.PENDING;
+        if (verification.step2Status) {
+            verification.step2Status = VerificationStepStatus.PENDING;
+        }
+
+        return this.repository.update(verification);
     }
 }
 

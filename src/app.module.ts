@@ -207,6 +207,7 @@ import {
   RequestVerificationUseCase,
   ReviewVerificationUseCase,
   GetMyVerificationUseCase,
+  UpdateVerificationUseCase,
 } from './usecases/user-verification.usecases';
 
 @Module({
@@ -389,6 +390,7 @@ import {
     RequestVerificationUseCase,
     ReviewVerificationUseCase,
     GetMyVerificationUseCase,
+    UpdateVerificationUseCase,
   ],
   exports: [
     FindPropertyCategoryByIdUseCase,

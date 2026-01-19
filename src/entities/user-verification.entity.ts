@@ -68,28 +68,63 @@ export class UserVerificationEntity extends AggregateRoot<IUserVerificationProps
         return this.props.documentType;
     }
 
+    set documentType(value: DocumentType) {
+        this.props.documentType = value;
+        this.touch();
+    }
+
     get documentNumber(): string {
         return this.props.documentNumber;
+    }
+
+    set documentNumber(value: string) {
+        this.props.documentNumber = value;
+        this.touch();
     }
 
     get nif(): string | null {
         return this.props.nif;
     }
 
+    set nif(value: string | null) {
+        this.props.nif = value;
+        this.touch();
+    }
+
     get documentFrontUrl(): string {
         return this.props.documentFrontUrl;
+    }
+
+    set documentFrontUrl(value: string) {
+        this.props.documentFrontUrl = value;
+        this.touch();
     }
 
     get documentBackUrl(): string {
         return this.props.documentBackUrl;
     }
 
+    set documentBackUrl(value: string) {
+        this.props.documentBackUrl = value;
+        this.touch();
+    }
+
     get selfieUrl(): string {
         return this.props.selfieUrl;
     }
 
+    set selfieUrl(value: string) {
+        this.props.selfieUrl = value;
+        this.touch();
+    }
+
     get videoUrl(): string {
         return this.props.videoUrl;
+    }
+
+    set videoUrl(value: string) {
+        this.props.videoUrl = value;
+        this.touch();
     }
 
     get step1Status(): VerificationStepStatus {
