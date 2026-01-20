@@ -425,4 +425,4 @@ import {
     FindListingByIdUseCase,
   ],
 })
-export class AppModule { }
+export class AppModule {}
