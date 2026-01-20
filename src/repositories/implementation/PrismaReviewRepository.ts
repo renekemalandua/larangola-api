@@ -6,7 +6,7 @@ import { ReviewAdapter } from '../../adapters/review.adapter';
 
 @Injectable()
 export class PrismaReviewRepository implements IReviewRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async create(data: ReviewEntity): Promise<ReviewEntity> {
     const raw = ReviewAdapter.toPrisma(data) as any;
@@ -59,5 +59,13 @@ export class PrismaReviewRepository implements IReviewRepository {
     const exists = await this.prisma.review.findUnique({ where: { id } });
     if (!exists) throw new NotFoundException('Review not found');
     await this.prisma.review.delete({ where: { id } });
+  }
+
+  async findByUserIdAndRole(userId: string, role: string): Promise<ReviewEntity[]> {
+    const rows = await this.prisma.review.findMany({
+      where: { toUserId: userId, role: role as any },
+      orderBy: { updatedAt: 'desc' },
+    });
+    return rows.map(ReviewAdapter.toDomain);
   }
 }

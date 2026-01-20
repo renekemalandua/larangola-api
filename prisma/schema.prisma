@@ -195,11 +195,17 @@ enum ReviewRating {
     FIVE
 }
 
+enum ReviewRole {
+    AGENT
+    ROOMMATE
+}
+
 model Review {
     id         String   @id @default(uuid())
     listingId  String?
     fromUserId String // user who wrote the review
     toUserId   String // user being reviewed (agent or roommate)
+    role       ReviewRole // role being reviewed
     rating     Int // 1-5
     comment    String?
     createdAt  DateTime @default(now())

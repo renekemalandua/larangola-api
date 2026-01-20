@@ -8,4 +8,5 @@ export abstract class IReviewRepository {
   abstract findById(id: string): Promise<ReviewEntity | null>;
   abstract update(data: ReviewEntity): Promise<ReviewEntity>;
   abstract delete(id: string): Promise<void>;
+  abstract findByUserIdAndRole(userId: string, role: string): Promise<ReviewEntity[]>;
 }

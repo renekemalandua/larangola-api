@@ -1,9 +1,12 @@
 import { AggregateRoot, IdValueObject, Optional } from '../shared';
 
+import { ReviewRole } from '@prisma/client';
+
 interface IReviewProps {
   listingId: string | null;
   fromUserId: string;
   toUserId: string;
+  role: ReviewRole;
   rating: number;
   comment: string | null;
   createdAt: Date;
@@ -23,6 +26,7 @@ export class ReviewEntity extends AggregateRoot<IReviewProps> {
         listingId: props.listingId ?? null,
         fromUserId: props.fromUserId,
         toUserId: props.toUserId,
+        role: props.role,
         rating: props.rating,
         comment: props.comment ?? null,
         createdAt: props.createdAt ?? new Date(),
@@ -48,6 +52,9 @@ export class ReviewEntity extends AggregateRoot<IReviewProps> {
   }
   public get toUserId(): string {
     return this.props.toUserId;
+  }
+  public get role(): ReviewRole {
+    return this.props.role;
   }
   public get rating(): number {
     return this.props.rating;
