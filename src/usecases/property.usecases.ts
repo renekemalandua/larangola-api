@@ -8,6 +8,8 @@ import {
   UpdatePropertyRequestDTO,
 } from '../dto/property.dto';
 
+import { IAgentRepository } from '../repositories/IAgentRepository';
+
 @Injectable()
 export class CreatePropertyUseCase implements UseCase<
   CreatePropertyRequestDTO,
@@ -15,11 +17,22 @@ export class CreatePropertyUseCase implements UseCase<
 > {
   constructor(
     private readonly repository: IPropertyRepository,
-    private readonly categoryRepository: IPropertyCategoryRepository
+    private readonly categoryRepository: IPropertyCategoryRepository,
+    private readonly agentRepository: IAgentRepository
   ) {}
   async execute(request: CreatePropertyRequestDTO): Promise<PropertyEntity> {
     const category = await this.categoryRepository.findById(request.categoryId);
     if (!category) throw new BadRequestException('Category does not exist');
+
+    const agent = await this.agentRepository.findByUserId(request.ownerId);
+    if (!agent) {
+      throw new BadRequestException('User is not an agent.');
+    }
+    if (!agent.isVerified) {
+      throw new BadRequestException(
+        'Only verified agents can post properties.'
+      );
+    }
 
     const entity = PropertyEntity.create(request);
     return this.repository.create(entity);

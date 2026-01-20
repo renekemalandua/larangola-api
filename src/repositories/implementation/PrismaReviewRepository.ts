@@ -60,4 +60,15 @@ export class PrismaReviewRepository implements IReviewRepository {
     if (!exists) throw new NotFoundException('Review not found');
     await this.prisma.review.delete({ where: { id } });
   }
+
+  async findByUserIdAndRole(
+    userId: string,
+    role: string
+  ): Promise<ReviewEntity[]> {
+    const rows = await this.prisma.review.findMany({
+      where: { toUserId: userId, role: role as any },
+      orderBy: { updatedAt: 'desc' },
+    });
+    return rows.map(ReviewAdapter.toDomain);
+  }
 }

@@ -18,6 +18,8 @@ import { AgentPlanController } from './controllers/agent-plan.controller';
 import { AgentSubscriptionController } from './controllers/agent-subscription.controller';
 import { ChatController } from './controllers/chat.controller';
 import { MessageController } from './controllers/message.controller';
+import { UserVerificationController } from './controllers/user-verification.controller';
+import { PropertyRequestController } from './controllers/property-request.controller';
 
 // Repositories
 import { IPropertyCategoryRepository } from './repositories/IPropertyCategoryRepository';
@@ -48,6 +50,10 @@ import { IChatRepository } from './repositories/IChatRepository';
 import { PrismaChatRepository } from './repositories/implementation/PrismaChatRepository';
 import { IMessageRepository } from './repositories/IMessageRepository';
 import { PrismaMessageRepository } from './repositories/implementation/PrismaMessageRepository';
+import { IUserVerificationRepository } from './repositories/IUserVerificationRepository';
+import { PrismaUserVerificationRepository } from './repositories/implementation/PrismaUserVerificationRepository';
+import { IPropertyRequestRepository } from './repositories/IPropertyRequestRepository';
+import { PrismaPropertyRequestRepository } from './repositories/implementation/PrismaPropertyRequestRepository';
 
 // Use Cases - Auth
 import {
@@ -200,6 +206,22 @@ import {
   FindMessageByIdUseCase,
   MarkMessagesAsReadUseCase,
 } from './usecases/message.usecases';
+import {
+  RequestVerificationUseCase,
+  ReviewVerificationUseCase,
+  GetMyVerificationUseCase,
+  UpdateVerificationUseCase,
+} from './usecases/user-verification.usecases';
+
+// Use Cases - PropertyRequest
+import {
+  CreatePropertyRequestUseCase,
+  ListPropertyRequestsUseCase,
+  ListMyPropertyRequestsUseCase,
+  FindPropertyRequestByIdUseCase,
+  UpdatePropertyRequestUseCase,
+  DeletePropertyRequestUseCase,
+} from './usecases/property-request.usecases';
 
 @Module({
   imports: [ProviderModule],
@@ -220,6 +242,8 @@ import {
     AgentSubscriptionController,
     ChatController,
     MessageController,
+    UserVerificationController,
+    PropertyRequestController,
   ],
   providers: [
     // Repositories
@@ -249,6 +273,15 @@ import {
     },
     { provide: IChatRepository, useClass: PrismaChatRepository },
     { provide: IMessageRepository, useClass: PrismaMessageRepository },
+    {
+      provide: IUserVerificationRepository,
+      useClass: PrismaUserVerificationRepository,
+    },
+    // Repositories - PropertyRequest
+    {
+      provide: IPropertyRequestRepository,
+      useClass: PrismaPropertyRequestRepository,
+    },
 
     // Use Cases - Auth
     AuthLoginUseCase,
@@ -371,6 +404,19 @@ import {
     ListMessagesByChatUseCase,
     FindMessageByIdUseCase,
     MarkMessagesAsReadUseCase,
+
+    // Use Cases - UserVerification
+    RequestVerificationUseCase,
+    ReviewVerificationUseCase,
+    GetMyVerificationUseCase,
+    UpdateVerificationUseCase,
+    // Use Cases - PropertyRequest
+    CreatePropertyRequestUseCase,
+    ListPropertyRequestsUseCase,
+    ListMyPropertyRequestsUseCase,
+    FindPropertyRequestByIdUseCase,
+    UpdatePropertyRequestUseCase,
+    DeletePropertyRequestUseCase,
   ],
   exports: [
     FindPropertyCategoryByIdUseCase,

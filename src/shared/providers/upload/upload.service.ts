@@ -80,4 +80,40 @@ export class UploadService {
       throw new InternalServerErrorException('Erro ao fazer upload do PDF');
     }
   }
+
+  async uploadVideo(
+    file: Express.Multer.File,
+    folder: string
+  ): Promise<string> {
+    try {
+      const maxVideoSize = 50 * 1024 * 1024; // 50MB
+
+      if (file.size > maxVideoSize) {
+        throw new BadRequestException(
+          'O vídeo é muito grande, o limite é de 50MB'
+        );
+      }
+
+      const result = await new Promise<{ secure_url: string }>(
+        (resolve, reject) => {
+          cloudinary.uploader
+            .upload_stream(
+              {
+                resource_type: 'video',
+                folder: `larangola/${folder}`,
+              },
+              (error, result) => {
+                if (error) return reject(error);
+                resolve(result as any);
+              }
+            )
+            .end(file.buffer);
+        }
+      );
+
+      return result.secure_url;
+    } catch (err) {
+      throw new InternalServerErrorException('Erro ao fazer upload do vídeo');
+    }
+  }
 }

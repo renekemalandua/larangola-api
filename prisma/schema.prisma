@@ -35,6 +35,8 @@ model User {
     scheduledVisits     ScheduledVisit[]
     closedDealsAsClient ClosedDeal[]       @relation("ClosedDealClient")
     propertyInterests   PropertyInterest[]
+    verification        UserVerification?
+    propertyRequests    PropertyRequest[]
 }
 
 // ============================================
@@ -194,11 +196,17 @@ enum ReviewRating {
     FIVE
 }
 
+enum ReviewRole {
+    AGENT
+    ROOMMATE
+}
+
 model Review {
     id         String   @id @default(uuid())
     listingId  String?
     fromUserId String // user who wrote the review
     toUserId   String // user being reviewed (agent or roommate)
+    role       ReviewRole // role being reviewed
     rating     Int // 1-5
     comment    String?
     createdAt  DateTime @default(now())
@@ -331,4 +339,77 @@ model PropertyInterest {
 
     listing Listing @relation(fields: [listingId], references: [id])
     user    User    @relation(fields: [userId], references: [id])
+}
+
+// ============================================
+// Verification Tables
+// ============================================
+
+enum VerificationStepStatus {
+    PENDING
+    APPROVED
+    REJECTED
+}
+
+enum DocumentType {
+    ID
+    PASSPORT
+    DRIVER_LICENSE
+}
+
+model UserVerification {
+    id String @id @default(uuid())
+
+    userId String @unique
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    documentType   DocumentType
+    documentNumber String
+    nif            String?
+
+    documentFrontUrl String
+    documentBackUrl  String
+
+    selfieUrl String
+    videoUrl  String
+
+    step1Status     VerificationStepStatus @default(PENDING)
+    step1ReviewedAt DateTime?
+    step1ReviewedBy String?
+
+    step2Status     VerificationStepStatus?
+    step2ReviewedAt DateTime?
+    step2ReviewedBy String?
+    step2Notes      String?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+// ============================================
+// Property Request Tables
+// ============================================
+
+enum PropertyRequestStatus {
+    ACTIVE
+    PAUSED
+    CLOSED
+}
+
+model PropertyRequest {
+    id           String                @id @default(uuid())
+    userId       String
+    title        String
+    description  String?
+    location     String
+    propertyType String
+    minPrice     Float?
+    maxPrice     Float?
+    bedrooms     Int?
+    bathrooms    Int?
+    status       PropertyRequestStatus @default(ACTIVE)
+    createdAt    DateTime              @default(now())
+    updatedAt    DateTime              @updatedAt
+
+    user User @relation(fields: [userId], references: [id])
 }

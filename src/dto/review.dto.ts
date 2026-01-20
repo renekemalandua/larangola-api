@@ -1,5 +1,14 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsInt, IsOptional, IsString, IsUUID, Min, Max } from 'class-validator';
+import {
+  IsEnum,
+  IsInt,
+  IsOptional,
+  IsString,
+  IsUUID,
+  Min,
+  Max,
+} from 'class-validator';
+import { ReviewRole } from '@prisma/client';
 
 export class CreateReviewRequestDTO {
   @ApiPropertyOptional({ example: 'uuid-of-listing' })
@@ -14,6 +23,10 @@ export class CreateReviewRequestDTO {
   @ApiProperty({ example: 'uuid-of-to-user' })
   @IsUUID()
   toUserId: string;
+
+  @ApiProperty({ enum: ReviewRole, example: ReviewRole.AGENT })
+  @IsEnum(ReviewRole)
+  role: ReviewRole;
 
   @ApiProperty({ example: 5, minimum: 1, maximum: 5 })
   @IsInt()
