@@ -19,6 +19,8 @@ import { AgentSubscriptionController } from './controllers/agent-subscription.co
 import { ChatController } from './controllers/chat.controller';
 import { MessageController } from './controllers/message.controller';
 import { UserVerificationController } from './controllers/user-verification.controller';
+import { PropertyRequestController } from './controllers/property-request.controller';
+
 
 // Repositories
 import { IPropertyCategoryRepository } from './repositories/IPropertyCategoryRepository';
@@ -51,6 +53,9 @@ import { IMessageRepository } from './repositories/IMessageRepository';
 import { PrismaMessageRepository } from './repositories/implementation/PrismaMessageRepository';
 import { IUserVerificationRepository } from './repositories/IUserVerificationRepository';
 import { PrismaUserVerificationRepository } from './repositories/implementation/PrismaUserVerificationRepository';
+import { IPropertyRequestRepository } from './repositories/IPropertyRequestRepository';
+import { PrismaPropertyRequestRepository } from './repositories/implementation/PrismaPropertyRequestRepository';
+
 
 // Use Cases - Auth
 import {
@@ -206,9 +211,19 @@ import {
 import {
   RequestVerificationUseCase,
   ReviewVerificationUseCase,
-  GetMyVerificationUseCase,
   UpdateVerificationUseCase,
 } from './usecases/user-verification.usecases';
+
+// Use Cases - PropertyRequest
+import {
+  CreatePropertyRequestUseCase,
+  ListPropertyRequestsUseCase,
+  ListMyPropertyRequestsUseCase,
+  FindPropertyRequestByIdUseCase,
+  UpdatePropertyRequestUseCase,
+  DeletePropertyRequestUseCase,
+} from './usecases/property-request.usecases';
+
 
 @Module({
   imports: [ProviderModule],
@@ -230,6 +245,7 @@ import {
     ChatController,
     MessageController,
     UserVerificationController,
+    PropertyRequestController,
   ],
   providers: [
     // Repositories
@@ -262,6 +278,11 @@ import {
     {
       provide: IUserVerificationRepository,
       useClass: PrismaUserVerificationRepository,
+    },
+    // Repositories - PropertyRequest
+    {
+      provide: IPropertyRequestRepository,
+      useClass: PrismaPropertyRequestRepository,
     },
 
     // Use Cases - Auth
@@ -391,6 +412,13 @@ import {
     ReviewVerificationUseCase,
     GetMyVerificationUseCase,
     UpdateVerificationUseCase,
+    // Use Cases - PropertyRequest
+    CreatePropertyRequestUseCase,
+    ListPropertyRequestsUseCase,
+    ListMyPropertyRequestsUseCase,
+    FindPropertyRequestByIdUseCase,
+    UpdatePropertyRequestUseCase,
+    DeletePropertyRequestUseCase,
   ],
   exports: [
     FindPropertyCategoryByIdUseCase,
