@@ -21,7 +21,6 @@ import { MessageController } from './controllers/message.controller';
 import { UserVerificationController } from './controllers/user-verification.controller';
 import { PropertyRequestController } from './controllers/property-request.controller';
 
-
 // Repositories
 import { IPropertyCategoryRepository } from './repositories/IPropertyCategoryRepository';
 import { PrismaPropertyCategoryRepository } from './repositories/implementation/PrismaPropertyCategoryRepository';
@@ -55,7 +54,6 @@ import { IUserVerificationRepository } from './repositories/IUserVerificationRep
 import { PrismaUserVerificationRepository } from './repositories/implementation/PrismaUserVerificationRepository';
 import { IPropertyRequestRepository } from './repositories/IPropertyRequestRepository';
 import { PrismaPropertyRequestRepository } from './repositories/implementation/PrismaPropertyRequestRepository';
-
 
 // Use Cases - Auth
 import {
@@ -211,6 +209,7 @@ import {
 import {
   RequestVerificationUseCase,
   ReviewVerificationUseCase,
+  GetMyVerificationUseCase,
   UpdateVerificationUseCase,
 } from './usecases/user-verification.usecases';
 
@@ -223,7 +222,6 @@ import {
   UpdatePropertyRequestUseCase,
   DeletePropertyRequestUseCase,
 } from './usecases/property-request.usecases';
-
 
 @Module({
   imports: [ProviderModule],

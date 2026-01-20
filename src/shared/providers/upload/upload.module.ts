@@ -14,4 +14,4 @@ import { IUploadService } from '../../services/IUploadService';
   controllers: [UploadController],
   exports: [UploadService, IUploadService],
 })
-export class UploadModule { }
+export class UploadModule {}
