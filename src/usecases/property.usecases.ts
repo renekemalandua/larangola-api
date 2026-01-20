@@ -8,6 +8,8 @@ import {
   UpdatePropertyRequestDTO,
 } from '../dto/property.dto';
 
+import { IAgentRepository } from '../repositories/IAgentRepository';
+
 @Injectable()
 export class CreatePropertyUseCase implements UseCase<
   CreatePropertyRequestDTO,
@@ -15,11 +17,20 @@ export class CreatePropertyUseCase implements UseCase<
 > {
   constructor(
     private readonly repository: IPropertyRepository,
-    private readonly categoryRepository: IPropertyCategoryRepository
-  ) {}
+    private readonly categoryRepository: IPropertyCategoryRepository,
+    private readonly agentRepository: IAgentRepository
+  ) { }
   async execute(request: CreatePropertyRequestDTO): Promise<PropertyEntity> {
     const category = await this.categoryRepository.findById(request.categoryId);
     if (!category) throw new BadRequestException('Category does not exist');
+
+    const agent = await this.agentRepository.findByUserId(request.ownerId);
+    if (!agent) {
+      throw new BadRequestException('User is not an agent.');
+    }
+    if (!agent.isVerified) {
+      throw new BadRequestException('Only verified agents can post properties.');
+    }
 
     const entity = PropertyEntity.create(request);
     return this.repository.create(entity);
@@ -34,7 +45,7 @@ export class UpdatePropertyUseCase implements UseCase<
   constructor(
     private readonly repository: IPropertyRepository,
     private readonly categoryRepository: IPropertyCategoryRepository
-  ) {}
+  ) { }
   async execute({
     id,
     data,
@@ -71,7 +82,7 @@ export class UpdatePropertyUseCase implements UseCase<
 
 @Injectable()
 export class DeletePropertyUseCase implements UseCase<string, void> {
-  constructor(private readonly repository: IPropertyRepository) {}
+  constructor(private readonly repository: IPropertyRepository) { }
   async execute(id: string): Promise<void> {
     const entity = await this.repository.findById(id);
     if (!entity) throw new BadRequestException('Property not found');
@@ -81,7 +92,7 @@ export class DeletePropertyUseCase implements UseCase<string, void> {
 
 @Injectable()
 export class ListPropertiesUseCase implements UseCase<void, PropertyEntity[]> {
-  constructor(private readonly repository: IPropertyRepository) {}
+  constructor(private readonly repository: IPropertyRepository) { }
   async execute(): Promise<PropertyEntity[]> {
     return this.repository.list();
   }
@@ -92,7 +103,7 @@ export class ListPropertiesByOwnerUseCase implements UseCase<
   string,
   PropertyEntity[]
 > {
-  constructor(private readonly repository: IPropertyRepository) {}
+  constructor(private readonly repository: IPropertyRepository) { }
   async execute(ownerId: string): Promise<PropertyEntity[]> {
     return this.repository.listByOwner(ownerId);
   }
@@ -103,7 +114,7 @@ export class ListPropertiesByCategoryUseCase implements UseCase<
   string,
   PropertyEntity[]
 > {
-  constructor(private readonly repository: IPropertyRepository) {}
+  constructor(private readonly repository: IPropertyRepository) { }
   async execute(categoryId: string): Promise<PropertyEntity[]> {
     return this.repository.listByCategory(categoryId);
   }
@@ -114,7 +125,7 @@ export class FindPropertyByIdUseCase implements UseCase<
   string,
   PropertyEntity | null
 > {
-  constructor(private readonly repository: IPropertyRepository) {}
+  constructor(private readonly repository: IPropertyRepository) { }
   async execute(id: string): Promise<PropertyEntity | null> {
     const entity = await this.repository.findById(id);
     if (!entity) throw new BadRequestException('Property not found');
