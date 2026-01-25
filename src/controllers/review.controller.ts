@@ -16,7 +16,7 @@ import {
   UpdateReviewUseCase,
   DeleteReviewUseCase,
   ListReviewsUseCase,
-  ListReviewsByListingUseCase,
+  ListReviewsByPropertyUseCase,
   ListReviewsByToUserUseCase,
   FindReviewByIdUseCase,
 } from '../usecases/review.usecases';
@@ -34,10 +34,10 @@ export class ReviewController {
     private readonly updateUseCase: UpdateReviewUseCase,
     private readonly deleteUseCase: DeleteReviewUseCase,
     private readonly listUseCase: ListReviewsUseCase,
-    private readonly listByListingUseCase: ListReviewsByListingUseCase,
+    private readonly listByPropertyUseCase: ListReviewsByPropertyUseCase,
     private readonly listByToUserUseCase: ListReviewsByToUserUseCase,
     private readonly findByIdUseCase: FindReviewByIdUseCase
-  ) {}
+  ) { }
 
   @Post('create')
   @ApiOperation({ summary: 'Create a new Review' })
@@ -82,14 +82,14 @@ export class ReviewController {
     }
   }
 
-  @Get('listing/:listingId')
-  @ApiOperation({ summary: 'List Reviews by Listing' })
-  @ApiParam({ name: 'listingId' })
+  @Get('property/:propertyId')
+  @ApiOperation({ summary: 'List Reviews by Property' })
+  @ApiParam({ name: 'propertyId' })
   @ApiResponse({ status: 200 })
   @ApiResponse({ status: 400, type: HttpErrorResponseDTO })
-  async listByListing(@Param('listingId') listingId: string, @Res() response) {
+  async listByProperty(@Param('propertyId') propertyId: string, @Res() response) {
     try {
-      const entities = await this.listByListingUseCase.execute(listingId);
+      const entities = await this.listByPropertyUseCase.execute(propertyId); // Updated method usage
       const data = entities.map((e) => ReviewAdapter.toHttp(e));
       return response.status(200).json({ status: true, data });
     } catch (error) {

@@ -16,7 +16,7 @@ import {
   UpdateScheduledVisitUseCase,
   DeleteScheduledVisitUseCase,
   ListScheduledVisitsUseCase,
-  ListScheduledVisitsByListingUseCase,
+  ListScheduledVisitsByPropertyUseCase,
   ListScheduledVisitsByUserUseCase,
   FindScheduledVisitByIdUseCase,
 } from '../usecases/scheduled-visit.usecases';
@@ -34,10 +34,10 @@ export class ScheduledVisitController {
     private readonly updateUseCase: UpdateScheduledVisitUseCase,
     private readonly deleteUseCase: DeleteScheduledVisitUseCase,
     private readonly listUseCase: ListScheduledVisitsUseCase,
-    private readonly listByListingUseCase: ListScheduledVisitsByListingUseCase,
+    private readonly listByPropertyUseCase: ListScheduledVisitsByPropertyUseCase,
     private readonly listByUserUseCase: ListScheduledVisitsByUserUseCase,
     private readonly findByIdUseCase: FindScheduledVisitByIdUseCase
-  ) {}
+  ) { }
 
   @Post('create')
   @ApiOperation({ summary: 'Create a new Scheduled Visit' })
@@ -82,14 +82,14 @@ export class ScheduledVisitController {
     }
   }
 
-  @Get('listing/:listingId')
-  @ApiOperation({ summary: 'List Scheduled Visits by Listing' })
-  @ApiParam({ name: 'listingId' })
+  @Get('property/:propertyId')
+  @ApiOperation({ summary: 'List Scheduled Visits by Property' })
+  @ApiParam({ name: 'propertyId' })
   @ApiResponse({ status: 200 })
   @ApiResponse({ status: 400, type: HttpErrorResponseDTO })
-  async listByListing(@Param('listingId') listingId: string, @Res() response) {
+  async listByProperty(@Param('propertyId') propertyId: string, @Res() response) {
     try {
-      const entities = await this.listByListingUseCase.execute(listingId);
+      const entities = await this.listByPropertyUseCase.execute(propertyId);
       const data = entities.map((e) => ScheduledVisitAdapter.toHttp(e));
       return response.status(200).json({ status: true, data });
     } catch (error) {

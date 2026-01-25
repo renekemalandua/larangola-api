@@ -10,12 +10,14 @@ export class UserAdapter {
         phone: raw.phone,
         password: raw.password,
         name: raw.name,
-        avatar: raw.avatar ?? null,
-        isActive: raw.isActive,
-        createdAt: raw.createdAt,
-        updatedAt: raw.updatedAt,
+        avatar: (raw as any).avatar ?? null,
+        isActive: (raw as any).isActive,
+        agent: (raw as any).agent,
+        roommate: (raw as any).roommate,
+        createdAt: (raw as any).createdAt,
+        updatedAt: (raw as any).updatedAt,
       },
-      new IdValueObject(raw.id)
+      new IdValueObject((raw as any).id)
     );
   }
 
@@ -41,6 +43,8 @@ export class UserAdapter {
       name: entity.name,
       avatar: entity.avatar,
       isActive: entity.isActive,
+      agent: entity.agent,
+      roommate: entity.roommate,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
     };

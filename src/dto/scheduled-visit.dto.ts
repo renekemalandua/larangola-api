@@ -9,9 +9,9 @@ import {
 import { VisitStatus } from '../entities/scheduled-visit.entity';
 
 export class CreateScheduledVisitRequestDTO {
-  @ApiProperty({ example: 'uuid-of-listing' })
+  @ApiProperty({ example: 'uuid-of-property' })
   @IsUUID()
-  listingId: string;
+  propertyId: string;
 
   @ApiProperty({ example: 'uuid-of-user' })
   @IsUUID()

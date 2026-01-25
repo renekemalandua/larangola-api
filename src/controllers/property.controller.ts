@@ -26,7 +26,7 @@ import {
   DeletePropertyUseCase,
   FindPropertyByIdUseCase,
   ListPropertiesByCategoryUseCase,
-  ListPropertiesByOwnerUseCase,
+  ListPropertiesByAgentUseCase,
   ListPropertiesUseCase,
   UpdatePropertyUseCase,
 } from '../usecases/property.usecases';
@@ -44,11 +44,11 @@ export class PropertyController {
     private readonly updateUseCase: UpdatePropertyUseCase,
     private readonly deleteUseCase: DeletePropertyUseCase,
     private readonly listUseCase: ListPropertiesUseCase,
-    private readonly listByOwnerUseCase: ListPropertiesByOwnerUseCase,
+    private readonly listByAgentUseCase: ListPropertiesByAgentUseCase,
     private readonly listByCategoryUseCase: ListPropertiesByCategoryUseCase,
     private readonly findByIdUseCase: FindPropertyByIdUseCase,
     private readonly uploadService: UploadService
-  ) {}
+  ) { }
 
   @Post('create')
   @ApiOperation({ summary: 'Create a new Property' })
@@ -62,18 +62,27 @@ export class PropertyController {
     @Res() response
   ) {
     try {
+      console.log('[PropertyController] Create - Body:', JSON.stringify(body, null, 2));
+      console.log('[PropertyController] Create - Files received:', files?.length || 0);
+
       if (files && files.length > 0) {
+        console.log('[PropertyController] Uploading images...');
         const imageUrls = await Promise.all(
           files.map((file) =>
             this.uploadService.uploadImage('properties', file)
           )
         );
+        console.log('[PropertyController] Images uploaded:', imageUrls);
         body.images = imageUrls;
+      } else {
+        console.log('[PropertyController] No files received. Current body.images:', body.images);
       }
+
       const entity = await this.createUseCase.execute(body);
       const data = PropertyAdapter.toHttp(entity);
       return response.status(201).json({ status: true, data });
     } catch (error) {
+      console.error('[PropertyController] Error creating property:', error);
       throw new BadRequestException(error.message);
     }
   }
@@ -107,14 +116,14 @@ export class PropertyController {
     }
   }
 
-  @Get('owner/:ownerId')
-  @ApiOperation({ summary: 'List Properties by Owner' })
-  @ApiParam({ name: 'ownerId' })
+  @Get('agent/:agentId')
+  @ApiOperation({ summary: 'List Properties by Agent' })
+  @ApiParam({ name: 'agentId' })
   @ApiResponse({ status: 200 })
   @ApiResponse({ status: 400, type: HttpErrorResponseDTO })
-  async listByOwner(@Param('ownerId') ownerId: string, @Res() response) {
+  async listByAgent(@Param('agentId') agentId: string, @Res() response) {
     try {
-      const entities = await this.listByOwnerUseCase.execute(ownerId);
+      const entities = await this.listByAgentUseCase.execute(agentId);
       const data = entities.map((e) => PropertyAdapter.toHttp(e));
       return response.status(200).json({ status: true, data });
     } catch (error) {

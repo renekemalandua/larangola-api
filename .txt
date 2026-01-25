@@ -28,3 +28,8 @@ O que achas do meu plano é profissional, e mostra que entendi os cursos?
 Preciso ter autenticação, crei o dto, usecase, controller etc, e use a logica que fiz em /home/rkemalandua/Documents/Growthly/LarAngola/api/src/shared/providers/auth e a sua
 abstração /home/rkemalandua/Documents/Growthly/LarAngola/api/src/shared/services, entendes? me diz que entendeu sem escrever codigo 
 
+Vamos fazer o seguinte, primeiro não existe minhas propriedades, a propriedade não pode exisitir por si só toda propriedade inicialmente 
+é um anucio em draft, e a tela de propriedades e a de anucios serão uma só tela com btn de criar propriedade, quando a propriedade é criada
+Em seguida o seu anucio é criado automaticamente com valores obrigatorios previamente pedidos, e nessa mesma tela todas
+as propriedadades/anucio terão um btn de publicar(caso esteja em draft), cancelar publicação(caso esteja em published), editar, e ao clicar na card abre detalhes da
+propriedade/anucio. e nessa mesma telas tera todas as propriedades/anucios, publicados, drafts e cancelados deu pra entender? me diz se entendeu sem implementar

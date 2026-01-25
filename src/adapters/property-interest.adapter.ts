@@ -6,7 +6,7 @@ export class PropertyInterestAdapter {
   static toDomain(raw: PropertyInterest): PropertyInterestEntity {
     return PropertyInterestEntity.create(
       {
-        listingId: raw.listingId,
+        propertyId: raw.propertyId,
         userId: raw.userId,
         message: raw.message ?? null,
         createdAt: raw.createdAt,
@@ -19,7 +19,7 @@ export class PropertyInterestAdapter {
   static toPrisma(entity: PropertyInterestEntity): PropertyInterest {
     return {
       id: entity.id,
-      listingId: entity.listingId,
+      propertyId: entity.propertyId,
       userId: entity.userId,
       message: entity.message,
       createdAt: entity.createdAt,
@@ -30,7 +30,7 @@ export class PropertyInterestAdapter {
   static toHttp(entity: PropertyInterestEntity): any {
     return {
       id: entity.id,
-      listingId: entity.listingId,
+      propertyId: entity.propertyId,
       userId: entity.userId,
       message: entity.message,
       createdAt: entity.createdAt,

@@ -8,6 +8,8 @@ interface IUserProps {
   name: string;
   avatar: string | null;
   isActive: boolean;
+  agent?: any;
+  roommate?: any;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -28,6 +30,8 @@ export class UserEntity extends AggregateRoot<IUserProps> {
         name: props.name,
         avatar: props.avatar ?? DEFAULT_USER_AVATAR,
         isActive: props.isActive ?? true,
+        agent: props.agent,
+        roommate: props.roommate,
         createdAt: props.createdAt ?? new Date(),
         updatedAt: props.updatedAt ?? new Date(),
       },
@@ -73,6 +77,12 @@ export class UserEntity extends AggregateRoot<IUserProps> {
   public set avatar(v: string | null) {
     this.props.avatar = v;
     this.touch();
+  }
+  public get agent(): any | undefined {
+    return this.props.agent;
+  }
+  public get roommate(): any | undefined {
+    return this.props.roommate;
   }
   public get isActive(): boolean {
     return this.props.isActive;

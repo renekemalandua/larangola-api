@@ -1,12 +1,12 @@
-import { Property } from '@prisma/client';
-import { PropertyEntity } from '../entities/property.entity';
+import { Property, ListingType as PrismaListingType, PropertyStatus as PrismaPropertyStatus } from '@prisma/client';
+import { PropertyEntity, ListingType, PropertyStatus } from '../entities/property.entity';
 import { IdValueObject } from '../shared';
 
 export class PropertyAdapter {
   static toDomain(raw: Property): PropertyEntity {
     return PropertyEntity.create(
       {
-        ownerId: raw.ownerId,
+        agentId: raw.agentId,
         categoryId: raw.categoryId,
         title: raw.title,
         description: raw.description ?? null,
@@ -22,6 +22,12 @@ export class PropertyAdapter {
         propertyType: raw.propertyType,
         amenities: raw.amenities as unknown,
         images: raw.images as unknown,
+
+        listingType: raw.listingType as ListingType,
+        price: raw.price,
+        currency: raw.currency,
+        status: raw.status as PropertyStatus,
+
         createdAt: raw.createdAt,
         updatedAt: raw.updatedAt,
       },
@@ -32,7 +38,7 @@ export class PropertyAdapter {
   static toPrisma(entity: PropertyEntity): Property {
     return {
       id: entity.id,
-      ownerId: entity.ownerId,
+      agentId: entity.agentId,
       categoryId: entity.categoryId,
       title: entity.title,
       description: entity.description,
@@ -48,6 +54,12 @@ export class PropertyAdapter {
       propertyType: entity.propertyType,
       amenities: entity.amenities as any,
       images: entity.images as any,
+
+      listingType: entity.listingType as PrismaListingType,
+      price: entity.price,
+      currency: entity.currency,
+      status: entity.status as PrismaPropertyStatus,
+
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
     };
@@ -56,7 +68,7 @@ export class PropertyAdapter {
   static toHttp(entity: PropertyEntity): any {
     return {
       id: entity.id,
-      ownerId: entity.ownerId,
+      agentId: entity.agentId,
       categoryId: entity.categoryId,
       title: entity.title,
       description: entity.description,
@@ -72,6 +84,12 @@ export class PropertyAdapter {
       propertyType: entity.propertyType,
       amenities: entity.amenities,
       images: entity.images,
+
+      listingType: entity.listingType,
+      price: entity.price,
+      currency: entity.currency,
+      status: entity.status,
+
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
     };

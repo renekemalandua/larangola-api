@@ -1,10 +1,11 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsNumber, IsOptional, IsString, IsUUID, Min } from 'class-validator';
+import { IsEnum, IsNumber, IsOptional, IsString, IsUUID, Min } from 'class-validator';
+import { ListingType, PropertyStatus } from '../entities/property.entity';
 
 export class CreatePropertyRequestDTO {
-  @ApiProperty({ example: 'uuid-of-owner' })
+  @ApiProperty({ example: 'uuid-of-agent' })
   @IsUUID()
-  ownerId: string;
+  agentId: string;
 
   @ApiProperty({ example: 'uuid-of-category' })
   @IsUUID()
@@ -78,6 +79,23 @@ export class CreatePropertyRequestDTO {
   @ApiPropertyOptional({ example: ['https://.../1.jpg', 'https://.../2.jpg'] })
   @IsOptional()
   images?: unknown;
+
+  // Merged Listing Fields (Optional for Draft)
+  @ApiPropertyOptional({ example: 'rent', enum: ListingType })
+  @IsOptional()
+  @IsEnum(ListingType)
+  listingType?: ListingType;
+
+  @ApiPropertyOptional({ example: 150000 })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  price?: number;
+
+  @ApiPropertyOptional({ example: 'AOA' })
+  @IsOptional()
+  @IsString()
+  currency?: string;
 }
 
 export class UpdatePropertyRequestDTO {
@@ -156,4 +174,25 @@ export class UpdatePropertyRequestDTO {
   @ApiPropertyOptional({ example: ['https://.../1.jpg'] })
   @IsOptional()
   images?: unknown;
+
+  @ApiPropertyOptional({ example: 'rent', enum: ListingType })
+  @IsOptional()
+  @IsEnum(ListingType)
+  listingType?: ListingType;
+
+  @ApiPropertyOptional({ example: 150000 })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  price?: number;
+
+  @ApiPropertyOptional({ example: 'AOA' })
+  @IsOptional()
+  @IsString()
+  currency?: string;
+
+  @ApiPropertyOptional({ example: 'published', enum: PropertyStatus })
+  @IsOptional()
+  @IsEnum(PropertyStatus)
+  status?: PropertyStatus;
 }

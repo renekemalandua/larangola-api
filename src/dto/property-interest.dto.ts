@@ -2,9 +2,9 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class CreatePropertyInterestRequestDTO {
-  @ApiProperty({ example: 'uuid-of-listing' })
+  @ApiProperty({ example: 'uuid-of-property' })
   @IsUUID()
-  listingId: string;
+  propertyId: string;
 
   @ApiProperty({ example: 'uuid-of-user' })
   @IsUUID()

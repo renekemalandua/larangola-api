@@ -20,7 +20,7 @@ export class CreateReviewUseCase implements UseCase<
     private readonly repository: IReviewRepository,
     private readonly agentRepository: IAgentRepository,
     private readonly roommateRepository: IRoommateRepository
-  ) {}
+  ) { }
 
   async execute(request: CreateReviewRequestDTO): Promise<ReviewEntity> {
     const entity = ReviewEntity.create(request);
@@ -57,7 +57,7 @@ export class UpdateReviewUseCase implements UseCase<
   { id: string; data: UpdateReviewRequestDTO },
   ReviewEntity
 > {
-  constructor(private readonly repository: IReviewRepository) {}
+  constructor(private readonly repository: IReviewRepository) { }
   async execute({
     id,
     data,
@@ -75,7 +75,7 @@ export class UpdateReviewUseCase implements UseCase<
 
 @Injectable()
 export class DeleteReviewUseCase implements UseCase<string, void> {
-  constructor(private readonly repository: IReviewRepository) {}
+  constructor(private readonly repository: IReviewRepository) { }
   async execute(id: string): Promise<void> {
     const entity = await this.repository.findById(id);
     if (!entity) throw new BadRequestException('Review not found');
@@ -85,20 +85,20 @@ export class DeleteReviewUseCase implements UseCase<string, void> {
 
 @Injectable()
 export class ListReviewsUseCase implements UseCase<void, ReviewEntity[]> {
-  constructor(private readonly repository: IReviewRepository) {}
+  constructor(private readonly repository: IReviewRepository) { }
   async execute(): Promise<ReviewEntity[]> {
     return this.repository.list();
   }
 }
 
 @Injectable()
-export class ListReviewsByListingUseCase implements UseCase<
+export class ListReviewsByPropertyUseCase implements UseCase<
   string,
   ReviewEntity[]
 > {
-  constructor(private readonly repository: IReviewRepository) {}
-  async execute(listingId: string): Promise<ReviewEntity[]> {
-    return this.repository.listByListing(listingId);
+  constructor(private readonly repository: IReviewRepository) { }
+  async execute(propertyId: string): Promise<ReviewEntity[]> {
+    return this.repository.listByProperty(propertyId);
   }
 }
 
@@ -107,7 +107,7 @@ export class ListReviewsByToUserUseCase implements UseCase<
   string,
   ReviewEntity[]
 > {
-  constructor(private readonly repository: IReviewRepository) {}
+  constructor(private readonly repository: IReviewRepository) { }
   async execute(toUserId: string): Promise<ReviewEntity[]> {
     return this.repository.listByToUser(toUserId);
   }
@@ -118,7 +118,7 @@ export class FindReviewByIdUseCase implements UseCase<
   string,
   ReviewEntity | null
 > {
-  constructor(private readonly repository: IReviewRepository) {}
+  constructor(private readonly repository: IReviewRepository) { }
   async execute(id: string): Promise<ReviewEntity | null> {
     const entity = await this.repository.findById(id);
     if (!entity) throw new BadRequestException('Review not found');

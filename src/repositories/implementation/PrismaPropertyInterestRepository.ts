@@ -6,7 +6,7 @@ import { PropertyInterestAdapter } from '../../adapters/property-interest.adapte
 
 @Injectable()
 export class PrismaPropertyInterestRepository implements IPropertyInterestRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async create(data: PropertyInterestEntity): Promise<PropertyInterestEntity> {
     const raw = PropertyInterestAdapter.toPrisma(data) as any;
@@ -21,9 +21,9 @@ export class PrismaPropertyInterestRepository implements IPropertyInterestReposi
     return rows.map(PropertyInterestAdapter.toDomain);
   }
 
-  async listByListing(listingId: string): Promise<PropertyInterestEntity[]> {
+  async listByProperty(propertyId: string): Promise<PropertyInterestEntity[]> {
     const rows = await this.prisma.propertyInterest.findMany({
-      where: { listingId },
+      where: { propertyId },
       orderBy: { updatedAt: 'desc' },
     });
     return rows.map(PropertyInterestAdapter.toDomain);

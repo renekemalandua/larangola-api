@@ -6,7 +6,7 @@ import { ReviewAdapter } from '../../adapters/review.adapter';
 
 @Injectable()
 export class PrismaReviewRepository implements IReviewRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async create(data: ReviewEntity): Promise<ReviewEntity> {
     const raw = ReviewAdapter.toPrisma(data) as any;
@@ -21,9 +21,9 @@ export class PrismaReviewRepository implements IReviewRepository {
     return rows.map(ReviewAdapter.toDomain);
   }
 
-  async listByListing(listingId: string): Promise<ReviewEntity[]> {
+  async listByProperty(propertyId: string): Promise<ReviewEntity[]> {
     const rows = await this.prisma.review.findMany({
-      where: { listingId },
+      where: { propertyId },
       orderBy: { updatedAt: 'desc' },
     });
     return rows.map(ReviewAdapter.toDomain);

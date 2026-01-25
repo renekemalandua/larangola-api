@@ -6,7 +6,7 @@ import { ClosedDealAdapter } from '../../adapters/closed-deal.adapter';
 
 @Injectable()
 export class PrismaClosedDealRepository implements IClosedDealRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async create(data: ClosedDealEntity): Promise<ClosedDealEntity> {
     const raw = ClosedDealAdapter.toPrisma(data) as any;
@@ -37,9 +37,9 @@ export class PrismaClosedDealRepository implements IClosedDealRepository {
     return rows.map(ClosedDealAdapter.toDomain);
   }
 
-  async listByListing(listingId: string): Promise<ClosedDealEntity[]> {
+  async listByProperty(propertyId: string): Promise<ClosedDealEntity[]> {
     const rows = await this.prisma.closedDeal.findMany({
-      where: { listingId },
+      where: { propertyId },
       orderBy: { updatedAt: 'desc' },
     });
     return rows.map(ClosedDealAdapter.toDomain);

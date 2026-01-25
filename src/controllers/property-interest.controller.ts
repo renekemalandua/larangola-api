@@ -16,7 +16,7 @@ import {
   UpdatePropertyInterestUseCase,
   DeletePropertyInterestUseCase,
   ListPropertyInterestsUseCase,
-  ListPropertyInterestsByListingUseCase,
+  ListPropertyInterestsByPropertyUseCase,
   ListPropertyInterestsByUserUseCase,
   FindPropertyInterestByIdUseCase,
 } from '../usecases/property-interest.usecases';
@@ -34,10 +34,10 @@ export class PropertyInterestController {
     private readonly updateUseCase: UpdatePropertyInterestUseCase,
     private readonly deleteUseCase: DeletePropertyInterestUseCase,
     private readonly listUseCase: ListPropertyInterestsUseCase,
-    private readonly listByListingUseCase: ListPropertyInterestsByListingUseCase,
+    private readonly listByPropertyUseCase: ListPropertyInterestsByPropertyUseCase,
     private readonly listByUserUseCase: ListPropertyInterestsByUserUseCase,
     private readonly findByIdUseCase: FindPropertyInterestByIdUseCase
-  ) {}
+  ) { }
 
   @Post('create')
   @ApiOperation({ summary: 'Create a new Property Interest' })
@@ -85,14 +85,14 @@ export class PropertyInterestController {
     }
   }
 
-  @Get('listing/:listingId')
-  @ApiOperation({ summary: 'List Property Interests by Listing' })
-  @ApiParam({ name: 'listingId' })
+  @Get('property/:propertyId')
+  @ApiOperation({ summary: 'List Property Interests by Property' })
+  @ApiParam({ name: 'propertyId' })
   @ApiResponse({ status: 200 })
   @ApiResponse({ status: 400, type: HttpErrorResponseDTO })
-  async listByListing(@Param('listingId') listingId: string, @Res() response) {
+  async listByProperty(@Param('propertyId') propertyId: string, @Res() response) {
     try {
-      const entities = await this.listByListingUseCase.execute(listingId);
+      const entities = await this.listByPropertyUseCase.execute(propertyId);
       const data = entities.map((e) => PropertyInterestAdapter.toHttp(e));
       return response.status(200).json({ status: true, data });
     } catch (error) {

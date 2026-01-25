@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { UseCase } from '../shared';
 import { PropertyInterestEntity } from '../entities/property-interest.entity';
 import { IPropertyInterestRepository } from '../repositories/IPropertyInterestRepository';
-import { IListingRepository } from '../repositories/IListingRepository';
+import { IPropertyRepository } from '../repositories/IPropertyRepository';
 import {
   CreatePropertyInterestRequestDTO,
   UpdatePropertyInterestRequestDTO,
@@ -15,13 +15,13 @@ export class CreatePropertyInterestUseCase implements UseCase<
 > {
   constructor(
     private readonly repository: IPropertyInterestRepository,
-    private readonly listingRepository: IListingRepository
-  ) {}
+    private readonly propertyRepository: IPropertyRepository
+  ) { }
   async execute(
     request: CreatePropertyInterestRequestDTO
   ): Promise<PropertyInterestEntity> {
-    const listing = await this.listingRepository.findById(request.listingId);
-    if (!listing) throw new BadRequestException('Listing does not exist');
+    const property = await this.propertyRepository.findById(request.propertyId);
+    if (!property) throw new BadRequestException('Property does not exist');
     const entity = PropertyInterestEntity.create(request);
     return this.repository.create(entity);
   }
@@ -32,7 +32,7 @@ export class UpdatePropertyInterestUseCase implements UseCase<
   { id: string; data: UpdatePropertyInterestRequestDTO },
   PropertyInterestEntity
 > {
-  constructor(private readonly repository: IPropertyInterestRepository) {}
+  constructor(private readonly repository: IPropertyInterestRepository) { }
   async execute({
     id,
     data,
@@ -49,7 +49,7 @@ export class UpdatePropertyInterestUseCase implements UseCase<
 
 @Injectable()
 export class DeletePropertyInterestUseCase implements UseCase<string, void> {
-  constructor(private readonly repository: IPropertyInterestRepository) {}
+  constructor(private readonly repository: IPropertyInterestRepository) { }
   async execute(id: string): Promise<void> {
     const entity = await this.repository.findById(id);
     if (!entity) throw new BadRequestException('Property interest not found');
@@ -62,20 +62,20 @@ export class ListPropertyInterestsUseCase implements UseCase<
   void,
   PropertyInterestEntity[]
 > {
-  constructor(private readonly repository: IPropertyInterestRepository) {}
+  constructor(private readonly repository: IPropertyInterestRepository) { }
   async execute(): Promise<PropertyInterestEntity[]> {
     return this.repository.list();
   }
 }
 
 @Injectable()
-export class ListPropertyInterestsByListingUseCase implements UseCase<
+export class ListPropertyInterestsByPropertyUseCase implements UseCase<
   string,
   PropertyInterestEntity[]
 > {
-  constructor(private readonly repository: IPropertyInterestRepository) {}
-  async execute(listingId: string): Promise<PropertyInterestEntity[]> {
-    return this.repository.listByListing(listingId);
+  constructor(private readonly repository: IPropertyInterestRepository) { }
+  async execute(propertyId: string): Promise<PropertyInterestEntity[]> {
+    return this.repository.listByProperty(propertyId);
   }
 }
 
@@ -84,7 +84,7 @@ export class ListPropertyInterestsByUserUseCase implements UseCase<
   string,
   PropertyInterestEntity[]
 > {
-  constructor(private readonly repository: IPropertyInterestRepository) {}
+  constructor(private readonly repository: IPropertyInterestRepository) { }
   async execute(userId: string): Promise<PropertyInterestEntity[]> {
     return this.repository.listByUser(userId);
   }
@@ -95,7 +95,7 @@ export class FindPropertyInterestByIdUseCase implements UseCase<
   string,
   PropertyInterestEntity | null
 > {
-  constructor(private readonly repository: IPropertyInterestRepository) {}
+  constructor(private readonly repository: IPropertyInterestRepository) { }
   async execute(id: string): Promise<PropertyInterestEntity | null> {
     const entity = await this.repository.findById(id);
     if (!entity) throw new BadRequestException('Property interest not found');

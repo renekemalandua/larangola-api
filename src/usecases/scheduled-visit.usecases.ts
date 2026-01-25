@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { UseCase } from '../shared';
 import { ScheduledVisitEntity } from '../entities/scheduled-visit.entity';
 import { IScheduledVisitRepository } from '../repositories/IScheduledVisitRepository';
-import { IListingRepository } from '../repositories/IListingRepository';
+import { IPropertyRepository } from '../repositories/IPropertyRepository';
 import {
   CreateScheduledVisitRequestDTO,
   UpdateScheduledVisitRequestDTO,
@@ -15,13 +15,13 @@ export class CreateScheduledVisitUseCase implements UseCase<
 > {
   constructor(
     private readonly repository: IScheduledVisitRepository,
-    private readonly listingRepository: IListingRepository
-  ) {}
+    private readonly propertyRepository: IPropertyRepository
+  ) { }
   async execute(
     request: CreateScheduledVisitRequestDTO
   ): Promise<ScheduledVisitEntity> {
-    const listing = await this.listingRepository.findById(request.listingId);
-    if (!listing) throw new BadRequestException('Listing does not exist');
+    const property = await this.propertyRepository.findById(request.propertyId);
+    if (!property) throw new BadRequestException('Property does not exist');
     const entity = ScheduledVisitEntity.create({
       ...request,
       scheduledDate: new Date(request.scheduledDate),
@@ -35,7 +35,7 @@ export class UpdateScheduledVisitUseCase implements UseCase<
   { id: string; data: UpdateScheduledVisitRequestDTO },
   ScheduledVisitEntity
 > {
-  constructor(private readonly repository: IScheduledVisitRepository) {}
+  constructor(private readonly repository: IScheduledVisitRepository) { }
   async execute({
     id,
     data,
@@ -57,7 +57,7 @@ export class UpdateScheduledVisitUseCase implements UseCase<
 
 @Injectable()
 export class DeleteScheduledVisitUseCase implements UseCase<string, void> {
-  constructor(private readonly repository: IScheduledVisitRepository) {}
+  constructor(private readonly repository: IScheduledVisitRepository) { }
   async execute(id: string): Promise<void> {
     const entity = await this.repository.findById(id);
     if (!entity) throw new BadRequestException('Scheduled visit not found');
@@ -70,20 +70,20 @@ export class ListScheduledVisitsUseCase implements UseCase<
   void,
   ScheduledVisitEntity[]
 > {
-  constructor(private readonly repository: IScheduledVisitRepository) {}
+  constructor(private readonly repository: IScheduledVisitRepository) { }
   async execute(): Promise<ScheduledVisitEntity[]> {
     return this.repository.list();
   }
 }
 
 @Injectable()
-export class ListScheduledVisitsByListingUseCase implements UseCase<
+export class ListScheduledVisitsByPropertyUseCase implements UseCase<
   string,
   ScheduledVisitEntity[]
 > {
-  constructor(private readonly repository: IScheduledVisitRepository) {}
-  async execute(listingId: string): Promise<ScheduledVisitEntity[]> {
-    return this.repository.listByListing(listingId);
+  constructor(private readonly repository: IScheduledVisitRepository) { }
+  async execute(propertyId: string): Promise<ScheduledVisitEntity[]> {
+    return this.repository.listByProperty(propertyId);
   }
 }
 
@@ -92,7 +92,7 @@ export class ListScheduledVisitsByUserUseCase implements UseCase<
   string,
   ScheduledVisitEntity[]
 > {
-  constructor(private readonly repository: IScheduledVisitRepository) {}
+  constructor(private readonly repository: IScheduledVisitRepository) { }
   async execute(userId: string): Promise<ScheduledVisitEntity[]> {
     return this.repository.listByUser(userId);
   }
@@ -103,7 +103,7 @@ export class FindScheduledVisitByIdUseCase implements UseCase<
   string,
   ScheduledVisitEntity | null
 > {
-  constructor(private readonly repository: IScheduledVisitRepository) {}
+  constructor(private readonly repository: IScheduledVisitRepository) { }
   async execute(id: string): Promise<ScheduledVisitEntity | null> {
     const entity = await this.repository.findById(id);
     if (!entity) throw new BadRequestException('Scheduled visit not found');

@@ -11,10 +11,10 @@ import {
 import { ReviewRole } from '@prisma/client';
 
 export class CreateReviewRequestDTO {
-  @ApiPropertyOptional({ example: 'uuid-of-listing' })
+  @ApiPropertyOptional({ example: 'uuid-of-property' })
   @IsOptional()
   @IsUUID()
-  listingId?: string;
+  propertyId?: string;
 
   @ApiProperty({ example: 'uuid-of-from-user' })
   @IsUUID()

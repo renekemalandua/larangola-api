@@ -6,7 +6,7 @@ import { ScheduledVisitAdapter } from '../../adapters/scheduled-visit.adapter';
 
 @Injectable()
 export class PrismaScheduledVisitRepository implements IScheduledVisitRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async create(data: ScheduledVisitEntity): Promise<ScheduledVisitEntity> {
     const raw = ScheduledVisitAdapter.toPrisma(data) as any;
@@ -21,9 +21,9 @@ export class PrismaScheduledVisitRepository implements IScheduledVisitRepository
     return rows.map(ScheduledVisitAdapter.toDomain);
   }
 
-  async listByListing(listingId: string): Promise<ScheduledVisitEntity[]> {
+  async listByProperty(propertyId: string): Promise<ScheduledVisitEntity[]> {
     const rows = await this.prisma.scheduledVisit.findMany({
-      where: { listingId },
+      where: { propertyId },
       orderBy: { updatedAt: 'desc' },
     });
     return rows.map(ScheduledVisitAdapter.toDomain);

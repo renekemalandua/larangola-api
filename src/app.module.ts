@@ -7,7 +7,7 @@ import { AuthController } from './controllers/auth.controller';
 import { PropertyCategoryController } from './controllers/property-category.controller';
 import { UserController } from './controllers/user.controller';
 import { PropertyController } from './controllers/property.controller';
-import { ListingController } from './controllers/listing.controller';
+// import { ListingController } from './controllers/listing.controller'; // Removed
 import { AgentController } from './controllers/agent.controller';
 import { RoommateController } from './controllers/roommate.controller';
 import { ScheduledVisitController } from './controllers/scheduled-visit.controller';
@@ -28,8 +28,8 @@ import { IUserRepository } from './repositories/IUserRepository';
 import { PrismaUserRepository } from './repositories/implementation/PrismaUserRepository';
 import { IPropertyRepository } from './repositories/IPropertyRepository';
 import { PrismaPropertyRepository } from './repositories/implementation/PrismaPropertyRepository';
-import { IListingRepository } from './repositories/IListingRepository';
-import { PrismaListingRepository } from './repositories/implementation/PrismaListingRepository';
+// import { IListingRepository } from './repositories/IListingRepository'; // Removed
+// import { PrismaListingRepository } from './repositories/implementation/PrismaListingRepository'; // Removed
 import { IAgentRepository } from './repositories/IAgentRepository';
 import { PrismaAgentRepository } from './repositories/implementation/PrismaAgentRepository';
 import { IRoommateRepository } from './repositories/IRoommateRepository';
@@ -86,21 +86,21 @@ import {
   UpdatePropertyUseCase,
   DeletePropertyUseCase,
   ListPropertiesUseCase,
-  ListPropertiesByOwnerUseCase,
+  ListPropertiesByAgentUseCase,
   ListPropertiesByCategoryUseCase,
   FindPropertyByIdUseCase,
 } from './usecases/property.usecases';
 
-// Use Cases - Listing
-import {
-  CreateListingUseCase,
-  UpdateListingUseCase,
-  DeleteListingUseCase,
-  ListListingsUseCase,
-  ListListingsByOwnerUseCase,
-  ListListingsByPropertyUseCase,
-  FindListingByIdUseCase,
-} from './usecases/listing.usecases';
+// Use Cases - Listing (Removed)
+// import {
+//   CreateListingUseCase,
+//   UpdateListingUseCase,
+//   DeleteListingUseCase,
+//   ListListingsUseCase,
+//   ListListingsByOwnerUseCase,
+//   ListListingsByPropertyUseCase,
+//   FindListingByIdUseCase,
+// } from './usecases/listing.usecases';
 
 // Use Cases - Agent
 import {
@@ -128,7 +128,7 @@ import {
   UpdateScheduledVisitUseCase,
   DeleteScheduledVisitUseCase,
   ListScheduledVisitsUseCase,
-  ListScheduledVisitsByListingUseCase,
+  ListScheduledVisitsByPropertyUseCase,
   ListScheduledVisitsByUserUseCase,
   FindScheduledVisitByIdUseCase,
 } from './usecases/scheduled-visit.usecases';
@@ -139,7 +139,7 @@ import {
   UpdateReviewUseCase,
   DeleteReviewUseCase,
   ListReviewsUseCase,
-  ListReviewsByListingUseCase,
+  ListReviewsByPropertyUseCase,
   ListReviewsByToUserUseCase,
   FindReviewByIdUseCase,
 } from './usecases/review.usecases';
@@ -150,7 +150,7 @@ import {
   UpdatePropertyInterestUseCase,
   DeletePropertyInterestUseCase,
   ListPropertyInterestsUseCase,
-  ListPropertyInterestsByListingUseCase,
+  ListPropertyInterestsByPropertyUseCase,
   ListPropertyInterestsByUserUseCase,
   FindPropertyInterestByIdUseCase,
 } from './usecases/property-interest.usecases';
@@ -231,7 +231,7 @@ import {
     PropertyCategoryController,
     UserController,
     PropertyController,
-    ListingController,
+    // ListingController, // Removed
     AgentController,
     RoommateController,
     ScheduledVisitController,
@@ -253,7 +253,7 @@ import {
     },
     { provide: IUserRepository, useClass: PrismaUserRepository },
     { provide: IPropertyRepository, useClass: PrismaPropertyRepository },
-    { provide: IListingRepository, useClass: PrismaListingRepository },
+    // { provide: IListingRepository, useClass: PrismaListingRepository }, // Removed
     { provide: IAgentRepository, useClass: PrismaAgentRepository },
     { provide: IRoommateRepository, useClass: PrismaRoommateRepository },
     {
@@ -307,18 +307,18 @@ import {
     UpdatePropertyUseCase,
     DeletePropertyUseCase,
     ListPropertiesUseCase,
-    ListPropertiesByOwnerUseCase,
+    ListPropertiesByAgentUseCase,
     ListPropertiesByCategoryUseCase,
     FindPropertyByIdUseCase,
 
-    // Use Cases - Listing
-    CreateListingUseCase,
-    UpdateListingUseCase,
-    DeleteListingUseCase,
-    ListListingsUseCase,
-    ListListingsByOwnerUseCase,
-    ListListingsByPropertyUseCase,
-    FindListingByIdUseCase,
+    // Use Cases - Listing (Removed)
+    // CreateListingUseCase,
+    // UpdateListingUseCase,
+    // DeleteListingUseCase,
+    // ListListingsUseCase,
+    // ListListingsByOwnerUseCase,
+    // ListListingsByPropertyUseCase,
+    // FindListingByIdUseCase,
 
     // Use Cases - Agent
     CreateAgentUseCase,
@@ -341,7 +341,7 @@ import {
     UpdateScheduledVisitUseCase,
     DeleteScheduledVisitUseCase,
     ListScheduledVisitsUseCase,
-    ListScheduledVisitsByListingUseCase,
+    ListScheduledVisitsByPropertyUseCase,
     ListScheduledVisitsByUserUseCase,
     FindScheduledVisitByIdUseCase,
 
@@ -350,7 +350,7 @@ import {
     UpdateReviewUseCase,
     DeleteReviewUseCase,
     ListReviewsUseCase,
-    ListReviewsByListingUseCase,
+    ListReviewsByPropertyUseCase,
     ListReviewsByToUserUseCase,
     FindReviewByIdUseCase,
 
@@ -359,7 +359,7 @@ import {
     UpdatePropertyInterestUseCase,
     DeletePropertyInterestUseCase,
     ListPropertyInterestsUseCase,
-    ListPropertyInterestsByListingUseCase,
+    ListPropertyInterestsByPropertyUseCase,
     ListPropertyInterestsByUserUseCase,
     FindPropertyInterestByIdUseCase,
 
@@ -422,7 +422,7 @@ import {
     FindPropertyCategoryByIdUseCase,
     FindPropertyByIdUseCase,
     FindUserByIdUseCase,
-    FindListingByIdUseCase,
+    // FindListingByIdUseCase, // Removed
   ],
 })
-export class AppModule {}
+export class AppModule { }

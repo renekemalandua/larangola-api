@@ -12,7 +12,7 @@ export class ScheduledVisitAdapter {
   static toDomain(raw: ScheduledVisit): ScheduledVisitEntity {
     return ScheduledVisitEntity.create(
       {
-        listingId: raw.listingId,
+        propertyId: raw.propertyId,
         userId: raw.userId,
         scheduledDate: raw.scheduledDate,
         scheduledTime: raw.scheduledTime,
@@ -28,7 +28,7 @@ export class ScheduledVisitAdapter {
   static toPrisma(entity: ScheduledVisitEntity): ScheduledVisit {
     return {
       id: entity.id,
-      listingId: entity.listingId,
+      propertyId: entity.propertyId,
       userId: entity.userId,
       scheduledDate: entity.scheduledDate,
       scheduledTime: entity.scheduledTime,
@@ -42,7 +42,7 @@ export class ScheduledVisitAdapter {
   static toHttp(entity: ScheduledVisitEntity): any {
     return {
       id: entity.id,
-      listingId: entity.listingId,
+      propertyId: entity.propertyId,
       userId: entity.userId,
       scheduledDate: entity.scheduledDate,
       scheduledTime: entity.scheduledTime,

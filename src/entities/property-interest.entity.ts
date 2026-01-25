@@ -1,7 +1,7 @@
 import { AggregateRoot, IdValueObject, Optional } from '../shared';
 
 interface IPropertyInterestProps {
-  listingId: string;
+  propertyId: string;
   userId: string;
   message: string | null;
   createdAt: Date;
@@ -18,7 +18,7 @@ export class PropertyInterestEntity extends AggregateRoot<IPropertyInterestProps
   ) {
     return new PropertyInterestEntity(
       {
-        listingId: props.listingId,
+        propertyId: props.propertyId,
         userId: props.userId,
         message: props.message ?? null,
         createdAt: props.createdAt ?? new Date(),
@@ -32,8 +32,8 @@ export class PropertyInterestEntity extends AggregateRoot<IPropertyInterestProps
     this.props.updatedAt = new Date();
   }
 
-  public get listingId(): string {
-    return this.props.listingId;
+  public get propertyId(): string {
+    return this.props.propertyId;
   }
   public get userId(): string {
     return this.props.userId;
