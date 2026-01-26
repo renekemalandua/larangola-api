@@ -4,6 +4,7 @@ import { HttpExceptionFilter } from './shared';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { RequestMethod, ValidationPipe } from '@nestjs/common';
 
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalFilters(new HttpExceptionFilter());
@@ -12,7 +13,7 @@ async function bootstrap() {
     new ValidationPipe({
       transform: true,
       whitelist: true,
-      forbidNonWhitelisted: true,
+      forbidNonWhitelisted: false,
     })
   );
 

@@ -62,23 +62,27 @@ export class PropertyController {
     @Res() response
   ) {
     try {
-      console.log('[PropertyController] Create - Body:', JSON.stringify(body, null, 2));
+      console.log('[PropertyController] Create - Body (Raw):', body);
+      console.log('[PropertyController] Create - Body (keys):', Object.keys(body));
       console.log('[PropertyController] Create - Files received:', files?.length || 0);
 
       if (files && files.length > 0) {
-        console.log('[PropertyController] Uploading images...');
+        console.log('[PropertyController] Uploading images to Cloudinary...');
         const imageUrls = await Promise.all(
           files.map((file) =>
             this.uploadService.uploadImage('properties', file)
           )
         );
-        console.log('[PropertyController] Images uploaded:', imageUrls);
+        console.log('[PropertyController] Images uploaded URLs:', imageUrls);
         body.images = imageUrls;
       } else {
-        console.log('[PropertyController] No files received. Current body.images:', body.images);
+        console.log('[PropertyController] No files received or files empty. Current body.images:', body.images);
       }
 
+      console.log('[PropertyController] Calling CreatePropertyUseCase...');
       const entity = await this.createUseCase.execute(body);
+      console.log('[PropertyController] Property entity created successfully:', entity.id);
+
       const data = PropertyAdapter.toHttp(entity);
       return response.status(201).json({ status: true, data });
     } catch (error) {

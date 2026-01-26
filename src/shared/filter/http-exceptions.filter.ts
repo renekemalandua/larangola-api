@@ -21,14 +21,16 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const status =
       exception instanceof HttpException ||
-      exception instanceof BadRequestException
+        exception instanceof BadRequestException
         ? exception.getStatus()
         : 500;
-    const message =
+    const resObj: any =
       exception instanceof HttpException ||
-      exception instanceof BadRequestException
-        ? exception.message
-        : 'Internal Server Error';
+        exception instanceof BadRequestException
+        ? exception.getResponse()
+        : { message: 'Internal Server Error' };
+
+    const message = typeof resObj === 'object' ? resObj.message || resObj.error : resObj;
 
     return response.status(status).json({
       status: false,

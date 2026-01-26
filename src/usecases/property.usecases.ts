@@ -21,12 +21,24 @@ export class CreatePropertyUseCase implements UseCase<
     private readonly agentRepository: IAgentRepository
   ) { }
   async execute(request: CreatePropertyRequestDTO): Promise<PropertyEntity> {
+    console.log('[CreatePropertyUseCase] Executing with request:', JSON.stringify(request, null, 2));
+
+    console.log('[CreatePropertyUseCase] Checking categoryId:', request.categoryId);
     const category = await this.categoryRepository.findById(request.categoryId);
-    if (!category) throw new BadRequestException('Category does not exist');
+    if (!category) {
+      console.error('[CreatePropertyUseCase] Category not found:', request.categoryId);
+      throw new BadRequestException('Category does not exist');
+    }
+    console.log('[CreatePropertyUseCase] Category found:', category.name);
 
     // Verify Agent exists
+    console.log('[CreatePropertyUseCase] Checking agentId:', request.agentId);
     const agent = await this.agentRepository.findById(request.agentId);
-    if (!agent) throw new BadRequestException('Agent not found');
+    if (!agent) {
+      console.error('[CreatePropertyUseCase] Agent not found:', request.agentId);
+      throw new BadRequestException('Agent not found');
+    }
+    console.log('[CreatePropertyUseCase] Agent found:', agent.id);
     /* 
     if (!agent) {
       throw new BadRequestException('User is not an agent.');
@@ -38,8 +50,14 @@ export class CreatePropertyUseCase implements UseCase<
     }
     */
 
+    console.log('[CreatePropertyUseCase] Creating entity...');
     const entity = PropertyEntity.create(request);
-    return this.repository.create(entity);
+
+    console.log('[CreatePropertyUseCase] Saving entity to repository...');
+    const result = await this.repository.create(entity);
+    console.log('[CreatePropertyUseCase] Property created successfully:', result.id);
+
+    return result;
   }
 }
 
