@@ -67,6 +67,15 @@ export class PropertyController {
       console.log('[PropertyController] Create - Files received:', files?.length || 0);
 
       if (files && files.length > 0) {
+        console.log('[PropertyController] Files details:', files.map(f => ({
+          fieldname: f.fieldname,
+          originalname: f.originalname,
+          mimetype: f.mimetype,
+          size: f.size
+        })));
+      }
+
+      if (files && files.length > 0) {
         console.log('[PropertyController] Uploading images to Cloudinary...');
         const imageUrls = await Promise.all(
           files.map((file) =>
@@ -76,7 +85,15 @@ export class PropertyController {
         console.log('[PropertyController] Images uploaded URLs:', imageUrls);
         body.images = imageUrls;
       } else {
-        console.log('[PropertyController] No files received or files empty. Current body.images:', body.images);
+        console.log('[PropertyController] No files received or files empty.');
+        console.log('[PropertyController] body.images type:', typeof body.images);
+        console.log('[PropertyController] body.images value:', JSON.stringify(body.images, null, 2));
+
+        // If images came in body instead of files, clear them
+        if (body.images) {
+          console.warn('[PropertyController] WARNING: Images came in body instead of as files! Clearing...');
+          body.images = undefined;
+        }
       }
 
       console.log('[PropertyController] Calling CreatePropertyUseCase...');
