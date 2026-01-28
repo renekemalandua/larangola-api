@@ -152,6 +152,7 @@ import {
   ListPropertyInterestsUseCase,
   ListPropertyInterestsByPropertyUseCase,
   ListPropertyInterestsByUserUseCase,
+  ListPropertyInterestsByAgentUseCase,
   FindPropertyInterestByIdUseCase,
 } from './usecases/property-interest.usecases';
 
@@ -361,6 +362,7 @@ import {
     ListPropertyInterestsUseCase,
     ListPropertyInterestsByPropertyUseCase,
     ListPropertyInterestsByUserUseCase,
+    ListPropertyInterestsByAgentUseCase,
     FindPropertyInterestByIdUseCase,
 
     // Use Cases - ClosedDeal

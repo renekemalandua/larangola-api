@@ -3,8 +3,8 @@ import { PropertyInterestEntity } from '../entities/property-interest.entity';
 import { IdValueObject } from '../shared';
 
 export class PropertyInterestAdapter {
-  static toDomain(raw: PropertyInterest): PropertyInterestEntity {
-    return PropertyInterestEntity.create(
+  static toDomain(raw: any): PropertyInterestEntity {
+    const entity = PropertyInterestEntity.create(
       {
         propertyId: raw.propertyId,
         userId: raw.userId,
@@ -14,6 +14,16 @@ export class PropertyInterestAdapter {
       },
       new IdValueObject(raw.id)
     );
+
+    // Attach related data if present
+    if (raw.property) {
+      (entity as any).property = raw.property;
+    }
+    if (raw.user) {
+      (entity as any).user = raw.user;
+    }
+
+    return entity;
   }
 
   static toPrisma(entity: PropertyInterestEntity): PropertyInterest {
@@ -27,7 +37,7 @@ export class PropertyInterestAdapter {
     };
   }
 
-  static toHttp(entity: PropertyInterestEntity): any {
+  static toHttp(entity: any): any {
     return {
       id: entity.id,
       propertyId: entity.propertyId,
@@ -35,6 +45,9 @@ export class PropertyInterestAdapter {
       message: entity.message,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
+      // Include related data if present
+      property: entity.property || undefined,
+      user: entity.user || undefined,
     };
   }
 }
