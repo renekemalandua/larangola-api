@@ -37,6 +37,26 @@ export class PrismaPropertyInterestRepository implements IPropertyInterestReposi
     return rows.map(PropertyInterestAdapter.toDomain);
   }
 
+  async listByAgent(agentId: string): Promise<PropertyInterestEntity[]> {
+    const rows = await this.prisma.propertyInterest.findMany({
+      where: {
+        property: {
+          agentId: agentId,
+        },
+      },
+      include: {
+        property: true,
+        user: {
+          include: {
+            agent: true,
+          }
+        },
+      },
+      orderBy: { updatedAt: 'desc' },
+    });
+    return rows.map(PropertyInterestAdapter.toDomain);
+  }
+
   async findById(id: string): Promise<PropertyInterestEntity | null> {
     const row = await this.prisma.propertyInterest.findUnique({
       where: { id },

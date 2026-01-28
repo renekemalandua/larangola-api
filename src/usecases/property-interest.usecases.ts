@@ -22,6 +22,12 @@ export class CreatePropertyInterestUseCase implements UseCase<
   ): Promise<PropertyInterestEntity> {
     const property = await this.propertyRepository.findById(request.propertyId);
     if (!property) throw new BadRequestException('Property does not exist');
+
+    // Idempotency: Check if user already marked interest in this property
+    const existing = await this.repository.listByUser(request.userId);
+    const alreadyExists = existing.find(i => i.propertyId === request.propertyId);
+    if (alreadyExists) return alreadyExists;
+
     const entity = PropertyInterestEntity.create(request);
     return this.repository.create(entity);
   }
@@ -87,6 +93,17 @@ export class ListPropertyInterestsByUserUseCase implements UseCase<
   constructor(private readonly repository: IPropertyInterestRepository) { }
   async execute(userId: string): Promise<PropertyInterestEntity[]> {
     return this.repository.listByUser(userId);
+  }
+}
+
+@Injectable()
+export class ListPropertyInterestsByAgentUseCase implements UseCase<
+  string,
+  PropertyInterestEntity[]
+> {
+  constructor(private readonly repository: IPropertyInterestRepository) { }
+  async execute(agentId: string): Promise<PropertyInterestEntity[]> {
+    return this.repository.listByAgent(agentId);
   }
 }
 

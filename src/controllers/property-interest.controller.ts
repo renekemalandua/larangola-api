@@ -18,6 +18,7 @@ import {
   ListPropertyInterestsUseCase,
   ListPropertyInterestsByPropertyUseCase,
   ListPropertyInterestsByUserUseCase,
+  ListPropertyInterestsByAgentUseCase,
   FindPropertyInterestByIdUseCase,
 } from '../usecases/property-interest.usecases';
 import {
@@ -36,6 +37,7 @@ export class PropertyInterestController {
     private readonly listUseCase: ListPropertyInterestsUseCase,
     private readonly listByPropertyUseCase: ListPropertyInterestsByPropertyUseCase,
     private readonly listByUserUseCase: ListPropertyInterestsByUserUseCase,
+    private readonly listByAgentUseCase: ListPropertyInterestsByAgentUseCase,
     private readonly findByIdUseCase: FindPropertyInterestByIdUseCase
   ) { }
 
@@ -108,6 +110,21 @@ export class PropertyInterestController {
   async listByUser(@Param('userId') userId: string, @Res() response) {
     try {
       const entities = await this.listByUserUseCase.execute(userId);
+      const data = entities.map((e) => PropertyInterestAdapter.toHttp(e));
+      return response.status(200).json({ status: true, data });
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  @Get('agent/:agentId')
+  @ApiOperation({ summary: 'List Property Interests by Agent (who owns the property)' })
+  @ApiParam({ name: 'agentId' })
+  @ApiResponse({ status: 200 })
+  @ApiResponse({ status: 400, type: HttpErrorResponseDTO })
+  async listByAgent(@Param('agentId') agentId: string, @Res() response) {
+    try {
+      const entities = await this.listByAgentUseCase.execute(agentId);
       const data = entities.map((e) => PropertyInterestAdapter.toHttp(e));
       return response.status(200).json({ status: true, data });
     } catch (error) {

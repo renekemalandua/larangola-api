@@ -7,6 +7,7 @@ export abstract class IPropertyInterestRepository {
   abstract list(): Promise<PropertyInterestEntity[]>;
   abstract listByProperty(propertyId: string): Promise<PropertyInterestEntity[]>;
   abstract listByUser(userId: string): Promise<PropertyInterestEntity[]>;
+  abstract listByAgent(agentId: string): Promise<PropertyInterestEntity[]>;
   abstract findById(id: string): Promise<PropertyInterestEntity | null>;
   abstract update(
     data: PropertyInterestEntity
