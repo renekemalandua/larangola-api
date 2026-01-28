@@ -46,7 +46,7 @@ export class ScheduledVisitController {
   async create(@Body() body: CreateScheduledVisitRequestDTO, @Res() response) {
     try {
       const entity = await this.createUseCase.execute(body);
-      const data = ScheduledVisitAdapter.toHttp(entity);
+      const data = ScheduledVisitAdapter.toHttp(entity, (entity as any).property);
       return response.status(201).json({ status: true, data });
     } catch (error) {
       throw new BadRequestException(error.message);
@@ -60,7 +60,7 @@ export class ScheduledVisitController {
   async list(@Res() response) {
     try {
       const entities = await this.listUseCase.execute();
-      const data = entities.map((e) => ScheduledVisitAdapter.toHttp(e));
+      const data = entities.map((e) => ScheduledVisitAdapter.toHttp(e, (e as any).property));
       return response.status(200).json({ status: true, data });
     } catch (error) {
       throw new BadRequestException(error.message);
@@ -75,7 +75,7 @@ export class ScheduledVisitController {
   async findById(@Param('id') id: string, @Res() response) {
     try {
       const entity = await this.findByIdUseCase.execute(id);
-      const data = ScheduledVisitAdapter.toHttp(entity!);
+      const data = ScheduledVisitAdapter.toHttp(entity!, (entity as any).property);
       return response.status(200).json({ status: true, data });
     } catch (error) {
       throw new BadRequestException(error.message);
@@ -90,7 +90,7 @@ export class ScheduledVisitController {
   async listByProperty(@Param('propertyId') propertyId: string, @Res() response) {
     try {
       const entities = await this.listByPropertyUseCase.execute(propertyId);
-      const data = entities.map((e) => ScheduledVisitAdapter.toHttp(e));
+      const data = entities.map((e) => ScheduledVisitAdapter.toHttp(e, (e as any).property));
       return response.status(200).json({ status: true, data });
     } catch (error) {
       throw new BadRequestException(error.message);
@@ -105,7 +105,7 @@ export class ScheduledVisitController {
   async listByUser(@Param('userId') userId: string, @Res() response) {
     try {
       const entities = await this.listByUserUseCase.execute(userId);
-      const data = entities.map((e) => ScheduledVisitAdapter.toHttp(e));
+      const data = entities.map((e) => ScheduledVisitAdapter.toHttp(e, (e as any).property));
       return response.status(200).json({ status: true, data });
     } catch (error) {
       throw new BadRequestException(error.message);
@@ -124,7 +124,7 @@ export class ScheduledVisitController {
   ) {
     try {
       const entity = await this.updateUseCase.execute({ id, data: body });
-      const data = ScheduledVisitAdapter.toHttp(entity);
+      const data = ScheduledVisitAdapter.toHttp(entity, (entity as any).property);
       return response.status(200).json({ status: true, data });
     } catch (error) {
       throw new BadRequestException(error.message);

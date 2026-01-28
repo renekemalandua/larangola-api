@@ -65,33 +65,49 @@ export class PropertyAdapter {
     };
   }
 
-  static toHttp(entity: PropertyEntity): any {
+  static toHttp(entity: any, agent?: any): any {
+    // Robustly handle both Entity and Prisma POJO
+    const getData = (field: string) => {
+      if (entity.props && typeof entity[field] === 'function') return entity[field]();
+      if (entity.props) return entity.props[field];
+      return entity[field];
+    };
+
+    const id = entity.id || (entity.props ? entity.props.id : null);
+
     return {
-      id: entity.id,
-      agentId: entity.agentId,
-      categoryId: entity.categoryId,
-      title: entity.title,
-      description: entity.description,
-      address: entity.address,
-      city: entity.city,
-      state: entity.state,
-      country: entity.country,
-      latitude: entity.latitude,
-      longitude: entity.longitude,
-      bedrooms: entity.bedrooms,
-      bathrooms: entity.bathrooms,
-      area: entity.area,
-      propertyType: entity.propertyType,
-      amenities: entity.amenities,
-      images: entity.images,
+      id: id,
+      agentId: entity.agentId || entity.props?.agentId,
+      categoryId: entity.categoryId || entity.props?.categoryId,
+      title: entity.title || entity.props?.title,
+      description: entity.description || entity.props?.description,
+      address: entity.address || entity.props?.address,
+      city: entity.city || entity.props?.city,
+      state: entity.state || entity.props?.state,
+      country: entity.country || entity.props?.country || 'Angola',
+      latitude: entity.latitude || entity.props?.latitude,
+      longitude: entity.longitude || entity.props?.longitude,
+      bedrooms: entity.bedrooms || entity.props?.bedrooms,
+      bathrooms: entity.bathrooms || entity.props?.bathrooms,
+      area: entity.area || entity.props?.area,
+      propertyType: entity.propertyType || entity.props?.propertyType,
+      amenities: entity.amenities || entity.props?.amenities,
+      images: entity.images || entity.props?.images,
 
-      listingType: entity.listingType,
-      price: entity.price,
-      currency: entity.currency,
-      status: entity.status,
+      listingType: entity.listingType || entity.props?.listingType,
+      price: entity.price || entity.props?.price,
+      currency: entity.currency || entity.props?.currency || 'AOA',
+      status: entity.status || entity.props?.status,
 
-      createdAt: entity.createdAt,
-      updatedAt: entity.updatedAt,
+      createdAt: entity.createdAt || entity.props?.createdAt,
+      updatedAt: entity.updatedAt || entity.props?.updatedAt,
+      agent: agent ? {
+        id: agent.id,
+        name: agent.user?.name || agent.name,
+        avatar: agent.user?.avatar || agent.avatar,
+        company: agent.company,
+        isVerified: !!agent.isVerified
+      } : null,
     };
   }
 }

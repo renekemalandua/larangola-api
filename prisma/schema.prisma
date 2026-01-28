@@ -96,6 +96,7 @@ model Property {
     propertyInterests PropertyInterest[]
     closedDeals       ClosedDeal[]
     reviews           Review[]         @relation("PropertyReview")
+    messages          Message[]
 }
 
 enum ListingType {
@@ -245,6 +246,8 @@ model Message {
 
     chat   Chat @relation(fields: [chatId], references: [id])
     sender User @relation(fields: [senderId], references: [id])
+    propertyId String?
+    property   Property? @relation(fields: [propertyId], references: [id])
 }
 
 // ============================================

@@ -33,3 +33,31 @@ Vamos fazer o seguinte, primeiro não existe minhas propriedades, a propriedade 
 Em seguida o seu anucio é criado automaticamente com valores obrigatorios previamente pedidos, e nessa mesma tela todas
 as propriedadades/anucio terão um btn de publicar(caso esteja em draft), cancelar publicação(caso esteja em published), editar, e ao clicar na card abre detalhes da
 propriedade/anucio. e nessa mesma telas tera todas as propriedades/anucios, publicados, drafts e cancelados deu pra entender? me diz se entendeu sem implementar
+
+
+Agora precisamos mudar algumas coisas ao criar a propriedade:
+- Toda propriedade é criada com status draft
+- quanto a esses campos:
+	- state: Será um combobox ou select mas que terá luanda cravado pois o mvp se foca em luanda
+	- city: sera um combobox ou select com todos os municipios de luanda 
+	- address: Sera um campo de texto
+	- propertyType: sera umas bolhas pra uma opção entre Casa de luxo, espaço pra negocio e etc diferente das opções de categoria
+	- amenities: sera umas bolhas pra uma opção entre varias opções
+- A card de anucios o btn de editar deve estar no topo no estremo direito apenas o icone, junto com o icone de eliminar
+- E onde tem os btns de editar e remover deve ter um btn dinamico:
+	- quando o anucio estiver no status draft o btn sera verde escrito publicar
+	- quando o anucio estiver no status published o btn sera dourado escrito finalizar
+	- quando o anucio estiver no status cancelled/finished o btn fica cinza escrito invalido
+- quanto ao icone de eliminar ele deve ter um modal de confirmacao, alem disso um anucio só poe ser eliminado
+se estiver em draft, quando estiver em published ele deve cancelar inves de eliminar, se estiver em um status difierente 
+de draft/published o icone de elinar deve ser ocultado
+- o icne de editar só aprece enquanto o torneio estiver em draft senão tabem deve ser ocultado.
+Se entendeu faz um resumo do que eu preciso sem implemntar 
+
+e eu disse que
+- state: Será um combobox ou select mas que terá luanda cravado pois o mvp se foca em luanda
+	- city: sera um combobox ou select com todos os municipios de luanda 
+Tu não sabes o que é um select porque aquilo não é um select e aonde estão as amenities, melhore a UI e UX dessa tela, faz algo bonito
+
+Boa agora vamos dar uma pausa no codigo e arquiterar e pensar nos proximos passos:
+ - qual o melhor caminho agora focar em deixar todas as ações do cliente pronta, ou do agente? quem deve ser minhas prioridades?	

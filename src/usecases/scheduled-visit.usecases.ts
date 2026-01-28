@@ -22,6 +22,12 @@ export class CreateScheduledVisitUseCase implements UseCase<
   ): Promise<ScheduledVisitEntity> {
     const property = await this.propertyRepository.findById(request.propertyId);
     if (!property) throw new BadRequestException('Property does not exist');
+
+    const existingVisit = await this.repository.findByUserAndProperty(request.userId, request.propertyId);
+    if (existingVisit) {
+      throw new BadRequestException('Já tens um agendamento pendente ou confirmado para este imóvel.');
+    }
+
     const entity = ScheduledVisitEntity.create({
       ...request,
       scheduledDate: new Date(request.scheduledDate),

@@ -1,6 +1,7 @@
 import { Chat } from '@prisma/client';
 import { ChatEntity } from '../entities/chat.entity';
 import { IdValueObject } from '../shared';
+import { UserAdapter } from './user.adapter';
 
 export class ChatAdapter {
   static toDomain(raw: Chat): ChatEntity {
@@ -15,6 +16,8 @@ export class ChatAdapter {
         isBlocked: raw.isBlocked,
         createdAt: raw.createdAt,
         updatedAt: raw.updatedAt,
+        user1: (raw as any).user1 ? UserAdapter.toDomain((raw as any).user1) : undefined,
+        user2: (raw as any).user2 ? UserAdapter.toDomain((raw as any).user2) : undefined,
       },
       new IdValueObject(raw.id)
     );
@@ -47,6 +50,8 @@ export class ChatAdapter {
       isBlocked: entity.isBlocked,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
+      user1: entity.user1 ? UserAdapter.toHttp(entity.user1) : undefined,
+      user2: entity.user2 ? UserAdapter.toHttp(entity.user2) : undefined,
     };
   }
 }

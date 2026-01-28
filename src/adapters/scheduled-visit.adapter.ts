@@ -7,6 +7,7 @@ import {
   VisitStatus,
 } from '../entities/scheduled-visit.entity';
 import { IdValueObject } from '../shared';
+import { PropertyAdapter } from './property.adapter';
 
 export class ScheduledVisitAdapter {
   static toDomain(raw: ScheduledVisit): ScheduledVisitEntity {
@@ -39,7 +40,9 @@ export class ScheduledVisitAdapter {
     };
   }
 
-  static toHttp(entity: ScheduledVisitEntity): any {
+  static toHttp(entity: ScheduledVisitEntity, property?: any): any {
+    const propertyData = property ? PropertyAdapter.toHttp(property, property.agent) : null;
+
     return {
       id: entity.id,
       propertyId: entity.propertyId,
@@ -50,6 +53,7 @@ export class ScheduledVisitAdapter {
       notes: entity.notes,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
+      property: propertyData,
     };
   }
 }

@@ -11,6 +11,7 @@ export class MessageAdapter {
         text: raw.text,
         isRead: raw.isRead,
         createdAt: raw.createdAt,
+        propertyId: raw.propertyId ?? undefined,
       },
       new IdValueObject(raw.id)
     );
@@ -24,6 +25,7 @@ export class MessageAdapter {
       text: entity.text,
       isRead: entity.isRead,
       createdAt: entity.createdAt,
+      propertyId: entity.propertyId ?? null,
     };
   }
 
@@ -35,6 +37,7 @@ export class MessageAdapter {
       text: entity.text,
       isRead: entity.isRead,
       createdAt: entity.createdAt,
+      propertyId: entity.propertyId,
     };
   }
 }
