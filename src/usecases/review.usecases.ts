@@ -57,7 +57,12 @@ export class UpdateReviewUseCase implements UseCase<
   { id: string; data: UpdateReviewRequestDTO },
   ReviewEntity
 > {
-  constructor(private readonly repository: IReviewRepository) { }
+  constructor(
+    private readonly repository: IReviewRepository,
+    private readonly agentRepository: IAgentRepository,
+    private readonly roommateRepository: IRoommateRepository
+  ) { }
+
   async execute({
     id,
     data,
@@ -67,19 +72,81 @@ export class UpdateReviewUseCase implements UseCase<
   }): Promise<ReviewEntity> {
     const entity = await this.repository.findById(id);
     if (!entity) throw new BadRequestException('Review not found');
+
+    const oldRating = entity.rating;
+    const { toUserId, role } = entity;
+
     if (data.rating !== undefined) entity.rating = data.rating;
     if (data.comment !== undefined) entity.comment = data.comment ?? null;
-    return this.repository.update(entity);
+
+    const updated = await this.repository.update(entity);
+
+    // Recalcular média se rating mudou
+    if (oldRating !== updated.rating) {
+      await this.updateUserRating(toUserId, role);
+    }
+
+    return updated;
+  }
+
+  private async updateUserRating(userId: string, role: string) {
+    const reviews = await this.repository.findByUserIdAndRole(userId, role);
+    const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+    const averageRating = reviews.length > 0 ? totalRating / reviews.length : 0;
+
+    if (role === ReviewRole.AGENT) {
+      const agent = await this.agentRepository.findByUserId(userId);
+      if (agent) {
+        agent.averageRating = averageRating;
+        await this.agentRepository.update(agent);
+      }
+    } else if (role === ReviewRole.ROOMMATE) {
+      const roommate = await this.roommateRepository.findByUserId(userId);
+      if (roommate) {
+        roommate.rating = averageRating;
+        await this.roommateRepository.update(roommate);
+      }
+    }
   }
 }
 
 @Injectable()
 export class DeleteReviewUseCase implements UseCase<string, void> {
-  constructor(private readonly repository: IReviewRepository) { }
+  constructor(
+    private readonly repository: IReviewRepository,
+    private readonly agentRepository: IAgentRepository,
+    private readonly roommateRepository: IRoommateRepository
+  ) { }
+  
   async execute(id: string): Promise<void> {
     const entity = await this.repository.findById(id);
     if (!entity) throw new BadRequestException('Review not found');
+    
+    const { toUserId, role } = entity;
     await this.repository.delete(id);
+    
+    // Recalcular média após deletar
+    await this.updateUserRating(toUserId, role);
+  }
+
+  private async updateUserRating(userId: string, role: string) {
+    const reviews = await this.repository.findByUserIdAndRole(userId, role);
+    const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+    const averageRating = reviews.length > 0 ? totalRating / reviews.length : 0;
+
+    if (role === ReviewRole.AGENT) {
+      const agent = await this.agentRepository.findByUserId(userId);
+      if (agent) {
+        agent.averageRating = averageRating;
+        await this.agentRepository.update(agent);
+      }
+    } else if (role === ReviewRole.ROOMMATE) {
+      const roommate = await this.roommateRepository.findByUserId(userId);
+      if (roommate) {
+        roommate.rating = averageRating;
+        await this.roommateRepository.update(roommate);
+      }
+    }
   }
 }
 

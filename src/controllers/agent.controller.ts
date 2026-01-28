@@ -21,6 +21,7 @@ import {
 } from '../usecases/agent.usecases';
 import { CreateAgentRequestDTO, UpdateAgentRequestDTO } from '../dto/agent.dto';
 import { AgentAdapter } from '../adapters/agent.adapter';
+import { IReviewRepository } from '../repositories/IReviewRepository';
 
 @ApiTags('Agents')
 @Controller('agents')
@@ -31,8 +32,9 @@ export class AgentController {
     private readonly deleteUseCase: DeleteAgentUseCase,
     private readonly listUseCase: ListAgentsUseCase,
     private readonly findByIdUseCase: FindAgentByIdUseCase,
-    private readonly findByUserIdUseCase: FindAgentByUserIdUseCase
-  ) {}
+    private readonly findByUserIdUseCase: FindAgentByUserIdUseCase,
+    private readonly reviewRepository: IReviewRepository
+  ) { }
 
   @Post('create')
   @ApiOperation({ summary: 'Create a new Agent' })
@@ -70,6 +72,11 @@ export class AgentController {
   async findById(@Param('id') id: string, @Res() response) {
     try {
       const entity = await this.findByIdUseCase.execute(id);
+      const reviewCount = await this.reviewRepository.countByUserIdAndRole(
+        entity!.userId,
+        'AGENT'
+      );
+      (entity as any).reviewCount = reviewCount;
       const data = AgentAdapter.toHttp(entity!);
       return response.status(200).json({ status: true, data });
     } catch (error) {
@@ -85,6 +92,11 @@ export class AgentController {
   async findByUserId(@Param('userId') userId: string, @Res() response) {
     try {
       const entity = await this.findByUserIdUseCase.execute(userId);
+      const reviewCount = await this.reviewRepository.countByUserIdAndRole(
+        userId,
+        'AGENT'
+      );
+      (entity as any).reviewCount = reviewCount;
       const data = AgentAdapter.toHttp(entity!);
       return response.status(200).json({ status: true, data });
     } catch (error) {

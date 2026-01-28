@@ -12,4 +12,8 @@ export abstract class IReviewRepository {
     userId: string,
     role: string
   ): Promise<ReviewEntity[]>;
+  abstract countByUserIdAndRole(
+    userId: string,
+    role: string
+  ): Promise<number>;
 }

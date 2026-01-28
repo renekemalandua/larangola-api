@@ -71,4 +71,13 @@ export class PrismaReviewRepository implements IReviewRepository {
     });
     return rows.map(ReviewAdapter.toDomain);
   }
+
+  async countByUserIdAndRole(
+    userId: string,
+    role: string
+  ): Promise<number> {
+    return this.prisma.review.count({
+      where: { toUserId: userId, role: role as any },
+    });
+  }
 }
