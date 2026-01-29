@@ -57,7 +57,11 @@ export class RoommateAdapter {
     };
   }
 
-  static toHttp(entity: RoommateEntity): any {
+  static toHttp(entity: any): any {
+    const reviewCount = entity.reviewCount || 0;
+    const hasMinimumReviews = reviewCount >= 3;
+    const rating = entity.rating || 0;
+
     return {
       id: entity.id,
       userId: entity.userId,
@@ -71,7 +75,10 @@ export class RoommateAdapter {
       isVerified: entity.isVerified,
       responseRate: entity.responseRate,
       averageResponseTime: entity.averageResponseTime,
-      rating: entity.rating,
+      rating: rating,
+      reviewCount: reviewCount,
+      hasMinimumReviews: hasMinimumReviews,
+      displayRating: hasMinimumReviews ? rating.toFixed(1) : null,
       lookingForRoommate: entity.lookingForRoommate,
       preferences: entity.preferences,
       lifestyle: entity.lifestyle,

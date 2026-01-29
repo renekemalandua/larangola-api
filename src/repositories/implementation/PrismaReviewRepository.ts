@@ -80,4 +80,19 @@ export class PrismaReviewRepository implements IReviewRepository {
       where: { toUserId: userId, role: role as any },
     });
   }
+
+  async findByCompositeKey(
+    fromUserId: string,
+    toUserId: string,
+    role: string
+  ): Promise<ReviewEntity | null> {
+    const row = await this.prisma.review.findFirst({
+      where: {
+        fromUserId,
+        toUserId,
+        role: role as any,
+      },
+    });
+    return row ? ReviewAdapter.toDomain(row) : null;
+  }
 }

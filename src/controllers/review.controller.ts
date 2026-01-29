@@ -8,8 +8,9 @@ import {
   Post,
   Put,
   Res,
+  Query,
 } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiParam, ApiResponse, ApiTags, ApiQuery } from '@nestjs/swagger';
 import { HttpErrorResponseDTO } from '../shared';
 import {
   CreateReviewUseCase,
@@ -100,11 +101,16 @@ export class ReviewController {
   @Get('user/:toUserId')
   @ApiOperation({ summary: 'List Reviews by To User' })
   @ApiParam({ name: 'toUserId' })
+  @ApiQuery({ name: 'role', required: false, enum: ['AGENT', 'ROOMMATE'] })
   @ApiResponse({ status: 200 })
   @ApiResponse({ status: 400, type: HttpErrorResponseDTO })
-  async listByToUser(@Param('toUserId') toUserId: string, @Res() response) {
+  async listByToUser(
+    @Param('toUserId') toUserId: string,
+    @Query('role') role: string | undefined, // Explicitly typed as string | undefined
+    @Res() response
+  ) {
     try {
-      const entities = await this.listByToUserUseCase.execute(toUserId);
+      const entities = await this.listByToUserUseCase.execute({ toUserId, role }); // Pass as object
       const data = entities.map((e) => ReviewAdapter.toHttp(e));
       return response.status(200).json({ status: true, data });
     } catch (error) {

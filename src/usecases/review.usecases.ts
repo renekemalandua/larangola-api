@@ -23,6 +23,17 @@ export class CreateReviewUseCase implements UseCase<
   ) { }
 
   async execute(request: CreateReviewRequestDTO): Promise<ReviewEntity> {
+    // Check for existing review
+    const existing = await this.repository.findByCompositeKey(
+      request.fromUserId,
+      request.toUserId,
+      request.role
+    );
+
+    if (existing) {
+      throw new BadRequestException('You have already reviewed this user in this role.');
+    }
+
     const entity = ReviewEntity.create(request);
     const created = await this.repository.create(entity);
 
@@ -117,14 +128,14 @@ export class DeleteReviewUseCase implements UseCase<string, void> {
     private readonly agentRepository: IAgentRepository,
     private readonly roommateRepository: IRoommateRepository
   ) { }
-  
+
   async execute(id: string): Promise<void> {
     const entity = await this.repository.findById(id);
     if (!entity) throw new BadRequestException('Review not found');
-    
+
     const { toUserId, role } = entity;
     await this.repository.delete(id);
-    
+
     // Recalcular média após deletar
     await this.updateUserRating(toUserId, role);
   }
@@ -171,11 +182,14 @@ export class ListReviewsByPropertyUseCase implements UseCase<
 
 @Injectable()
 export class ListReviewsByToUserUseCase implements UseCase<
-  string,
+  { toUserId: string; role?: string },
   ReviewEntity[]
 > {
   constructor(private readonly repository: IReviewRepository) { }
-  async execute(toUserId: string): Promise<ReviewEntity[]> {
+  async execute({ toUserId, role }: { toUserId: string; role?: string }): Promise<ReviewEntity[]> {
+    if (role) {
+      return this.repository.findByUserIdAndRole(toUserId, role);
+    }
     return this.repository.listByToUser(toUserId);
   }
 }
