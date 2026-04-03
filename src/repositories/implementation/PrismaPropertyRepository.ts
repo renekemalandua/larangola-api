@@ -6,7 +6,7 @@ import { PropertyAdapter } from '../../adapters/property.adapter';
 
 @Injectable()
 export class PrismaPropertyRepository implements IPropertyRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(data: PropertyEntity): Promise<PropertyEntity> {
     const raw = PropertyAdapter.toPrisma(data) as any;

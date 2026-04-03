@@ -16,7 +16,7 @@ export class CreatePropertyInterestUseCase implements UseCase<
   constructor(
     private readonly repository: IPropertyInterestRepository,
     private readonly propertyRepository: IPropertyRepository
-  ) { }
+  ) {}
   async execute(
     request: CreatePropertyInterestRequestDTO
   ): Promise<PropertyInterestEntity> {
@@ -25,7 +25,9 @@ export class CreatePropertyInterestUseCase implements UseCase<
 
     // Idempotency: Check if user already marked interest in this property
     const existing = await this.repository.listByUser(request.userId);
-    const alreadyExists = existing.find(i => i.propertyId === request.propertyId);
+    const alreadyExists = existing.find(
+      (i) => i.propertyId === request.propertyId
+    );
     if (alreadyExists) return alreadyExists;
 
     const entity = PropertyInterestEntity.create(request);
@@ -38,7 +40,7 @@ export class UpdatePropertyInterestUseCase implements UseCase<
   { id: string; data: UpdatePropertyInterestRequestDTO },
   PropertyInterestEntity
 > {
-  constructor(private readonly repository: IPropertyInterestRepository) { }
+  constructor(private readonly repository: IPropertyInterestRepository) {}
   async execute({
     id,
     data,
@@ -55,7 +57,7 @@ export class UpdatePropertyInterestUseCase implements UseCase<
 
 @Injectable()
 export class DeletePropertyInterestUseCase implements UseCase<string, void> {
-  constructor(private readonly repository: IPropertyInterestRepository) { }
+  constructor(private readonly repository: IPropertyInterestRepository) {}
   async execute(id: string): Promise<void> {
     const entity = await this.repository.findById(id);
     if (!entity) throw new BadRequestException('Property interest not found');
@@ -68,7 +70,7 @@ export class ListPropertyInterestsUseCase implements UseCase<
   void,
   PropertyInterestEntity[]
 > {
-  constructor(private readonly repository: IPropertyInterestRepository) { }
+  constructor(private readonly repository: IPropertyInterestRepository) {}
   async execute(): Promise<PropertyInterestEntity[]> {
     return this.repository.list();
   }
@@ -79,7 +81,7 @@ export class ListPropertyInterestsByPropertyUseCase implements UseCase<
   string,
   PropertyInterestEntity[]
 > {
-  constructor(private readonly repository: IPropertyInterestRepository) { }
+  constructor(private readonly repository: IPropertyInterestRepository) {}
   async execute(propertyId: string): Promise<PropertyInterestEntity[]> {
     return this.repository.listByProperty(propertyId);
   }
@@ -90,7 +92,7 @@ export class ListPropertyInterestsByUserUseCase implements UseCase<
   string,
   PropertyInterestEntity[]
 > {
-  constructor(private readonly repository: IPropertyInterestRepository) { }
+  constructor(private readonly repository: IPropertyInterestRepository) {}
   async execute(userId: string): Promise<PropertyInterestEntity[]> {
     return this.repository.listByUser(userId);
   }
@@ -101,7 +103,7 @@ export class ListPropertyInterestsByAgentUseCase implements UseCase<
   string,
   PropertyInterestEntity[]
 > {
-  constructor(private readonly repository: IPropertyInterestRepository) { }
+  constructor(private readonly repository: IPropertyInterestRepository) {}
   async execute(agentId: string): Promise<PropertyInterestEntity[]> {
     return this.repository.listByAgent(agentId);
   }
@@ -112,7 +114,7 @@ export class FindPropertyInterestByIdUseCase implements UseCase<
   string,
   PropertyInterestEntity | null
 > {
-  constructor(private readonly repository: IPropertyInterestRepository) { }
+  constructor(private readonly repository: IPropertyInterestRepository) {}
   async execute(id: string): Promise<PropertyInterestEntity | null> {
     const entity = await this.repository.findById(id);
     if (!entity) throw new BadRequestException('Property interest not found');

@@ -61,3 +61,8 @@ Tu não sabes o que é um select porque aquilo não é um select e aonde estão 
 
 Boa agora vamos dar uma pausa no codigo e arquiterar e pensar nos proximos passos:
  - qual o melhor caminho agora focar em deixar todas as ações do cliente pronta, ou do agente? quem deve ser minhas prioridades?	
+
+ Eu preciso que tenha alguma forma de trocar de role activa tipo nesse momento eu quero ver a app como um agente ou não
+ entendes tipo na binance tem duas tabs no topo da tela que muda de exchange para wallet, eu preciso disso aqui, porque poder 
+ Definir se eu quero ou posso ver coisas de agente ou não vai ajudar muito, e de alguma forma isso deve ficar guardado no 
+

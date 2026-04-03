@@ -10,7 +10,13 @@ import {
   Res,
   Query,
 } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiResponse, ApiTags, ApiQuery } from '@nestjs/swagger';
+import {
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { HttpErrorResponseDTO } from '../shared';
 import {
   CreateReviewUseCase,
@@ -38,7 +44,7 @@ export class ReviewController {
     private readonly listByPropertyUseCase: ListReviewsByPropertyUseCase,
     private readonly listByToUserUseCase: ListReviewsByToUserUseCase,
     private readonly findByIdUseCase: FindReviewByIdUseCase
-  ) { }
+  ) {}
 
   @Post('create')
   @ApiOperation({ summary: 'Create a new Review' })
@@ -88,7 +94,10 @@ export class ReviewController {
   @ApiParam({ name: 'propertyId' })
   @ApiResponse({ status: 200 })
   @ApiResponse({ status: 400, type: HttpErrorResponseDTO })
-  async listByProperty(@Param('propertyId') propertyId: string, @Res() response) {
+  async listByProperty(
+    @Param('propertyId') propertyId: string,
+    @Res() response
+  ) {
     try {
       const entities = await this.listByPropertyUseCase.execute(propertyId); // Updated method usage
       const data = entities.map((e) => ReviewAdapter.toHttp(e));
@@ -110,7 +119,10 @@ export class ReviewController {
     @Res() response
   ) {
     try {
-      const entities = await this.listByToUserUseCase.execute({ toUserId, role }); // Pass as object
+      const entities = await this.listByToUserUseCase.execute({
+        toUserId,
+        role,
+      }); // Pass as object
       const data = entities.map((e) => ReviewAdapter.toHttp(e));
       return response.status(200).json({ status: true, data });
     } catch (error) {

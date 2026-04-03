@@ -41,7 +41,9 @@ export class ScheduledVisitAdapter {
   }
 
   static toHttp(entity: ScheduledVisitEntity, property?: any): any {
-    const propertyData = property ? PropertyAdapter.toHttp(property, property.agent) : null;
+    const propertyData = property
+      ? PropertyAdapter.toHttp(property, property.agent)
+      : null;
 
     return {
       id: entity.id,

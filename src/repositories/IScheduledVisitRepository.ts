@@ -5,7 +5,10 @@ export abstract class IScheduledVisitRepository {
   abstract list(): Promise<ScheduledVisitEntity[]>;
   abstract listByProperty(propertyId: string): Promise<ScheduledVisitEntity[]>;
   abstract listByUser(userId: string): Promise<ScheduledVisitEntity[]>;
-  abstract findByUserAndProperty(userId: string, propertyId: string): Promise<ScheduledVisitEntity | null>;
+  abstract findByUserAndProperty(
+    userId: string,
+    propertyId: string
+  ): Promise<ScheduledVisitEntity | null>;
   abstract findById(id: string): Promise<ScheduledVisitEntity | null>;
   abstract update(data: ScheduledVisitEntity): Promise<ScheduledVisitEntity>;
   abstract delete(id: string): Promise<void>;

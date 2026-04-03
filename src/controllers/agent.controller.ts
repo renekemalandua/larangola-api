@@ -34,7 +34,7 @@ export class AgentController {
     private readonly findByIdUseCase: FindAgentByIdUseCase,
     private readonly findByUserIdUseCase: FindAgentByUserIdUseCase,
     private readonly reviewRepository: IReviewRepository
-  ) { }
+  ) {}
 
   @Post('create')
   @ApiOperation({ summary: 'Create a new Agent' })

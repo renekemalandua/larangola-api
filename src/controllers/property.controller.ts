@@ -48,7 +48,7 @@ export class PropertyController {
     private readonly listByCategoryUseCase: ListPropertiesByCategoryUseCase,
     private readonly findByIdUseCase: FindPropertyByIdUseCase,
     private readonly uploadService: UploadService
-  ) { }
+  ) {}
 
   @Post('create')
   @ApiOperation({ summary: 'Create a new Property' })
@@ -63,16 +63,25 @@ export class PropertyController {
   ) {
     try {
       console.log('[PropertyController] Create - Body (Raw):', body);
-      console.log('[PropertyController] Create - Body (keys):', Object.keys(body));
-      console.log('[PropertyController] Create - Files received:', files?.length || 0);
+      console.log(
+        '[PropertyController] Create - Body (keys):',
+        Object.keys(body)
+      );
+      console.log(
+        '[PropertyController] Create - Files received:',
+        files?.length || 0
+      );
 
       if (files && files.length > 0) {
-        console.log('[PropertyController] Files details:', files.map(f => ({
-          fieldname: f.fieldname,
-          originalname: f.originalname,
-          mimetype: f.mimetype,
-          size: f.size
-        })));
+        console.log(
+          '[PropertyController] Files details:',
+          files.map((f) => ({
+            fieldname: f.fieldname,
+            originalname: f.originalname,
+            mimetype: f.mimetype,
+            size: f.size,
+          }))
+        );
       }
 
       if (files && files.length > 0) {
@@ -86,19 +95,30 @@ export class PropertyController {
         body.images = imageUrls;
       } else {
         console.log('[PropertyController] No files received or files empty.');
-        console.log('[PropertyController] body.images type:', typeof body.images);
-        console.log('[PropertyController] body.images value:', JSON.stringify(body.images, null, 2));
+        console.log(
+          '[PropertyController] body.images type:',
+          typeof body.images
+        );
+        console.log(
+          '[PropertyController] body.images value:',
+          JSON.stringify(body.images, null, 2)
+        );
 
         // If images came in body instead of files, clear them
         if (body.images) {
-          console.warn('[PropertyController] WARNING: Images came in body instead of as files! Clearing...');
+          console.warn(
+            '[PropertyController] WARNING: Images came in body instead of as files! Clearing...'
+          );
           body.images = undefined;
         }
       }
 
       console.log('[PropertyController] Calling CreatePropertyUseCase...');
       const entity = await this.createUseCase.execute(body);
-      console.log('[PropertyController] Property entity created successfully:', entity.id);
+      console.log(
+        '[PropertyController] Property entity created successfully:',
+        entity.id
+      );
 
       const data = PropertyAdapter.toHttp(entity);
       return response.status(201).json({ status: true, data });

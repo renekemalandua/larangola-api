@@ -6,13 +6,13 @@ import { ChatAdapter } from '../../adapters/chat.adapter';
 
 @Injectable()
 export class PrismaChatRepository implements IChatRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(data: ChatEntity): Promise<ChatEntity> {
     const raw = ChatAdapter.toPrisma(data) as any;
     const created = await this.prisma.chat.create({
       data: raw,
-      include: { user1: true, user2: true }
+      include: { user1: true, user2: true },
     });
     return ChatAdapter.toDomain(created);
   }

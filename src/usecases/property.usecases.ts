@@ -19,14 +19,23 @@ export class CreatePropertyUseCase implements UseCase<
     private readonly repository: IPropertyRepository,
     private readonly categoryRepository: IPropertyCategoryRepository,
     private readonly agentRepository: IAgentRepository
-  ) { }
+  ) {}
   async execute(request: CreatePropertyRequestDTO): Promise<PropertyEntity> {
-    console.log('[CreatePropertyUseCase] Executing with request:', JSON.stringify(request, null, 2));
+    console.log(
+      '[CreatePropertyUseCase] Executing with request:',
+      JSON.stringify(request, null, 2)
+    );
 
-    console.log('[CreatePropertyUseCase] Checking categoryId:', request.categoryId);
+    console.log(
+      '[CreatePropertyUseCase] Checking categoryId:',
+      request.categoryId
+    );
     const category = await this.categoryRepository.findById(request.categoryId);
     if (!category) {
-      console.error('[CreatePropertyUseCase] Category not found:', request.categoryId);
+      console.error(
+        '[CreatePropertyUseCase] Category not found:',
+        request.categoryId
+      );
       throw new BadRequestException('Category does not exist');
     }
     console.log('[CreatePropertyUseCase] Category found:', category.name);
@@ -35,7 +44,10 @@ export class CreatePropertyUseCase implements UseCase<
     console.log('[CreatePropertyUseCase] Checking agentId:', request.agentId);
     const agent = await this.agentRepository.findById(request.agentId);
     if (!agent) {
-      console.error('[CreatePropertyUseCase] Agent not found:', request.agentId);
+      console.error(
+        '[CreatePropertyUseCase] Agent not found:',
+        request.agentId
+      );
       throw new BadRequestException('Agent not found');
     }
     console.log('[CreatePropertyUseCase] Agent found:', agent.id);
@@ -55,7 +67,10 @@ export class CreatePropertyUseCase implements UseCase<
 
     console.log('[CreatePropertyUseCase] Saving entity to repository...');
     const result = await this.repository.create(entity);
-    console.log('[CreatePropertyUseCase] Property created successfully:', result.id);
+    console.log(
+      '[CreatePropertyUseCase] Property created successfully:',
+      result.id
+    );
 
     return result;
   }
@@ -69,7 +84,7 @@ export class UpdatePropertyUseCase implements UseCase<
   constructor(
     private readonly repository: IPropertyRepository,
     private readonly categoryRepository: IPropertyCategoryRepository
-  ) { }
+  ) {}
   async execute({
     id,
     data,
@@ -101,7 +116,8 @@ export class UpdatePropertyUseCase implements UseCase<
     if (data.amenities !== undefined) entity.amenities = data.amenities ?? null;
     if (data.images !== undefined) entity.images = data.images ?? null;
     // Map new fields
-    if (data.listingType !== undefined) entity.listingType = data.listingType ?? null;
+    if (data.listingType !== undefined)
+      entity.listingType = data.listingType ?? null;
     if (data.price !== undefined) entity.price = data.price ?? null;
     if (data.currency !== undefined) entity.currency = data.currency ?? 'AOA';
 
@@ -111,15 +127,18 @@ export class UpdatePropertyUseCase implements UseCase<
       if (data.status === 'published' && entity.status !== 'published') {
         const missingFields: string[] = [];
         if (!entity.price && !data.price) missingFields.push('price');
-        if (!entity.listingType && !data.listingType) missingFields.push('listingType');
+        if (!entity.listingType && !data.listingType)
+          missingFields.push('listingType');
         if (!entity.propertyType) missingFields.push('propertyType');
 
         // Check images
-        const imgs = data.images as string[] || entity.images as string[];
+        const imgs = (data.images as string[]) || (entity.images as string[]);
         if (!imgs || imgs.length === 0) missingFields.push('images');
 
         if (missingFields.length > 0) {
-          throw new BadRequestException(`Cannot publish. Missing fields: ${missingFields.join(', ')}`);
+          throw new BadRequestException(
+            `Cannot publish. Missing fields: ${missingFields.join(', ')}`
+          );
         }
       }
       entity.status = data.status;
@@ -131,7 +150,7 @@ export class UpdatePropertyUseCase implements UseCase<
 
 @Injectable()
 export class DeletePropertyUseCase implements UseCase<string, void> {
-  constructor(private readonly repository: IPropertyRepository) { }
+  constructor(private readonly repository: IPropertyRepository) {}
   async execute(id: string): Promise<void> {
     const entity = await this.repository.findById(id);
     if (!entity) throw new BadRequestException('Property not found');
@@ -141,7 +160,7 @@ export class DeletePropertyUseCase implements UseCase<string, void> {
 
 @Injectable()
 export class ListPropertiesUseCase implements UseCase<void, PropertyEntity[]> {
-  constructor(private readonly repository: IPropertyRepository) { }
+  constructor(private readonly repository: IPropertyRepository) {}
   async execute(): Promise<PropertyEntity[]> {
     return this.repository.list();
   }
@@ -152,7 +171,7 @@ export class ListPropertiesByAgentUseCase implements UseCase<
   string,
   PropertyEntity[]
 > {
-  constructor(private readonly repository: IPropertyRepository) { }
+  constructor(private readonly repository: IPropertyRepository) {}
   async execute(agentId: string): Promise<PropertyEntity[]> {
     return this.repository.listByAgent(agentId); // Assumes repo method handles agentId filter
   }
@@ -163,7 +182,7 @@ export class ListPropertiesByCategoryUseCase implements UseCase<
   string,
   PropertyEntity[]
 > {
-  constructor(private readonly repository: IPropertyRepository) { }
+  constructor(private readonly repository: IPropertyRepository) {}
   async execute(categoryId: string): Promise<PropertyEntity[]> {
     return this.repository.listByCategory(categoryId);
   }
@@ -174,7 +193,7 @@ export class FindPropertyByIdUseCase implements UseCase<
   string,
   PropertyEntity | null
 > {
-  constructor(private readonly repository: IPropertyRepository) { }
+  constructor(private readonly repository: IPropertyRepository) {}
   async execute(id: string): Promise<PropertyEntity | null> {
     const entity = await this.repository.findById(id);
     if (!entity) throw new BadRequestException('Property not found');

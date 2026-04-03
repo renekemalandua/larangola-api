@@ -6,7 +6,7 @@ import { PropertyInterestAdapter } from '../../adapters/property-interest.adapte
 
 @Injectable()
 export class PrismaPropertyInterestRepository implements IPropertyInterestRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(data: PropertyInterestEntity): Promise<PropertyInterestEntity> {
     const raw = PropertyInterestAdapter.toPrisma(data) as any;
@@ -38,9 +38,9 @@ export class PrismaPropertyInterestRepository implements IPropertyInterestReposi
             agent: {
               include: {
                 user: true,
-              }
-            }
-          }
+              },
+            },
+          },
         },
         user: true,
       },
@@ -61,7 +61,7 @@ export class PrismaPropertyInterestRepository implements IPropertyInterestReposi
         user: {
           include: {
             agent: true,
-          }
+          },
         },
       },
       orderBy: { updatedAt: 'desc' },

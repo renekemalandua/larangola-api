@@ -6,7 +6,7 @@ import { ClosedDealAdapter } from '../../adapters/closed-deal.adapter';
 
 @Injectable()
 export class PrismaClosedDealRepository implements IClosedDealRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(data: ClosedDealEntity): Promise<ClosedDealEntity> {
     const raw = ClosedDealAdapter.toPrisma(data) as any;

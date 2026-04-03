@@ -19,7 +19,10 @@ import {
   FindRoommateByIdUseCase,
   FindRoommateByUserIdUseCase,
 } from '../usecases/roommate.usecases';
-import { CreateRoommateRequestDTO, UpdateRoommateRequestDTO } from '../dto/roommate.dto';
+import {
+  CreateRoommateRequestDTO,
+  UpdateRoommateRequestDTO,
+} from '../dto/roommate.dto';
 import { RoommateAdapter } from '../adapters/roommate.adapter';
 import { IReviewRepository } from '../repositories/IReviewRepository';
 
@@ -34,7 +37,7 @@ export class RoommateController {
     private readonly findByIdUseCase: FindRoommateByIdUseCase,
     private readonly findByUserIdUseCase: FindRoommateByUserIdUseCase,
     private readonly reviewRepository: IReviewRepository
-  ) { }
+  ) {}
 
   @Post('create')
   @ApiOperation({ summary: 'Create a new Roommate' })

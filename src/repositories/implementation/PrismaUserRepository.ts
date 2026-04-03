@@ -6,7 +6,7 @@ import { UserAdapter } from '../../adapters/user.adapter';
 
 @Injectable()
 export class PrismaUserRepository implements IUserRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(data: UserEntity): Promise<UserEntity> {
     const raw = UserAdapter.toPrisma(data) as any;

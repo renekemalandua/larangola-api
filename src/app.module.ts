@@ -427,4 +427,4 @@ import {
     // FindListingByIdUseCase, // Removed
   ],
 })
-export class AppModule { }
+export class AppModule {}

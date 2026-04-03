@@ -6,13 +6,15 @@ import { ScheduledVisitAdapter } from '../../adapters/scheduled-visit.adapter';
 
 @Injectable()
 export class PrismaScheduledVisitRepository implements IScheduledVisitRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(data: ScheduledVisitEntity): Promise<ScheduledVisitEntity> {
     const raw = ScheduledVisitAdapter.toPrisma(data) as any;
     const created = await this.prisma.scheduledVisit.create({
       data: raw,
-      include: { property: { include: { agent: { include: { user: true } } } } }
+      include: {
+        property: { include: { agent: { include: { user: true } } } },
+      },
     });
     const entity = ScheduledVisitAdapter.toDomain(created);
     (entity as any).property = (created as any).property;
@@ -23,12 +25,12 @@ export class PrismaScheduledVisitRepository implements IScheduledVisitRepository
     const rows = await this.prisma.scheduledVisit.findMany({
       include: {
         property: {
-          include: { agent: { include: { user: true } } }
-        }
+          include: { agent: { include: { user: true } } },
+        },
       },
       orderBy: { updatedAt: 'desc' },
     });
-    return (rows as any[]).map(row => {
+    return (rows as any[]).map((row) => {
       const entity = ScheduledVisitAdapter.toDomain(row);
       (entity as any).property = row.property;
       return entity;
@@ -40,12 +42,12 @@ export class PrismaScheduledVisitRepository implements IScheduledVisitRepository
       where: { propertyId },
       include: {
         property: {
-          include: { agent: { include: { user: true } } }
-        }
+          include: { agent: { include: { user: true } } },
+        },
       },
       orderBy: { updatedAt: 'desc' },
     });
-    return (rows as any[]).map(row => {
+    return (rows as any[]).map((row) => {
       const entity = ScheduledVisitAdapter.toDomain(row);
       (entity as any).property = row.property;
       return entity;
@@ -57,26 +59,29 @@ export class PrismaScheduledVisitRepository implements IScheduledVisitRepository
       where: { userId },
       include: {
         property: {
-          include: { agent: { include: { user: true } } }
-        }
+          include: { agent: { include: { user: true } } },
+        },
       },
       orderBy: { updatedAt: 'desc' },
     });
-    return (rows as any[]).map(row => {
+    return (rows as any[]).map((row) => {
       const entity = ScheduledVisitAdapter.toDomain(row);
       (entity as any).property = row.property;
       return entity;
     });
   }
 
-  async findByUserAndProperty(userId: string, propertyId: string): Promise<ScheduledVisitEntity | null> {
+  async findByUserAndProperty(
+    userId: string,
+    propertyId: string
+  ): Promise<ScheduledVisitEntity | null> {
     const row = await this.prisma.scheduledVisit.findFirst({
       where: { userId, propertyId, status: { not: 'cancelled' } },
       include: {
         property: {
-          include: { agent: { include: { user: true } } }
-        }
-      }
+          include: { agent: { include: { user: true } } },
+        },
+      },
     });
     if (!row) return null;
     const entity = ScheduledVisitAdapter.toDomain(row);
@@ -89,9 +94,9 @@ export class PrismaScheduledVisitRepository implements IScheduledVisitRepository
       where: { id },
       include: {
         property: {
-          include: { agent: { include: { user: true } } }
-        }
-      }
+          include: { agent: { include: { user: true } } },
+        },
+      },
     });
     if (!row) return null;
     const entity = ScheduledVisitAdapter.toDomain(row);
@@ -108,7 +113,9 @@ export class PrismaScheduledVisitRepository implements IScheduledVisitRepository
     const row = await this.prisma.scheduledVisit.update({
       where: { id: data.id },
       data: raw,
-      include: { property: { include: { agent: { include: { user: true } } } } }
+      include: {
+        property: { include: { agent: { include: { user: true } } } },
+      },
     });
     const entity = ScheduledVisitAdapter.toDomain(row);
     (entity as any).property = (row as any).property;

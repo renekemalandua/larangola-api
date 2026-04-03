@@ -18,7 +18,7 @@ export class CreateClosedDealUseCase implements UseCase<
     private readonly repository: IClosedDealRepository,
     private readonly propertyRepository: IPropertyRepository,
     private readonly agentRepository: IAgentRepository
-  ) { }
+  ) {}
   async execute(
     request: CreateClosedDealRequestDTO
   ): Promise<ClosedDealEntity> {
@@ -39,7 +39,7 @@ export class UpdateClosedDealUseCase implements UseCase<
   { id: string; data: UpdateClosedDealRequestDTO },
   ClosedDealEntity
 > {
-  constructor(private readonly repository: IClosedDealRepository) { }
+  constructor(private readonly repository: IClosedDealRepository) {}
   async execute({
     id,
     data,
@@ -62,7 +62,7 @@ export class UpdateClosedDealUseCase implements UseCase<
 
 @Injectable()
 export class DeleteClosedDealUseCase implements UseCase<string, void> {
-  constructor(private readonly repository: IClosedDealRepository) { }
+  constructor(private readonly repository: IClosedDealRepository) {}
   async execute(id: string): Promise<void> {
     const entity = await this.repository.findById(id);
     if (!entity) throw new BadRequestException('Closed deal not found');
@@ -75,7 +75,7 @@ export class ListClosedDealsUseCase implements UseCase<
   void,
   ClosedDealEntity[]
 > {
-  constructor(private readonly repository: IClosedDealRepository) { }
+  constructor(private readonly repository: IClosedDealRepository) {}
   async execute(): Promise<ClosedDealEntity[]> {
     return this.repository.list();
   }
@@ -86,7 +86,7 @@ export class ListClosedDealsByAgentUseCase implements UseCase<
   string,
   ClosedDealEntity[]
 > {
-  constructor(private readonly repository: IClosedDealRepository) { }
+  constructor(private readonly repository: IClosedDealRepository) {}
   async execute(agentId: string): Promise<ClosedDealEntity[]> {
     return this.repository.listByAgent(agentId);
   }
@@ -97,7 +97,7 @@ export class ListClosedDealsByClientUseCase implements UseCase<
   string,
   ClosedDealEntity[]
 > {
-  constructor(private readonly repository: IClosedDealRepository) { }
+  constructor(private readonly repository: IClosedDealRepository) {}
   async execute(clientId: string): Promise<ClosedDealEntity[]> {
     return this.repository.listByClient(clientId);
   }
@@ -108,7 +108,7 @@ export class FindClosedDealByIdUseCase implements UseCase<
   string,
   ClosedDealEntity | null
 > {
-  constructor(private readonly repository: IClosedDealRepository) { }
+  constructor(private readonly repository: IClosedDealRepository) {}
   async execute(id: string): Promise<ClosedDealEntity | null> {
     const entity = await this.repository.findById(id);
     if (!entity) throw new BadRequestException('Closed deal not found');

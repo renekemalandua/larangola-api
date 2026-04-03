@@ -1,5 +1,13 @@
-import { Property, ListingType as PrismaListingType, PropertyStatus as PrismaPropertyStatus } from '@prisma/client';
-import { PropertyEntity, ListingType, PropertyStatus } from '../entities/property.entity';
+import {
+  Property,
+  ListingType as PrismaListingType,
+  PropertyStatus as PrismaPropertyStatus,
+} from '@prisma/client';
+import {
+  PropertyEntity,
+  ListingType,
+  PropertyStatus,
+} from '../entities/property.entity';
 import { IdValueObject } from '../shared';
 
 export class PropertyAdapter {
@@ -68,7 +76,8 @@ export class PropertyAdapter {
   static toHttp(entity: any, agent?: any): any {
     // Robustly handle both Entity and Prisma POJO
     const getData = (field: string) => {
-      if (entity.props && typeof entity[field] === 'function') return entity[field]();
+      if (entity.props && typeof entity[field] === 'function')
+        return entity[field]();
       if (entity.props) return entity.props[field];
       return entity[field];
     };
@@ -101,13 +110,15 @@ export class PropertyAdapter {
 
       createdAt: entity.createdAt || entity.props?.createdAt,
       updatedAt: entity.updatedAt || entity.props?.updatedAt,
-      agent: agent ? {
-        id: agent.id,
-        name: agent.user?.name || agent.name,
-        avatar: agent.user?.avatar || agent.avatar,
-        company: agent.company,
-        isVerified: !!agent.isVerified
-      } : null,
+      agent: agent
+        ? {
+            id: agent.id,
+            name: agent.user?.name || agent.name,
+            avatar: agent.user?.avatar || agent.avatar,
+            company: agent.company,
+            isVerified: !!agent.isVerified,
+          }
+        : null,
     };
   }
 }

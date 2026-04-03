@@ -20,7 +20,7 @@ export class CreateReviewUseCase implements UseCase<
     private readonly repository: IReviewRepository,
     private readonly agentRepository: IAgentRepository,
     private readonly roommateRepository: IRoommateRepository
-  ) { }
+  ) {}
 
   async execute(request: CreateReviewRequestDTO): Promise<ReviewEntity> {
     // Check for existing review
@@ -31,7 +31,9 @@ export class CreateReviewUseCase implements UseCase<
     );
 
     if (existing) {
-      throw new BadRequestException('You have already reviewed this user in this role.');
+      throw new BadRequestException(
+        'You have already reviewed this user in this role.'
+      );
     }
 
     const entity = ReviewEntity.create(request);
@@ -72,7 +74,7 @@ export class UpdateReviewUseCase implements UseCase<
     private readonly repository: IReviewRepository,
     private readonly agentRepository: IAgentRepository,
     private readonly roommateRepository: IRoommateRepository
-  ) { }
+  ) {}
 
   async execute({
     id,
@@ -127,7 +129,7 @@ export class DeleteReviewUseCase implements UseCase<string, void> {
     private readonly repository: IReviewRepository,
     private readonly agentRepository: IAgentRepository,
     private readonly roommateRepository: IRoommateRepository
-  ) { }
+  ) {}
 
   async execute(id: string): Promise<void> {
     const entity = await this.repository.findById(id);
@@ -163,7 +165,7 @@ export class DeleteReviewUseCase implements UseCase<string, void> {
 
 @Injectable()
 export class ListReviewsUseCase implements UseCase<void, ReviewEntity[]> {
-  constructor(private readonly repository: IReviewRepository) { }
+  constructor(private readonly repository: IReviewRepository) {}
   async execute(): Promise<ReviewEntity[]> {
     return this.repository.list();
   }
@@ -174,7 +176,7 @@ export class ListReviewsByPropertyUseCase implements UseCase<
   string,
   ReviewEntity[]
 > {
-  constructor(private readonly repository: IReviewRepository) { }
+  constructor(private readonly repository: IReviewRepository) {}
   async execute(propertyId: string): Promise<ReviewEntity[]> {
     return this.repository.listByProperty(propertyId);
   }
@@ -185,8 +187,14 @@ export class ListReviewsByToUserUseCase implements UseCase<
   { toUserId: string; role?: string },
   ReviewEntity[]
 > {
-  constructor(private readonly repository: IReviewRepository) { }
-  async execute({ toUserId, role }: { toUserId: string; role?: string }): Promise<ReviewEntity[]> {
+  constructor(private readonly repository: IReviewRepository) {}
+  async execute({
+    toUserId,
+    role,
+  }: {
+    toUserId: string;
+    role?: string;
+  }): Promise<ReviewEntity[]> {
     if (role) {
       return this.repository.findByUserIdAndRole(toUserId, role);
     }
@@ -199,7 +207,7 @@ export class FindReviewByIdUseCase implements UseCase<
   string,
   ReviewEntity | null
 > {
-  constructor(private readonly repository: IReviewRepository) { }
+  constructor(private readonly repository: IReviewRepository) {}
   async execute(id: string): Promise<ReviewEntity | null> {
     const entity = await this.repository.findById(id);
     if (!entity) throw new BadRequestException('Review not found');

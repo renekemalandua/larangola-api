@@ -12,10 +12,7 @@ export abstract class IReviewRepository {
     userId: string,
     role: string
   ): Promise<ReviewEntity[]>;
-  abstract countByUserIdAndRole(
-    userId: string,
-    role: string
-  ): Promise<number>;
+  abstract countByUserIdAndRole(userId: string, role: string): Promise<number>;
   abstract findByCompositeKey(
     fromUserId: string,
     toUserId: string,

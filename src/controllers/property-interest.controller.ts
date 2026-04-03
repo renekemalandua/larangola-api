@@ -39,7 +39,7 @@ export class PropertyInterestController {
     private readonly listByUserUseCase: ListPropertyInterestsByUserUseCase,
     private readonly listByAgentUseCase: ListPropertyInterestsByAgentUseCase,
     private readonly findByIdUseCase: FindPropertyInterestByIdUseCase
-  ) { }
+  ) {}
 
   @Post('create')
   @ApiOperation({ summary: 'Create a new Property Interest' })
@@ -92,7 +92,10 @@ export class PropertyInterestController {
   @ApiParam({ name: 'propertyId' })
   @ApiResponse({ status: 200 })
   @ApiResponse({ status: 400, type: HttpErrorResponseDTO })
-  async listByProperty(@Param('propertyId') propertyId: string, @Res() response) {
+  async listByProperty(
+    @Param('propertyId') propertyId: string,
+    @Res() response
+  ) {
     try {
       const entities = await this.listByPropertyUseCase.execute(propertyId);
       const data = entities.map((e) => PropertyInterestAdapter.toHttp(e));
@@ -118,7 +121,9 @@ export class PropertyInterestController {
   }
 
   @Get('agent/:agentId')
-  @ApiOperation({ summary: 'List Property Interests by Agent (who owns the property)' })
+  @ApiOperation({
+    summary: 'List Property Interests by Agent (who owns the property)',
+  })
   @ApiParam({ name: 'agentId' })
   @ApiResponse({ status: 200 })
   @ApiResponse({ status: 400, type: HttpErrorResponseDTO })

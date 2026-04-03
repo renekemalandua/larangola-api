@@ -6,7 +6,7 @@ import { ReviewAdapter } from '../../adapters/review.adapter';
 
 @Injectable()
 export class PrismaReviewRepository implements IReviewRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(data: ReviewEntity): Promise<ReviewEntity> {
     const raw = ReviewAdapter.toPrisma(data) as any;
@@ -72,10 +72,7 @@ export class PrismaReviewRepository implements IReviewRepository {
     return rows.map(ReviewAdapter.toDomain);
   }
 
-  async countByUserIdAndRole(
-    userId: string,
-    role: string
-  ): Promise<number> {
+  async countByUserIdAndRole(userId: string, role: string): Promise<number> {
     return this.prisma.review.count({
       where: { toUserId: userId, role: role as any },
     });

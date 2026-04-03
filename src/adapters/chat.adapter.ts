@@ -16,8 +16,12 @@ export class ChatAdapter {
         isBlocked: raw.isBlocked,
         createdAt: raw.createdAt,
         updatedAt: raw.updatedAt,
-        user1: (raw as any).user1 ? UserAdapter.toDomain((raw as any).user1) : undefined,
-        user2: (raw as any).user2 ? UserAdapter.toDomain((raw as any).user2) : undefined,
+        user1: (raw as any).user1
+          ? UserAdapter.toDomain((raw as any).user1)
+          : undefined,
+        user2: (raw as any).user2
+          ? UserAdapter.toDomain((raw as any).user2)
+          : undefined,
       },
       new IdValueObject(raw.id)
     );
