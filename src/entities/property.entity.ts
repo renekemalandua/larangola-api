@@ -7,7 +7,9 @@ export enum ListingType {
 
 export enum PropertyStatus {
   draft = 'draft',
+  pending_approval = 'pending_approval',
   published = 'published',
+  rejected = 'rejected',
   finished = 'finished',
   canceled = 'canceled',
 }
@@ -36,6 +38,12 @@ interface IPropertyProps {
   currency: string;
   status: PropertyStatus;
 
+  // Approval Fields
+  submittedForApprovalAt: Date | null;
+  rejectionReason: string | null;
+  reviewedBy: string | null;
+  reviewedAt: Date | null;
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -60,6 +68,10 @@ export class PropertyEntity extends AggregateRoot<IPropertyProps> {
       | 'price'
       | 'currency'
       | 'status'
+      | 'submittedForApprovalAt'
+      | 'rejectionReason'
+      | 'reviewedBy'
+      | 'reviewedAt'
       | 'createdAt'
       | 'updatedAt'
     >,
@@ -88,6 +100,11 @@ export class PropertyEntity extends AggregateRoot<IPropertyProps> {
         price: props.price ?? null,
         currency: props.currency ?? 'AOA',
         status: props.status ?? PropertyStatus.draft,
+
+        submittedForApprovalAt: props.submittedForApprovalAt ?? null,
+        rejectionReason: props.rejectionReason ?? null,
+        reviewedBy: props.reviewedBy ?? null,
+        reviewedAt: props.reviewedAt ?? null,
 
         createdAt: props.createdAt ?? new Date(),
         updatedAt: props.updatedAt ?? new Date(),
@@ -238,6 +255,36 @@ export class PropertyEntity extends AggregateRoot<IPropertyProps> {
   }
   public set status(v: PropertyStatus) {
     this.props.status = v;
+    this.touch();
+  }
+
+  // Approval Getters/Setters
+  public get submittedForApprovalAt(): Date | null {
+    return this.props.submittedForApprovalAt;
+  }
+  public set submittedForApprovalAt(v: Date | null) {
+    this.props.submittedForApprovalAt = v;
+    this.touch();
+  }
+  public get rejectionReason(): string | null {
+    return this.props.rejectionReason;
+  }
+  public set rejectionReason(v: string | null) {
+    this.props.rejectionReason = v;
+    this.touch();
+  }
+  public get reviewedBy(): string | null {
+    return this.props.reviewedBy;
+  }
+  public set reviewedBy(v: string | null) {
+    this.props.reviewedBy = v;
+    this.touch();
+  }
+  public get reviewedAt(): Date | null {
+    return this.props.reviewedAt;
+  }
+  public set reviewedAt(v: Date | null) {
+    this.props.reviewedAt = v;
     this.touch();
   }
 }

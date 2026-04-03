@@ -1,6 +1,6 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { UseCase } from '../shared';
-import { PropertyEntity } from '../entities/property.entity';
+import { PropertyEntity, PropertyStatus } from '../entities/property.entity';
 import { IPropertyRepository } from '../repositories/IPropertyRepository';
 import { IPropertyCategoryRepository } from '../repositories/IPropertyCategoryRepository';
 import {
@@ -162,7 +162,8 @@ export class DeletePropertyUseCase implements UseCase<string, void> {
 export class ListPropertiesUseCase implements UseCase<void, PropertyEntity[]> {
   constructor(private readonly repository: IPropertyRepository) {}
   async execute(): Promise<PropertyEntity[]> {
-    return this.repository.list();
+    // Lista apenas propriedades publicadas para o feed público
+    return this.repository.listPublished();
   }
 }
 
@@ -198,5 +199,83 @@ export class FindPropertyByIdUseCase implements UseCase<
     const entity = await this.repository.findById(id);
     if (!entity) throw new BadRequestException('Property not found');
     return entity;
+  }
+}
+
+
+@Injectable()
+export class RequestPublicationUseCase implements UseCase<
+  { propertyId: string; agentId: string },
+  PropertyEntity
+> {
+  constructor(
+    private readonly repository: IPropertyRepository,
+    private readonly agentRepository: IAgentRepository
+  ) {}
+
+  async execute({
+    propertyId,
+    agentId,
+  }: {
+    propertyId: string;
+    agentId: string;
+  }): Promise<PropertyEntity> {
+    const property = await this.repository.findById(propertyId);
+    
+    if (!property) {
+      throw new BadRequestException('Property not found');
+    }
+
+    // Verificar se o imóvel pertence ao agente
+    const agent = await this.agentRepository.findById(property.agentId);
+    if (!agent || agent.id !== agentId) {
+      throw new UnauthorizedException('You can only request publication for your own properties');
+    }
+
+    if (property.status !== PropertyStatus.draft) {
+      throw new BadRequestException('Only draft properties can be submitted for approval');
+    }
+
+    // Validações mínimas para submeter
+    if (!property.price) {
+      throw new BadRequestException('Price is required to request publication');
+    }
+
+    if (!property.images || (property.images as string[]).length === 0) {
+      throw new BadRequestException('At least one image is required to request publication');
+    }
+
+    if (!property.title || property.title.length < 5) {
+      throw new BadRequestException('Title must be at least 5 characters');
+    }
+
+    // Atualizar status
+    property.status = PropertyStatus.pending_approval;
+    property.submittedForApprovalAt = new Date();
+
+    return this.repository.update(property);
+  }
+}
+
+@Injectable()
+export class ListMyPropertiesUseCase implements UseCase<
+  string,
+  PropertyEntity[]
+> {
+  constructor(
+    private readonly repository: IPropertyRepository,
+    private readonly agentRepository: IAgentRepository
+  ) {}
+
+  async execute(userId: string): Promise<PropertyEntity[]> {
+    // Buscar agente pelo userId
+    const agent = await this.agentRepository.findByUserId(userId);
+    
+    if (!agent) {
+      throw new BadRequestException('User is not an agent');
+    }
+
+    // Retornar todos os imóveis do agente (todos os status)
+    return this.repository.listByAgent(agent.id);
   }
 }

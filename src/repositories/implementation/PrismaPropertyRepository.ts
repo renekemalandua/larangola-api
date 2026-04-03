@@ -21,6 +21,14 @@ export class PrismaPropertyRepository implements IPropertyRepository {
     return rows.map(PropertyAdapter.toDomain);
   }
 
+  async listPublished(): Promise<PropertyEntity[]> {
+    const rows = await this.prisma.property.findMany({
+      where: { status: 'published' },
+      orderBy: { createdAt: 'desc' },
+    });
+    return rows.map(PropertyAdapter.toDomain);
+  }
+
   async listByAgent(agentId: string): Promise<PropertyEntity[]> {
     const rows = await this.prisma.property.findMany({
       where: { agentId },

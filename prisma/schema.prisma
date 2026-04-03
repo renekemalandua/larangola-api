@@ -55,7 +55,9 @@ model PropertyCategory {
 
 enum PropertyStatus {
     draft
+    pending_approval
     published
+    rejected
     finished
     canceled
 }
@@ -84,6 +86,12 @@ model Property {
     price        Float?
     currency     String        @default("AOA")
     status       PropertyStatus @default(draft)
+    
+    // Approval Fields
+    submittedForApprovalAt DateTime?
+    rejectionReason        String?
+    reviewedBy             String?
+    reviewedAt             DateTime?
     
     createdAt    DateTime @default(now())
     updatedAt    DateTime @updatedAt

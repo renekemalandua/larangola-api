@@ -221,4 +221,17 @@ export class UpdatePropertyRequestDTO {
   @IsOptional()
   @IsEnum(PropertyStatus)
   status?: PropertyStatus;
+
+  // Approval Fields
+  @ApiPropertyOptional({ example: 'Preço acima do mercado' })
+  @IsOptional()
+  @IsString()
+  rejectionReason?: string;
+}
+
+
+export class RequestPublicationDTO {
+  @ApiProperty({ example: 'uuid-do-imovel' })
+  @IsUUID()
+  propertyId: string;
 }

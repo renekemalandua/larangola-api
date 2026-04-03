@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { ProviderModule } from './shared';
+import { JwtAuthGuard } from './shared/guards/jwt-auth.guard';
 
 // Controllers
 import { AuthController } from './controllers/auth.controller';
@@ -89,6 +90,8 @@ import {
   ListPropertiesByAgentUseCase,
   ListPropertiesByCategoryUseCase,
   FindPropertyByIdUseCase,
+  RequestPublicationUseCase,
+  ListMyPropertiesUseCase,
 } from './usecases/property.usecases';
 
 // Use Cases - Listing (Removed)
@@ -311,6 +314,8 @@ import {
     ListPropertiesByAgentUseCase,
     ListPropertiesByCategoryUseCase,
     FindPropertyByIdUseCase,
+    RequestPublicationUseCase,
+    ListMyPropertiesUseCase,
 
     // Use Cases - Listing (Removed)
     // CreateListingUseCase,
@@ -419,6 +424,9 @@ import {
     FindPropertyRequestByIdUseCase,
     UpdatePropertyRequestUseCase,
     DeletePropertyRequestUseCase,
+
+    // Guards
+    JwtAuthGuard,
   ],
   exports: [
     FindPropertyCategoryByIdUseCase,

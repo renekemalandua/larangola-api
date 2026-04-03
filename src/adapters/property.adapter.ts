@@ -36,6 +36,11 @@ export class PropertyAdapter {
         currency: raw.currency,
         status: raw.status as PropertyStatus,
 
+        submittedForApprovalAt: (raw as any).submittedForApprovalAt ?? null,
+        rejectionReason: (raw as any).rejectionReason ?? null,
+        reviewedBy: (raw as any).reviewedBy ?? null,
+        reviewedAt: (raw as any).reviewedAt ?? null,
+
         createdAt: raw.createdAt,
         updatedAt: raw.updatedAt,
       },
@@ -68,9 +73,14 @@ export class PropertyAdapter {
       currency: entity.currency,
       status: entity.status as PrismaPropertyStatus,
 
+      submittedForApprovalAt: entity.submittedForApprovalAt ?? undefined,
+      rejectionReason: entity.rejectionReason ?? undefined,
+      reviewedBy: entity.reviewedBy ?? undefined,
+      reviewedAt: entity.reviewedAt ?? undefined,
+
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
-    };
+    } as any;
   }
 
   static toHttp(entity: any, agent?: any): any {
@@ -107,6 +117,11 @@ export class PropertyAdapter {
       price: entity.price || entity.props?.price,
       currency: entity.currency || entity.props?.currency || 'AOA',
       status: entity.status || entity.props?.status,
+
+      submittedForApprovalAt: entity.submittedForApprovalAt || entity.props?.submittedForApprovalAt || null,
+      rejectionReason: entity.rejectionReason || entity.props?.rejectionReason || null,
+      reviewedBy: entity.reviewedBy || entity.props?.reviewedBy || null,
+      reviewedAt: entity.reviewedAt || entity.props?.reviewedAt || null,
 
       createdAt: entity.createdAt || entity.props?.createdAt,
       updatedAt: entity.updatedAt || entity.props?.updatedAt,
