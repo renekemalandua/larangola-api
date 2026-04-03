@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { UseCase } from '../shared';
 import { PropertyInterestEntity } from '../entities/property-interest.entity';
 import { IPropertyInterestRepository } from '../repositories/IPropertyInterestRepository';
-import { IListingRepository } from '../repositories/IListingRepository';
+import { IPropertyRepository } from '../repositories/IPropertyRepository';
 import {
   CreatePropertyInterestRequestDTO,
   UpdatePropertyInterestRequestDTO,
@@ -15,13 +15,21 @@ export class CreatePropertyInterestUseCase implements UseCase<
 > {
   constructor(
     private readonly repository: IPropertyInterestRepository,
-    private readonly listingRepository: IListingRepository
+    private readonly propertyRepository: IPropertyRepository
   ) {}
   async execute(
     request: CreatePropertyInterestRequestDTO
   ): Promise<PropertyInterestEntity> {
-    const listing = await this.listingRepository.findById(request.listingId);
-    if (!listing) throw new BadRequestException('Listing does not exist');
+    const property = await this.propertyRepository.findById(request.propertyId);
+    if (!property) throw new BadRequestException('Property does not exist');
+
+    // Idempotency: Check if user already marked interest in this property
+    const existing = await this.repository.listByUser(request.userId);
+    const alreadyExists = existing.find(
+      (i) => i.propertyId === request.propertyId
+    );
+    if (alreadyExists) return alreadyExists;
+
     const entity = PropertyInterestEntity.create(request);
     return this.repository.create(entity);
   }
@@ -69,13 +77,13 @@ export class ListPropertyInterestsUseCase implements UseCase<
 }
 
 @Injectable()
-export class ListPropertyInterestsByListingUseCase implements UseCase<
+export class ListPropertyInterestsByPropertyUseCase implements UseCase<
   string,
   PropertyInterestEntity[]
 > {
   constructor(private readonly repository: IPropertyInterestRepository) {}
-  async execute(listingId: string): Promise<PropertyInterestEntity[]> {
-    return this.repository.listByListing(listingId);
+  async execute(propertyId: string): Promise<PropertyInterestEntity[]> {
+    return this.repository.listByProperty(propertyId);
   }
 }
 
@@ -87,6 +95,17 @@ export class ListPropertyInterestsByUserUseCase implements UseCase<
   constructor(private readonly repository: IPropertyInterestRepository) {}
   async execute(userId: string): Promise<PropertyInterestEntity[]> {
     return this.repository.listByUser(userId);
+  }
+}
+
+@Injectable()
+export class ListPropertyInterestsByAgentUseCase implements UseCase<
+  string,
+  PropertyInterestEntity[]
+> {
+  constructor(private readonly repository: IPropertyInterestRepository) {}
+  async execute(agentId: string): Promise<PropertyInterestEntity[]> {
+    return this.repository.listByAgent(agentId);
   }
 }
 

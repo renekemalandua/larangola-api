@@ -18,6 +18,11 @@ export class CreateMessageRequestDTO {
   @IsOptional()
   @IsBoolean()
   isRead?: boolean;
+
+  @ApiPropertyOptional({ example: 'uuid-of-property' })
+  @IsOptional()
+  @IsUUID()
+  propertyId?: string;
 }
 
 export class UpdateMessageRequestDTO {

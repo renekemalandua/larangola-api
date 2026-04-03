@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { UseCase } from '../shared';
 import { ScheduledVisitEntity } from '../entities/scheduled-visit.entity';
 import { IScheduledVisitRepository } from '../repositories/IScheduledVisitRepository';
-import { IListingRepository } from '../repositories/IListingRepository';
+import { IPropertyRepository } from '../repositories/IPropertyRepository';
 import {
   CreateScheduledVisitRequestDTO,
   UpdateScheduledVisitRequestDTO,
@@ -15,13 +15,24 @@ export class CreateScheduledVisitUseCase implements UseCase<
 > {
   constructor(
     private readonly repository: IScheduledVisitRepository,
-    private readonly listingRepository: IListingRepository
+    private readonly propertyRepository: IPropertyRepository
   ) {}
   async execute(
     request: CreateScheduledVisitRequestDTO
   ): Promise<ScheduledVisitEntity> {
-    const listing = await this.listingRepository.findById(request.listingId);
-    if (!listing) throw new BadRequestException('Listing does not exist');
+    const property = await this.propertyRepository.findById(request.propertyId);
+    if (!property) throw new BadRequestException('Property does not exist');
+
+    const existingVisit = await this.repository.findByUserAndProperty(
+      request.userId,
+      request.propertyId
+    );
+    if (existingVisit) {
+      throw new BadRequestException(
+        'Já tens um agendamento pendente ou confirmado para este imóvel.'
+      );
+    }
+
     const entity = ScheduledVisitEntity.create({
       ...request,
       scheduledDate: new Date(request.scheduledDate),
@@ -77,13 +88,13 @@ export class ListScheduledVisitsUseCase implements UseCase<
 }
 
 @Injectable()
-export class ListScheduledVisitsByListingUseCase implements UseCase<
+export class ListScheduledVisitsByPropertyUseCase implements UseCase<
   string,
   ScheduledVisitEntity[]
 > {
   constructor(private readonly repository: IScheduledVisitRepository) {}
-  async execute(listingId: string): Promise<ScheduledVisitEntity[]> {
-    return this.repository.listByListing(listingId);
+  async execute(propertyId: string): Promise<ScheduledVisitEntity[]> {
+    return this.repository.listByProperty(propertyId);
   }
 }
 

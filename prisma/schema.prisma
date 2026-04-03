@@ -25,8 +25,8 @@ model User {
     // Relations
     agent               Agent?
     roommate            Roommate?
-    listings            Listing[]
-    properties          Property[]
+    // properties          Property[]         @relation("UserProperties") // Removed as Property links to Agent now
+    // listings            Listing[] // Removed
     reviewsGiven        Review[]           @relation("ReviewFromUser")
     reviewsReceived     Review[]           @relation("ReviewToUser")
     chatsAsUser1        Chat[]             @relation("ChatUser1")
@@ -53,9 +53,16 @@ model PropertyCategory {
     properties Property[]
 }
 
+enum PropertyStatus {
+    draft
+    published
+    finished
+    canceled
+}
+
 model Property {
     id           String   @id @default(uuid())
-    ownerId      String
+    agentId      String   // Replaces ownerId, links directly to Agent
     categoryId   String
     title        String
     description  String?
@@ -71,12 +78,25 @@ model Property {
     propertyType String // apartment, house, studio, room
     amenities    Json? // array of amenities
     images       Json? // array of image URLs
+    
+    // Listing Fields (Merged)
+    listingType  ListingType?
+    price        Float?
+    currency     String        @default("AOA")
+    status       PropertyStatus @default(draft)
+    
     createdAt    DateTime @default(now())
     updatedAt    DateTime @updatedAt
 
-    owner    User             @relation(fields: [ownerId], references: [id])
-    category PropertyCategory @relation(fields: [categoryId], references: [id])
-    listings Listing[]
+    agent             Agent            @relation(fields: [agentId], references: [id])
+    category          PropertyCategory @relation(fields: [categoryId], references: [id])
+    
+    // Relations moved from Listing
+    scheduledVisits   ScheduledVisit[]
+    propertyInterests PropertyInterest[]
+    closedDeals       ClosedDeal[]
+    reviews           Review[]         @relation("PropertyReview")
+    messages          Message[]
 }
 
 enum ListingType {
@@ -84,32 +104,7 @@ enum ListingType {
     buy
 }
 
-enum ListingStatus {
-    draft
-    published
-    finished
-}
-
-model Listing {
-    id          String        @id @default(uuid())
-    propertyId  String
-    ownerId     String
-    listingType ListingType
-    price       Float
-    currency    String        @default("AOA")
-    status      ListingStatus @default(draft)
-    listedBy    String // "agent" or "owner"
-    agentId     String?
-    createdAt   DateTime      @default(now())
-    updatedAt   DateTime      @updatedAt
-
-    property          Property           @relation(fields: [propertyId], references: [id])
-    owner             User               @relation(fields: [ownerId], references: [id])
-    scheduledVisits   ScheduledVisit[]
-    propertyInterests PropertyInterest[]
-    closedDeals       ClosedDeal[]
-    reviews           Review[]           @relation("ListingReview")
-}
+// Listing model removed
 
 // ============================================
 // Agent & Roommate Tables
@@ -133,6 +128,7 @@ model Agent {
 
     user          User                @relation(fields: [userId], references: [id])
     subscriptions AgentSubscription[]
+    properties    Property[] // Relation to properties owned by agent
     closedDeals   ClosedDeal[]        @relation("ClosedDealAgent")
 }
 
@@ -175,7 +171,7 @@ enum VisitStatus {
 
 model ScheduledVisit {
     id            String      @id @default(uuid())
-    listingId     String
+    propertyId    String
     userId        String // client who scheduled
     scheduledDate DateTime
     scheduledTime String // HH:mm format
@@ -184,8 +180,8 @@ model ScheduledVisit {
     createdAt     DateTime    @default(now())
     updatedAt     DateTime    @updatedAt
 
-    listing Listing @relation(fields: [listingId], references: [id])
-    user    User    @relation(fields: [userId], references: [id])
+    property Property @relation(fields: [propertyId], references: [id])
+    user     User     @relation(fields: [userId], references: [id])
 }
 
 enum ReviewRating {
@@ -203,7 +199,7 @@ enum ReviewRole {
 
 model Review {
     id         String   @id @default(uuid())
-    listingId  String?
+    propertyId String?
     fromUserId String // user who wrote the review
     toUserId   String // user being reviewed (agent or roommate)
     role       ReviewRole // role being reviewed
@@ -212,9 +208,9 @@ model Review {
     createdAt  DateTime @default(now())
     updatedAt  DateTime @updatedAt
 
-    listing  Listing? @relation("ListingReview", fields: [listingId], references: [id])
-    fromUser User     @relation("ReviewFromUser", fields: [fromUserId], references: [id])
-    toUser   User     @relation("ReviewToUser", fields: [toUserId], references: [id])
+    property Property? @relation("PropertyReview", fields: [propertyId], references: [id])
+    fromUser User      @relation("ReviewFromUser", fields: [fromUserId], references: [id])
+    toUser   User      @relation("ReviewToUser", fields: [toUserId], references: [id])
 }
 
 // ============================================
@@ -250,6 +246,8 @@ model Message {
 
     chat   Chat @relation(fields: [chatId], references: [id])
     sender User @relation(fields: [senderId], references: [id])
+    propertyId String?
+    property   Property? @relation(fields: [propertyId], references: [id])
 }
 
 // ============================================
@@ -263,7 +261,7 @@ enum ClosedDealStatus {
 
 model ClosedDeal {
     id               String           @id @default(uuid())
-    listingId        String
+    propertyId       String
     agentId          String
     clientId         String
     commissionAmount Float
@@ -273,9 +271,9 @@ model ClosedDeal {
     createdAt        DateTime         @default(now())
     updatedAt        DateTime         @updatedAt
 
-    listing Listing @relation(fields: [listingId], references: [id])
-    agent   Agent   @relation("ClosedDealAgent", fields: [agentId], references: [id])
-    client  User    @relation("ClosedDealClient", fields: [clientId], references: [id])
+    property Property @relation(fields: [propertyId], references: [id])
+    agent    Agent    @relation("ClosedDealAgent", fields: [agentId], references: [id])
+    client   User     @relation("ClosedDealClient", fields: [clientId], references: [id])
 }
 
 // ============================================
@@ -330,15 +328,15 @@ model AgentSubscription {
 // ============================================
 
 model PropertyInterest {
-    id        String   @id @default(uuid())
-    listingId String
-    userId    String
-    message   String?
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    id         String   @id @default(uuid())
+    propertyId String
+    userId     String
+    message    String?
+    createdAt  DateTime @default(now())
+    updatedAt  DateTime @updatedAt
 
-    listing Listing @relation(fields: [listingId], references: [id])
-    user    User    @relation(fields: [userId], references: [id])
+    property Property @relation(fields: [propertyId], references: [id])
+    user     User     @relation(fields: [userId], references: [id])
 }
 
 // ============================================

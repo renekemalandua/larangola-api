@@ -16,8 +16,9 @@ import {
   UpdatePropertyInterestUseCase,
   DeletePropertyInterestUseCase,
   ListPropertyInterestsUseCase,
-  ListPropertyInterestsByListingUseCase,
+  ListPropertyInterestsByPropertyUseCase,
   ListPropertyInterestsByUserUseCase,
+  ListPropertyInterestsByAgentUseCase,
   FindPropertyInterestByIdUseCase,
 } from '../usecases/property-interest.usecases';
 import {
@@ -34,8 +35,9 @@ export class PropertyInterestController {
     private readonly updateUseCase: UpdatePropertyInterestUseCase,
     private readonly deleteUseCase: DeletePropertyInterestUseCase,
     private readonly listUseCase: ListPropertyInterestsUseCase,
-    private readonly listByListingUseCase: ListPropertyInterestsByListingUseCase,
+    private readonly listByPropertyUseCase: ListPropertyInterestsByPropertyUseCase,
     private readonly listByUserUseCase: ListPropertyInterestsByUserUseCase,
+    private readonly listByAgentUseCase: ListPropertyInterestsByAgentUseCase,
     private readonly findByIdUseCase: FindPropertyInterestByIdUseCase
   ) {}
 
@@ -85,14 +87,17 @@ export class PropertyInterestController {
     }
   }
 
-  @Get('listing/:listingId')
-  @ApiOperation({ summary: 'List Property Interests by Listing' })
-  @ApiParam({ name: 'listingId' })
+  @Get('property/:propertyId')
+  @ApiOperation({ summary: 'List Property Interests by Property' })
+  @ApiParam({ name: 'propertyId' })
   @ApiResponse({ status: 200 })
   @ApiResponse({ status: 400, type: HttpErrorResponseDTO })
-  async listByListing(@Param('listingId') listingId: string, @Res() response) {
+  async listByProperty(
+    @Param('propertyId') propertyId: string,
+    @Res() response
+  ) {
     try {
-      const entities = await this.listByListingUseCase.execute(listingId);
+      const entities = await this.listByPropertyUseCase.execute(propertyId);
       const data = entities.map((e) => PropertyInterestAdapter.toHttp(e));
       return response.status(200).json({ status: true, data });
     } catch (error) {
@@ -108,6 +113,23 @@ export class PropertyInterestController {
   async listByUser(@Param('userId') userId: string, @Res() response) {
     try {
       const entities = await this.listByUserUseCase.execute(userId);
+      const data = entities.map((e) => PropertyInterestAdapter.toHttp(e));
+      return response.status(200).json({ status: true, data });
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  @Get('agent/:agentId')
+  @ApiOperation({
+    summary: 'List Property Interests by Agent (who owns the property)',
+  })
+  @ApiParam({ name: 'agentId' })
+  @ApiResponse({ status: 200 })
+  @ApiResponse({ status: 400, type: HttpErrorResponseDTO })
+  async listByAgent(@Param('agentId') agentId: string, @Res() response) {
+    try {
+      const entities = await this.listByAgentUseCase.execute(agentId);
       const data = entities.map((e) => PropertyInterestAdapter.toHttp(e));
       return response.status(200).json({ status: true, data });
     } catch (error) {

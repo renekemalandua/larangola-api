@@ -21,10 +21,37 @@ export class CreatePropertyUseCase implements UseCase<
     private readonly agentRepository: IAgentRepository
   ) {}
   async execute(request: CreatePropertyRequestDTO): Promise<PropertyEntity> {
-    const category = await this.categoryRepository.findById(request.categoryId);
-    if (!category) throw new BadRequestException('Category does not exist');
+    console.log(
+      '[CreatePropertyUseCase] Executing with request:',
+      JSON.stringify(request, null, 2)
+    );
 
-    const agent = await this.agentRepository.findByUserId(request.ownerId);
+    console.log(
+      '[CreatePropertyUseCase] Checking categoryId:',
+      request.categoryId
+    );
+    const category = await this.categoryRepository.findById(request.categoryId);
+    if (!category) {
+      console.error(
+        '[CreatePropertyUseCase] Category not found:',
+        request.categoryId
+      );
+      throw new BadRequestException('Category does not exist');
+    }
+    console.log('[CreatePropertyUseCase] Category found:', category.name);
+
+    // Verify Agent exists
+    console.log('[CreatePropertyUseCase] Checking agentId:', request.agentId);
+    const agent = await this.agentRepository.findById(request.agentId);
+    if (!agent) {
+      console.error(
+        '[CreatePropertyUseCase] Agent not found:',
+        request.agentId
+      );
+      throw new BadRequestException('Agent not found');
+    }
+    console.log('[CreatePropertyUseCase] Agent found:', agent.id);
+    /* 
     if (!agent) {
       throw new BadRequestException('User is not an agent.');
     }
@@ -33,9 +60,19 @@ export class CreatePropertyUseCase implements UseCase<
         'Only verified agents can post properties.'
       );
     }
+    */
 
+    console.log('[CreatePropertyUseCase] Creating entity...');
     const entity = PropertyEntity.create(request);
-    return this.repository.create(entity);
+
+    console.log('[CreatePropertyUseCase] Saving entity to repository...');
+    const result = await this.repository.create(entity);
+    console.log(
+      '[CreatePropertyUseCase] Property created successfully:',
+      result.id
+    );
+
+    return result;
   }
 }
 
@@ -78,6 +115,35 @@ export class UpdatePropertyUseCase implements UseCase<
       entity.propertyType = data.propertyType;
     if (data.amenities !== undefined) entity.amenities = data.amenities ?? null;
     if (data.images !== undefined) entity.images = data.images ?? null;
+    // Map new fields
+    if (data.listingType !== undefined)
+      entity.listingType = data.listingType ?? null;
+    if (data.price !== undefined) entity.price = data.price ?? null;
+    if (data.currency !== undefined) entity.currency = data.currency ?? 'AOA';
+
+    // Status Logic & Validation
+    if (data.status !== undefined) {
+      // If publishing, validate required fields
+      if (data.status === 'published' && entity.status !== 'published') {
+        const missingFields: string[] = [];
+        if (!entity.price && !data.price) missingFields.push('price');
+        if (!entity.listingType && !data.listingType)
+          missingFields.push('listingType');
+        if (!entity.propertyType) missingFields.push('propertyType');
+
+        // Check images
+        const imgs = (data.images as string[]) || (entity.images as string[]);
+        if (!imgs || imgs.length === 0) missingFields.push('images');
+
+        if (missingFields.length > 0) {
+          throw new BadRequestException(
+            `Cannot publish. Missing fields: ${missingFields.join(', ')}`
+          );
+        }
+      }
+      entity.status = data.status;
+    }
+
     return this.repository.update(entity);
   }
 }
@@ -101,13 +167,13 @@ export class ListPropertiesUseCase implements UseCase<void, PropertyEntity[]> {
 }
 
 @Injectable()
-export class ListPropertiesByOwnerUseCase implements UseCase<
+export class ListPropertiesByAgentUseCase implements UseCase<
   string,
   PropertyEntity[]
 > {
   constructor(private readonly repository: IPropertyRepository) {}
-  async execute(ownerId: string): Promise<PropertyEntity[]> {
-    return this.repository.listByOwner(ownerId);
+  async execute(agentId: string): Promise<PropertyEntity[]> {
+    return this.repository.listByAgent(agentId); // Assumes repo method handles agentId filter
   }
 }
 

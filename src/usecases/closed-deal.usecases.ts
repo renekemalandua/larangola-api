@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { UseCase } from '../shared';
 import { ClosedDealEntity } from '../entities/closed-deal.entity';
 import { IClosedDealRepository } from '../repositories/IClosedDealRepository';
-import { IListingRepository } from '../repositories/IListingRepository';
+import { IPropertyRepository } from '../repositories/IPropertyRepository';
 import { IAgentRepository } from '../repositories/IAgentRepository';
 import {
   CreateClosedDealRequestDTO,
@@ -16,14 +16,14 @@ export class CreateClosedDealUseCase implements UseCase<
 > {
   constructor(
     private readonly repository: IClosedDealRepository,
-    private readonly listingRepository: IListingRepository,
+    private readonly propertyRepository: IPropertyRepository,
     private readonly agentRepository: IAgentRepository
   ) {}
   async execute(
     request: CreateClosedDealRequestDTO
   ): Promise<ClosedDealEntity> {
-    const listing = await this.listingRepository.findById(request.listingId);
-    if (!listing) throw new BadRequestException('Listing does not exist');
+    const property = await this.propertyRepository.findById(request.propertyId);
+    if (!property) throw new BadRequestException('Property does not exist');
     const agent = await this.agentRepository.findById(request.agentId);
     if (!agent) throw new BadRequestException('Agent does not exist');
     const entity = ClosedDealEntity.create({

@@ -1,12 +1,20 @@
-import { Property } from '@prisma/client';
-import { PropertyEntity } from '../entities/property.entity';
+import {
+  Property,
+  ListingType as PrismaListingType,
+  PropertyStatus as PrismaPropertyStatus,
+} from '@prisma/client';
+import {
+  PropertyEntity,
+  ListingType,
+  PropertyStatus,
+} from '../entities/property.entity';
 import { IdValueObject } from '../shared';
 
 export class PropertyAdapter {
   static toDomain(raw: Property): PropertyEntity {
     return PropertyEntity.create(
       {
-        ownerId: raw.ownerId,
+        agentId: raw.agentId,
         categoryId: raw.categoryId,
         title: raw.title,
         description: raw.description ?? null,
@@ -22,6 +30,12 @@ export class PropertyAdapter {
         propertyType: raw.propertyType,
         amenities: raw.amenities as unknown,
         images: raw.images as unknown,
+
+        listingType: raw.listingType as ListingType,
+        price: raw.price,
+        currency: raw.currency,
+        status: raw.status as PropertyStatus,
+
         createdAt: raw.createdAt,
         updatedAt: raw.updatedAt,
       },
@@ -32,7 +46,7 @@ export class PropertyAdapter {
   static toPrisma(entity: PropertyEntity): Property {
     return {
       id: entity.id,
-      ownerId: entity.ownerId,
+      agentId: entity.agentId,
       categoryId: entity.categoryId,
       title: entity.title,
       description: entity.description,
@@ -48,32 +62,63 @@ export class PropertyAdapter {
       propertyType: entity.propertyType,
       amenities: entity.amenities as any,
       images: entity.images as any,
+
+      listingType: entity.listingType as PrismaListingType,
+      price: entity.price,
+      currency: entity.currency,
+      status: entity.status as PrismaPropertyStatus,
+
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
     };
   }
 
-  static toHttp(entity: PropertyEntity): any {
+  static toHttp(entity: any, agent?: any): any {
+    // Robustly handle both Entity and Prisma POJO
+    const getData = (field: string) => {
+      if (entity.props && typeof entity[field] === 'function')
+        return entity[field]();
+      if (entity.props) return entity.props[field];
+      return entity[field];
+    };
+
+    const id = entity.id || (entity.props ? entity.props.id : null);
+
     return {
-      id: entity.id,
-      ownerId: entity.ownerId,
-      categoryId: entity.categoryId,
-      title: entity.title,
-      description: entity.description,
-      address: entity.address,
-      city: entity.city,
-      state: entity.state,
-      country: entity.country,
-      latitude: entity.latitude,
-      longitude: entity.longitude,
-      bedrooms: entity.bedrooms,
-      bathrooms: entity.bathrooms,
-      area: entity.area,
-      propertyType: entity.propertyType,
-      amenities: entity.amenities,
-      images: entity.images,
-      createdAt: entity.createdAt,
-      updatedAt: entity.updatedAt,
+      id: id,
+      agentId: entity.agentId || entity.props?.agentId,
+      categoryId: entity.categoryId || entity.props?.categoryId,
+      title: entity.title || entity.props?.title,
+      description: entity.description || entity.props?.description,
+      address: entity.address || entity.props?.address,
+      city: entity.city || entity.props?.city,
+      state: entity.state || entity.props?.state,
+      country: entity.country || entity.props?.country || 'Angola',
+      latitude: entity.latitude || entity.props?.latitude,
+      longitude: entity.longitude || entity.props?.longitude,
+      bedrooms: entity.bedrooms || entity.props?.bedrooms,
+      bathrooms: entity.bathrooms || entity.props?.bathrooms,
+      area: entity.area || entity.props?.area,
+      propertyType: entity.propertyType || entity.props?.propertyType,
+      amenities: entity.amenities || entity.props?.amenities,
+      images: entity.images || entity.props?.images,
+
+      listingType: entity.listingType || entity.props?.listingType,
+      price: entity.price || entity.props?.price,
+      currency: entity.currency || entity.props?.currency || 'AOA',
+      status: entity.status || entity.props?.status,
+
+      createdAt: entity.createdAt || entity.props?.createdAt,
+      updatedAt: entity.updatedAt || entity.props?.updatedAt,
+      agent: agent
+        ? {
+            id: agent.id,
+            name: agent.user?.name || agent.name,
+            avatar: agent.user?.avatar || agent.avatar,
+            company: agent.company,
+            isVerified: !!agent.isVerified,
+          }
+        : null,
     };
   }
 }

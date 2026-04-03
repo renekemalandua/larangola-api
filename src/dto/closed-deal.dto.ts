@@ -10,9 +10,9 @@ import {
 import { ClosedDealStatus } from '../entities/closed-deal.entity';
 
 export class CreateClosedDealRequestDTO {
-  @ApiProperty({ example: 'uuid-of-listing' })
+  @ApiProperty({ example: 'uuid-of-property' })
   @IsUUID()
-  listingId: string;
+  propertyId: string;
 
   @ApiProperty({ example: 'uuid-of-agent' })
   @IsUUID()

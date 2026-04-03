@@ -8,7 +8,7 @@ export enum VisitStatus {
 }
 
 interface IScheduledVisitProps {
-  listingId: string;
+  propertyId: string;
   userId: string;
   scheduledDate: Date;
   scheduledTime: string;
@@ -28,7 +28,7 @@ export class ScheduledVisitEntity extends AggregateRoot<IScheduledVisitProps> {
   ) {
     return new ScheduledVisitEntity(
       {
-        listingId: props.listingId,
+        propertyId: props.propertyId,
         userId: props.userId,
         scheduledDate: props.scheduledDate,
         scheduledTime: props.scheduledTime,
@@ -45,8 +45,8 @@ export class ScheduledVisitEntity extends AggregateRoot<IScheduledVisitProps> {
     this.props.updatedAt = new Date();
   }
 
-  public get listingId(): string {
-    return this.props.listingId;
+  public get propertyId(): string {
+    return this.props.propertyId;
   }
   public get userId(): string {
     return this.props.userId;

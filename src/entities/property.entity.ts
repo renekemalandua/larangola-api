@@ -1,7 +1,19 @@
 import { AggregateRoot, IdValueObject, Optional } from '../shared';
 
+export enum ListingType {
+  rent = 'rent',
+  buy = 'buy',
+}
+
+export enum PropertyStatus {
+  draft = 'draft',
+  published = 'published',
+  finished = 'finished',
+  canceled = 'canceled',
+}
+
 interface IPropertyProps {
-  ownerId: string;
+  agentId: string;
   categoryId: string;
   title: string;
   description: string | null;
@@ -17,6 +29,13 @@ interface IPropertyProps {
   propertyType: string;
   amenities: unknown | null;
   images: unknown | null;
+
+  // Merged Listing Fields
+  listingType: ListingType | null;
+  price: number | null;
+  currency: string;
+  status: PropertyStatus;
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -37,6 +56,10 @@ export class PropertyEntity extends AggregateRoot<IPropertyProps> {
       | 'area'
       | 'amenities'
       | 'images'
+      | 'listingType'
+      | 'price'
+      | 'currency'
+      | 'status'
       | 'createdAt'
       | 'updatedAt'
     >,
@@ -44,7 +67,7 @@ export class PropertyEntity extends AggregateRoot<IPropertyProps> {
   ) {
     return new PropertyEntity(
       {
-        ownerId: props.ownerId,
+        agentId: props.agentId,
         categoryId: props.categoryId,
         title: props.title,
         description: props.description ?? null,
@@ -60,6 +83,12 @@ export class PropertyEntity extends AggregateRoot<IPropertyProps> {
         propertyType: props.propertyType,
         amenities: props.amenities ?? null,
         images: props.images ?? null,
+
+        listingType: props.listingType ?? null,
+        price: props.price ?? null,
+        currency: props.currency ?? 'AOA',
+        status: props.status ?? PropertyStatus.draft,
+
         createdAt: props.createdAt ?? new Date(),
         updatedAt: props.updatedAt ?? new Date(),
       },
@@ -71,8 +100,8 @@ export class PropertyEntity extends AggregateRoot<IPropertyProps> {
     this.props.updatedAt = new Date();
   }
 
-  public get ownerId(): string {
-    return this.props.ownerId;
+  public get agentId(): string {
+    return this.props.agentId;
   }
   public get categoryId(): string {
     return this.props.categoryId;
@@ -180,5 +209,35 @@ export class PropertyEntity extends AggregateRoot<IPropertyProps> {
   }
   public get updatedAt(): Date {
     return this.props.updatedAt;
+  }
+
+  // Listing Getters/Setters
+  public get listingType(): ListingType | null {
+    return this.props.listingType;
+  }
+  public set listingType(v: ListingType | null) {
+    this.props.listingType = v;
+    this.touch();
+  }
+  public get price(): number | null {
+    return this.props.price;
+  }
+  public set price(v: number | null) {
+    this.props.price = v;
+    this.touch();
+  }
+  public get currency(): string {
+    return this.props.currency;
+  }
+  public set currency(v: string) {
+    this.props.currency = v;
+    this.touch();
+  }
+  public get status(): PropertyStatus {
+    return this.props.status;
+  }
+  public set status(v: PropertyStatus) {
+    this.props.status = v;
+    this.touch();
   }
 }

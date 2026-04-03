@@ -21,9 +21,9 @@ export class PrismaReviewRepository implements IReviewRepository {
     return rows.map(ReviewAdapter.toDomain);
   }
 
-  async listByListing(listingId: string): Promise<ReviewEntity[]> {
+  async listByProperty(propertyId: string): Promise<ReviewEntity[]> {
     const rows = await this.prisma.review.findMany({
-      where: { listingId },
+      where: { propertyId },
       orderBy: { updatedAt: 'desc' },
     });
     return rows.map(ReviewAdapter.toDomain);
@@ -70,5 +70,26 @@ export class PrismaReviewRepository implements IReviewRepository {
       orderBy: { updatedAt: 'desc' },
     });
     return rows.map(ReviewAdapter.toDomain);
+  }
+
+  async countByUserIdAndRole(userId: string, role: string): Promise<number> {
+    return this.prisma.review.count({
+      where: { toUserId: userId, role: role as any },
+    });
+  }
+
+  async findByCompositeKey(
+    fromUserId: string,
+    toUserId: string,
+    role: string
+  ): Promise<ReviewEntity | null> {
+    const row = await this.prisma.review.findFirst({
+      where: {
+        fromUserId,
+        toUserId,
+        role: role as any,
+      },
+    });
+    return row ? ReviewAdapter.toDomain(row) : null;
   }
 }

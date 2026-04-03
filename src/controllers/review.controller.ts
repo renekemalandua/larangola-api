@@ -8,15 +8,22 @@ import {
   Post,
   Put,
   Res,
+  Query,
 } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { HttpErrorResponseDTO } from '../shared';
 import {
   CreateReviewUseCase,
   UpdateReviewUseCase,
   DeleteReviewUseCase,
   ListReviewsUseCase,
-  ListReviewsByListingUseCase,
+  ListReviewsByPropertyUseCase,
   ListReviewsByToUserUseCase,
   FindReviewByIdUseCase,
 } from '../usecases/review.usecases';
@@ -34,7 +41,7 @@ export class ReviewController {
     private readonly updateUseCase: UpdateReviewUseCase,
     private readonly deleteUseCase: DeleteReviewUseCase,
     private readonly listUseCase: ListReviewsUseCase,
-    private readonly listByListingUseCase: ListReviewsByListingUseCase,
+    private readonly listByPropertyUseCase: ListReviewsByPropertyUseCase,
     private readonly listByToUserUseCase: ListReviewsByToUserUseCase,
     private readonly findByIdUseCase: FindReviewByIdUseCase
   ) {}
@@ -82,14 +89,17 @@ export class ReviewController {
     }
   }
 
-  @Get('listing/:listingId')
-  @ApiOperation({ summary: 'List Reviews by Listing' })
-  @ApiParam({ name: 'listingId' })
+  @Get('property/:propertyId')
+  @ApiOperation({ summary: 'List Reviews by Property' })
+  @ApiParam({ name: 'propertyId' })
   @ApiResponse({ status: 200 })
   @ApiResponse({ status: 400, type: HttpErrorResponseDTO })
-  async listByListing(@Param('listingId') listingId: string, @Res() response) {
+  async listByProperty(
+    @Param('propertyId') propertyId: string,
+    @Res() response
+  ) {
     try {
-      const entities = await this.listByListingUseCase.execute(listingId);
+      const entities = await this.listByPropertyUseCase.execute(propertyId); // Updated method usage
       const data = entities.map((e) => ReviewAdapter.toHttp(e));
       return response.status(200).json({ status: true, data });
     } catch (error) {
@@ -100,11 +110,19 @@ export class ReviewController {
   @Get('user/:toUserId')
   @ApiOperation({ summary: 'List Reviews by To User' })
   @ApiParam({ name: 'toUserId' })
+  @ApiQuery({ name: 'role', required: false, enum: ['AGENT', 'ROOMMATE'] })
   @ApiResponse({ status: 200 })
   @ApiResponse({ status: 400, type: HttpErrorResponseDTO })
-  async listByToUser(@Param('toUserId') toUserId: string, @Res() response) {
+  async listByToUser(
+    @Param('toUserId') toUserId: string,
+    @Query('role') role: string | undefined, // Explicitly typed as string | undefined
+    @Res() response
+  ) {
     try {
-      const entities = await this.listByToUserUseCase.execute(toUserId);
+      const entities = await this.listByToUserUseCase.execute({
+        toUserId,
+        role,
+      }); // Pass as object
       const data = entities.map((e) => ReviewAdapter.toHttp(e));
       return response.status(200).json({ status: true, data });
     } catch (error) {

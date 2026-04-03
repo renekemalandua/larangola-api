@@ -1,10 +1,19 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsNumber, IsOptional, IsString, IsUUID, Min } from 'class-validator';
+import {
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsUUID,
+  Min,
+} from 'class-validator';
+import { Type } from 'class-transformer';
+import { ListingType, PropertyStatus } from '../entities/property.entity';
 
 export class CreatePropertyRequestDTO {
-  @ApiProperty({ example: 'uuid-of-owner' })
+  @ApiProperty({ example: 'uuid-of-agent' })
   @IsUUID()
-  ownerId: string;
+  agentId: string;
 
   @ApiProperty({ example: 'uuid-of-category' })
   @IsUUID()
@@ -41,28 +50,33 @@ export class CreatePropertyRequestDTO {
 
   @ApiPropertyOptional({ example: -8.838333 })
   @IsOptional()
+  @Type(() => Number)
   @IsNumber()
   latitude?: number;
 
   @ApiPropertyOptional({ example: 13.234444 })
   @IsOptional()
+  @Type(() => Number)
   @IsNumber()
   longitude?: number;
 
   @ApiPropertyOptional({ example: 3 })
   @IsOptional()
+  @Type(() => Number)
   @IsNumber()
   @Min(0)
   bedrooms?: number;
 
   @ApiPropertyOptional({ example: 2 })
   @IsOptional()
+  @Type(() => Number)
   @IsNumber()
   @Min(0)
   bathrooms?: number;
 
   @ApiPropertyOptional({ example: 120 })
   @IsOptional()
+  @Type(() => Number)
   @IsNumber()
   @Min(0)
   area?: number;
@@ -73,11 +87,34 @@ export class CreatePropertyRequestDTO {
 
   @ApiPropertyOptional({ example: ['Piscina', 'Estacionamento'] })
   @IsOptional()
-  amenities?: unknown;
+  amenities?: string[];
 
   @ApiPropertyOptional({ example: ['https://.../1.jpg', 'https://.../2.jpg'] })
   @IsOptional()
-  images?: unknown;
+  images?: string[];
+
+  // Merged Listing Fields (Optional for Draft)
+  @ApiPropertyOptional({ example: 'rent', enum: ListingType })
+  @IsOptional()
+  @IsEnum(ListingType)
+  listingType?: ListingType;
+
+  @ApiPropertyOptional({ example: 150000 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0)
+  price?: number;
+
+  @ApiPropertyOptional({ example: 'AOA' })
+  @IsOptional()
+  @IsString()
+  currency?: string;
+
+  @ApiPropertyOptional({ example: 'draft', enum: PropertyStatus })
+  @IsOptional()
+  @IsEnum(PropertyStatus)
+  status?: PropertyStatus;
 }
 
 export class UpdatePropertyRequestDTO {
@@ -118,28 +155,33 @@ export class UpdatePropertyRequestDTO {
 
   @ApiPropertyOptional({ example: -8.83 })
   @IsOptional()
+  @Type(() => Number)
   @IsNumber()
   latitude?: number;
 
   @ApiPropertyOptional({ example: 13.23 })
   @IsOptional()
+  @Type(() => Number)
   @IsNumber()
   longitude?: number;
 
   @ApiPropertyOptional({ example: 4 })
   @IsOptional()
+  @Type(() => Number)
   @IsNumber()
   @Min(0)
   bedrooms?: number;
 
   @ApiPropertyOptional({ example: 3 })
   @IsOptional()
+  @Type(() => Number)
   @IsNumber()
   @Min(0)
   bathrooms?: number;
 
   @ApiPropertyOptional({ example: 130 })
   @IsOptional()
+  @Type(() => Number)
   @IsNumber()
   @Min(0)
   area?: number;
@@ -151,9 +193,32 @@ export class UpdatePropertyRequestDTO {
 
   @ApiPropertyOptional({ example: ['Piscina'] })
   @IsOptional()
-  amenities?: unknown;
+  @IsString({ each: true })
+  amenities?: string[];
 
   @ApiPropertyOptional({ example: ['https://.../1.jpg'] })
   @IsOptional()
-  images?: unknown;
+  images?: string[];
+
+  @ApiPropertyOptional({ example: 'rent', enum: ListingType })
+  @IsOptional()
+  @IsEnum(ListingType)
+  listingType?: ListingType;
+
+  @ApiPropertyOptional({ example: 150000 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0)
+  price?: number;
+
+  @ApiPropertyOptional({ example: 'AOA' })
+  @IsOptional()
+  @IsString()
+  currency?: string;
+
+  @ApiPropertyOptional({ example: 'published', enum: PropertyStatus })
+  @IsOptional()
+  @IsEnum(PropertyStatus)
+  status?: PropertyStatus;
 }

@@ -6,7 +6,7 @@ export class ReviewAdapter {
   static toDomain(raw: Review): ReviewEntity {
     return ReviewEntity.create(
       {
-        listingId: raw.listingId ?? null,
+        propertyId: raw.propertyId ?? null,
         fromUserId: raw.fromUserId,
         toUserId: raw.toUserId,
         role: raw.role,
@@ -22,7 +22,7 @@ export class ReviewAdapter {
   static toPrisma(entity: ReviewEntity): Review {
     return {
       id: entity.id,
-      listingId: entity.listingId,
+      propertyId: entity.propertyId,
       fromUserId: entity.fromUserId,
       toUserId: entity.toUserId,
       role: entity.role,
@@ -36,7 +36,7 @@ export class ReviewAdapter {
   static toHttp(entity: ReviewEntity): any {
     return {
       id: entity.id,
-      listingId: entity.listingId,
+      propertyId: entity.propertyId,
       fromUserId: entity.fromUserId,
       toUserId: entity.toUserId,
       role: entity.role,
