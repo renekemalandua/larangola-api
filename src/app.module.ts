@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { ProviderModule } from './shared';
 import { JwtAuthGuard } from './shared/guards/jwt-auth.guard';
+import { AdminGuard } from './shared/guards/admin.guard';
 
 // Controllers
 import { AuthController } from './controllers/auth.controller';
@@ -21,6 +22,7 @@ import { ChatController } from './controllers/chat.controller';
 import { MessageController } from './controllers/message.controller';
 import { UserVerificationController } from './controllers/user-verification.controller';
 import { PropertyRequestController } from './controllers/property-request.controller';
+import { AdminController } from './controllers/admin.controller';
 
 // Repositories
 import { IPropertyCategoryRepository } from './repositories/IPropertyCategoryRepository';
@@ -227,6 +229,16 @@ import {
   DeletePropertyRequestUseCase,
 } from './usecases/property-request.usecases';
 
+// Use Cases - Admin
+import {
+  GetDashboardStatsUseCase,
+  ListPendingPropertiesUseCase,
+  ApprovePropertyUseCase,
+  RejectPropertyUseCase,
+  AdminCreateAgentUseCase,
+  VerifyAgentUseCase,
+} from './usecases/admin.usecases';
+
 @Module({
   imports: [ProviderModule],
   controllers: [
@@ -248,6 +260,7 @@ import {
     MessageController,
     UserVerificationController,
     PropertyRequestController,
+    AdminController,
   ],
   providers: [
     // Repositories
@@ -425,8 +438,17 @@ import {
     UpdatePropertyRequestUseCase,
     DeletePropertyRequestUseCase,
 
+    // Use Cases - Admin
+    GetDashboardStatsUseCase,
+    ListPendingPropertiesUseCase,
+    ApprovePropertyUseCase,
+    RejectPropertyUseCase,
+    AdminCreateAgentUseCase,
+    VerifyAgentUseCase,
+
     // Guards
     JwtAuthGuard,
+    AdminGuard,
   ],
   exports: [
     FindPropertyCategoryByIdUseCase,

@@ -49,4 +49,8 @@ export class PrismaAgentRepository implements IAgentRepository {
     if (!exists) throw new NotFoundException('Agent not found');
     await this.prisma.agent.delete({ where: { id } });
   }
+
+  async count(): Promise<number> {
+    return this.prisma.agent.count();
+  }
 }

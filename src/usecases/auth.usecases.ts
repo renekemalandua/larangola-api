@@ -33,11 +33,15 @@ export class AuthLoginUseCase implements UseCase<
     if (!user.isActive)
       throw new UnauthorizedException('User account is deactivated');
 
+    // Check if user is admin (by email)
+    const isAdmin = user.email === 'admin@larangola.com';
+
     const payload = {
       id: user.id,
       email: user.email,
       phone: user.phone,
       isActive: user.isActive,
+      role: isAdmin ? 'ADMIN' : 'USER',
     };
 
     if (!GLOBAL_CONFIG.jwtAuthExp || !GLOBAL_CONFIG.jwtAuthSecret)

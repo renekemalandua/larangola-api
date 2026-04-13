@@ -68,4 +68,8 @@ export class PrismaUserRepository implements IUserRepository {
     if (!exists) throw new NotFoundException('User not found');
     await this.prisma.user.delete({ where: { id } });
   }
+
+  async count(): Promise<number> {
+    return this.prisma.user.count();
+  }
 }

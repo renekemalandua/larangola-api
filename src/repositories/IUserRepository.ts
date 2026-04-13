@@ -8,4 +8,5 @@ export abstract class IUserRepository {
   abstract findByPhone(phone: string): Promise<UserEntity | null>;
   abstract update(data: UserEntity): Promise<UserEntity>;
   abstract delete(id: string): Promise<void>;
+  abstract count(): Promise<number>;
 }

@@ -68,4 +68,27 @@ export class PrismaPropertyRepository implements IPropertyRepository {
     if (!exists) throw new NotFoundException('Property not found');
     await this.prisma.property.delete({ where: { id } });
   }
+
+  async listByStatus(status: string): Promise<PropertyEntity[]> {
+    const rows = await this.prisma.property.findMany({
+      where: { status: status as any },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        agent: {
+          include: {
+            user: true,
+          },
+        },
+      },
+    });
+    return rows.map(PropertyAdapter.toDomain);
+  }
+
+  async count(): Promise<number> {
+    return this.prisma.property.count();
+  }
+
+  async countByStatus(status: string): Promise<number> {
+    return this.prisma.property.count({ where: { status: status as any } });
+  }
 }
