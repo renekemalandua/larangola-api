@@ -8,8 +8,13 @@ export async function seedPayments(
 ) {
   console.log('💳 Seeding Payments...');
 
-  await prisma.payment.create({
-    data: {
+  await prisma.payment.upsert({
+    where: { id: 'seed-payment-1' },
+    update: {
+      amount: premiumPlanPrice,
+    },
+    create: {
+      id: 'seed-payment-1',
       userId: agentUserId,
       type: 'subscription',
       amount: premiumPlanPrice,

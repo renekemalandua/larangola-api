@@ -15,8 +15,14 @@ export async function seedProperties(
   }
 
   // Property 1: Published
-  await prisma.property.create({
-    data: {
+  await prisma.property.upsert({
+    where: { id: 'seed-prop-1' },
+    update: {
+      title: 'Vivenda T3 em Talatona',
+      price: 500000,
+    },
+    create: {
+      id: 'seed-prop-1',
       agentId: agentData.agent.id,
       categoryId: catHouseId,
       title: 'Vivenda T3 em Talatona',
@@ -32,8 +38,14 @@ export async function seedProperties(
   });
 
   // Property 2: Pending Approval
-  await prisma.property.create({
-    data: {
+  await prisma.property.upsert({
+    where: { id: 'seed-prop-2' },
+    update: {
+      title: 'Apartamento T2 na Mutamba',
+      price: 35000000,
+    },
+    create: {
+      id: 'seed-prop-2',
       agentId: agentData.agent.id,
       categoryId: catAptId,
       title: 'Apartamento T2 na Mutamba',

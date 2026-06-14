@@ -7,6 +7,10 @@ npx prisma generate
 echo "Running Prisma migrations..."
 npx prisma migrate deploy
 
+echo "Running Database Seeds..."
+export TS_NODE_COMPILER_OPTIONS='{"module":"commonjs","moduleResolution":"node"}'
+npx prisma db seed
+
 # Find the main.js file
 echo "Looking for main.js..."
 if [ -f "dist/main.js" ]; then
