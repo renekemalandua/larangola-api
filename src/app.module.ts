@@ -23,6 +23,7 @@ import { MessageController } from './controllers/message.controller';
 import { UserVerificationController } from './controllers/user-verification.controller';
 import { PropertyRequestController } from './controllers/property-request.controller';
 import { AdminController } from './controllers/admin.controller';
+import { PaymentController } from './controllers/payment.controller';
 
 // Repositories
 import { IPropertyCategoryRepository } from './repositories/IPropertyCategoryRepository';
@@ -57,6 +58,8 @@ import { IUserVerificationRepository } from './repositories/IUserVerificationRep
 import { PrismaUserVerificationRepository } from './repositories/implementation/PrismaUserVerificationRepository';
 import { IPropertyRequestRepository } from './repositories/IPropertyRequestRepository';
 import { PrismaPropertyRequestRepository } from './repositories/implementation/PrismaPropertyRequestRepository';
+import { IPaymentRepository } from './repositories/IPaymentRepository';
+import { PaymentPrismaRepository } from './repositories/implementation/PaymentPrismaRepository';
 
 // Use Cases - Auth
 import {
@@ -238,7 +241,16 @@ import {
   AdminCreateAgentUseCase,
   VerifyAgentUseCase,
   ListPendingAgentsUseCase,
+  ListPendingPaymentsUseCase,
+  VerifyPaymentUseCase,
 } from './usecases/admin.usecases';
+
+// Use Cases - Payment
+import {
+  CreateSubscriptionPaymentUseCase,
+  UploadPaymentProofUseCase,
+  ListMyPaymentsUseCase,
+} from './usecases/payment.usecases';
 
 @Module({
   imports: [ProviderModule],
@@ -262,6 +274,7 @@ import {
     UserVerificationController,
     PropertyRequestController,
     AdminController,
+    PaymentController,
   ],
   providers: [
     // Repositories
@@ -300,6 +313,7 @@ import {
       provide: IPropertyRequestRepository,
       useClass: PrismaPropertyRequestRepository,
     },
+    { provide: IPaymentRepository, useClass: PaymentPrismaRepository },
 
     // Use Cases - Auth
     AuthLoginUseCase,
@@ -447,6 +461,13 @@ import {
     AdminCreateAgentUseCase,
     VerifyAgentUseCase,
     ListPendingAgentsUseCase,
+    ListPendingPaymentsUseCase,
+    VerifyPaymentUseCase,
+
+    // Use Cases - Payment
+    CreateSubscriptionPaymentUseCase,
+    UploadPaymentProofUseCase,
+    ListMyPaymentsUseCase,
 
     // Guards
     JwtAuthGuard,

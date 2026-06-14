@@ -27,7 +27,10 @@ import {
   AdminCreateAgentUseCase,
   VerifyAgentUseCase,
   ListPendingAgentsUseCase,
+  ListPendingPaymentsUseCase,
+  VerifyPaymentUseCase,
 } from '../usecases/admin.usecases';
+import { PaymentAdapter } from '../adapters/payment.adapter';
 import { RejectPropertyDTO, CreateAgentDTO } from '../dto/admin.dto';
 import { PropertyAdapter } from '../adapters/property.adapter';
 import { AgentAdapter } from '../adapters/agent.adapter';
@@ -47,6 +50,8 @@ export class AdminController {
     private readonly createAgentUseCase: AdminCreateAgentUseCase,
     private readonly verifyAgentUseCase: VerifyAgentUseCase,
     private readonly listPendingAgentsUseCase: ListPendingAgentsUseCase,
+    private readonly listPendingPaymentsUseCase: ListPendingPaymentsUseCase,
+    private readonly verifyPaymentUseCase: VerifyPaymentUseCase,
   ) {}
 
   @Get('dashboard/stats')
@@ -207,6 +212,55 @@ export class AdminController {
       const agents = await this.listPendingAgentsUseCase.execute();
       const data = agents.map((a) => AgentAdapter.toHttp(a));
       return response.status(200).json({ status: true, data });
+    } catch (error) {
+      return response.status(400).json({
+        status: false,
+        message: error.message,
+      });
+    }
+  }
+
+  @Get('payments/pending')
+  @ApiOperation({ summary: 'List pending payments' })
+  @ApiResponse({ status: 200 })
+  @ApiResponse({ status: 401, type: HttpErrorResponseDTO })
+  @ApiResponse({ status: 403, type: HttpErrorResponseDTO })
+  async listPendingPayments(@Res() response: Response) {
+    try {
+      const payments = await this.listPendingPaymentsUseCase.execute();
+      const data = payments.map((p) => PaymentAdapter.toHttp(p));
+      return response.status(200).json({ status: true, data });
+    } catch (error) {
+      return response.status(400).json({
+        status: false,
+        message: error.message,
+      });
+    }
+  }
+
+  @Post('payments/:id/verify')
+  @ApiOperation({ summary: 'Verify a payment' })
+  @ApiParam({ name: 'id', description: 'Payment ID' })
+  @ApiResponse({ status: 200 })
+  @ApiResponse({ status: 400, type: HttpErrorResponseDTO })
+  @ApiResponse({ status: 401, type: HttpErrorResponseDTO })
+  @ApiResponse({ status: 403, type: HttpErrorResponseDTO })
+  async verifyPayment(
+    @Param('id') id: string,
+    @Request() req,
+    @Res() response: Response,
+  ) {
+    try {
+      const payment = await this.verifyPaymentUseCase.execute({
+        paymentId: id,
+        adminId: req.user.id,
+      });
+      const data = PaymentAdapter.toHttp(payment);
+      return response.status(200).json({
+        status: true,
+        data,
+        message: 'Payment verified and subscription activated',
+      });
     } catch (error) {
       return response.status(400).json({
         status: false,
