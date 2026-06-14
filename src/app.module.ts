@@ -237,6 +237,7 @@ import {
   RejectPropertyUseCase,
   AdminCreateAgentUseCase,
   VerifyAgentUseCase,
+  ListPendingAgentsUseCase,
 } from './usecases/admin.usecases';
 
 @Module({
@@ -445,6 +446,7 @@ import {
     RejectPropertyUseCase,
     AdminCreateAgentUseCase,
     VerifyAgentUseCase,
+    ListPendingAgentsUseCase,
 
     // Guards
     JwtAuthGuard,

@@ -53,4 +53,13 @@ export class PrismaAgentRepository implements IAgentRepository {
   async count(): Promise<number> {
     return this.prisma.agent.count();
   }
+
+  async listPending(): Promise<AgentEntity[]> {
+    const rows = await this.prisma.agent.findMany({
+      where: { isVerified: false },
+      orderBy: { createdAt: 'asc' },
+      include: { user: true },
+    });
+    return rows.map(AgentAdapter.toDomain);
+  }
 }

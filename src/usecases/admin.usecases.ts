@@ -211,3 +211,13 @@ export class VerifyAgentUseCase implements UseCase<string, AgentEntity> {
     return this.agentRepository.update(agent);
   }
 }
+
+// List Pending Agents (not verified)
+@Injectable()
+export class ListPendingAgentsUseCase implements UseCase<void, AgentEntity[]> {
+  constructor(private readonly agentRepository: IAgentRepository) {}
+
+  async execute(): Promise<AgentEntity[]> {
+    return this.agentRepository.listPending();
+  }
+}

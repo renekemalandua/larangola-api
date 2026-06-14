@@ -1,4 +1,4 @@
-import {
+import { Query,
   BadRequestException,
   Body,
   Controller,
@@ -51,12 +51,19 @@ export class AgentController {
   }
 
   @Get('list')
-  @ApiOperation({ summary: 'List all Agents' })
+  @ApiOperation({ summary: 'List all Agents (optionally filter by isVerified)' })
   @ApiResponse({ status: 200 })
   @ApiResponse({ status: 400, type: HttpErrorResponseDTO })
-  async list(@Res() response) {
+  async list(@Query('isVerified') isVerified: string | undefined, @Res() response) {
     try {
-      const entities = await this.listUseCase.execute();
+      let entities = await this.listUseCase.execute();
+      
+      // Filter by isVerified if provided
+      if (isVerified !== undefined) {
+        const verified = isVerified === 'true';
+        entities = entities.filter((e) => e.isVerified === verified);
+      }
+      
       const data = entities.map((e) => AgentAdapter.toHttp(e));
       return response.status(200).json({ status: true, data });
     } catch (error) {

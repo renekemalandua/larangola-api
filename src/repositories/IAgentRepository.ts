@@ -8,4 +8,5 @@ export abstract class IAgentRepository {
   abstract update(data: AgentEntity): Promise<AgentEntity>;
   abstract delete(id: string): Promise<void>;
   abstract count(): Promise<number>;
+  abstract listPending(): Promise<AgentEntity[]>;
 }

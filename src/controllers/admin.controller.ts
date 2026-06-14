@@ -26,6 +26,7 @@ import {
   RejectPropertyUseCase,
   AdminCreateAgentUseCase,
   VerifyAgentUseCase,
+  ListPendingAgentsUseCase,
 } from '../usecases/admin.usecases';
 import { RejectPropertyDTO, CreateAgentDTO } from '../dto/admin.dto';
 import { PropertyAdapter } from '../adapters/property.adapter';
@@ -45,6 +46,7 @@ export class AdminController {
     private readonly rejectPropertyUseCase: RejectPropertyUseCase,
     private readonly createAgentUseCase: AdminCreateAgentUseCase,
     private readonly verifyAgentUseCase: VerifyAgentUseCase,
+    private readonly listPendingAgentsUseCase: ListPendingAgentsUseCase,
   ) {}
 
   @Get('dashboard/stats')
@@ -187,6 +189,24 @@ export class AdminController {
         data,
         message: 'Agent verified successfully',
       });
+    } catch (error) {
+      return response.status(400).json({
+        status: false,
+        message: error.message,
+      });
+    }
+  }
+
+  @Get('agents/pending-verification')
+  @ApiOperation({ summary: 'List agents pending verification' })
+  @ApiResponse({ status: 200 })
+  @ApiResponse({ status: 401, type: HttpErrorResponseDTO })
+  @ApiResponse({ status: 403, type: HttpErrorResponseDTO })
+  async listPendingAgents(@Res() response: Response) {
+    try {
+      const agents = await this.listPendingAgentsUseCase.execute();
+      const data = agents.map((a) => AgentAdapter.toHttp(a));
+      return response.status(200).json({ status: true, data });
     } catch (error) {
       return response.status(400).json({
         status: false,
