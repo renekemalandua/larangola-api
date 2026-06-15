@@ -66,6 +66,13 @@ export class AgentAdapter {
       displayRating: hasMinimumReviews ? averageRating.toFixed(1) : null,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
+      user: entity.user ? {
+        id: entity.user.id,
+        name: entity.user.name,
+        email: entity.user.email,
+        phone: entity.user.phone,
+        avatar: entity.user.avatar,
+      } : null,
     };
   }
 }
