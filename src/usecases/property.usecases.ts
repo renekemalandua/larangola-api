@@ -115,6 +115,7 @@ export class UpdatePropertyUseCase implements UseCase<
       entity.propertyType = data.propertyType;
     if (data.amenities !== undefined) entity.amenities = data.amenities ?? null;
     if (data.images !== undefined) entity.images = data.images ?? null;
+    if (data.rules !== undefined) entity.rules = data.rules ?? null;
     // Map new fields
     if (data.listingType !== undefined)
       entity.listingType = data.listingType ?? null;

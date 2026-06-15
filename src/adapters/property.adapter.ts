@@ -30,6 +30,7 @@ export class PropertyAdapter {
         propertyType: raw.propertyType,
         amenities: raw.amenities as unknown,
         images: raw.images as unknown,
+        rules: raw.rules as unknown,
 
         listingType: raw.listingType as ListingType,
         price: raw.price,
@@ -67,6 +68,7 @@ export class PropertyAdapter {
       propertyType: entity.propertyType,
       amenities: entity.amenities as any,
       images: entity.images as any,
+      rules: entity.rules as any,
 
       listingType: entity.listingType as PrismaListingType,
       price: entity.price,
@@ -112,6 +114,8 @@ export class PropertyAdapter {
       propertyType: entity.propertyType || entity.props?.propertyType,
       amenities: entity.amenities || entity.props?.amenities,
       images: entity.images || entity.props?.images,
+      photos: entity.images || entity.props?.images || [],
+      rules: entity.rules || entity.props?.rules || [],
 
       listingType: entity.listingType || entity.props?.listingType,
       price: entity.price || entity.props?.price,

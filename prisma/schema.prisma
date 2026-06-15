@@ -81,6 +81,7 @@ model Property {
     propertyType String // apartment, house, studio, room
     amenities    Json? // array of amenities
     images       Json? // array of image URLs
+    rules        Json? // array of house rules
     
     // Listing Fields (Merged)
     listingType  ListingType?

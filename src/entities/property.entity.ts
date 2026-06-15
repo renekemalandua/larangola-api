@@ -31,6 +31,7 @@ interface IPropertyProps {
   propertyType: string;
   amenities: unknown | null;
   images: unknown | null;
+  rules: unknown | null;
 
   // Merged Listing Fields
   listingType: ListingType | null;
@@ -64,6 +65,7 @@ export class PropertyEntity extends AggregateRoot<IPropertyProps> {
       | 'area'
       | 'amenities'
       | 'images'
+      | 'rules'
       | 'listingType'
       | 'price'
       | 'currency'
@@ -95,6 +97,7 @@ export class PropertyEntity extends AggregateRoot<IPropertyProps> {
         propertyType: props.propertyType,
         amenities: props.amenities ?? null,
         images: props.images ?? null,
+        rules: props.rules ?? null,
 
         listingType: props.listingType ?? null,
         price: props.price ?? null,
@@ -219,6 +222,13 @@ export class PropertyEntity extends AggregateRoot<IPropertyProps> {
   }
   public set images(v: unknown | null) {
     this.props.images = v;
+    this.touch();
+  }
+  public get rules(): unknown | null {
+    return this.props.rules;
+  }
+  public set rules(v: unknown | null) {
+    this.props.rules = v;
     this.touch();
   }
   public get createdAt(): Date {
