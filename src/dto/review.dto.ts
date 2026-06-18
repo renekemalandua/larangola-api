@@ -13,15 +13,15 @@ import { ReviewRole } from '@prisma/client';
 export class CreateReviewRequestDTO {
   @ApiPropertyOptional({ example: 'uuid-of-property' })
   @IsOptional()
-  @IsUUID()
+  @IsString()
   propertyId?: string;
 
   @ApiProperty({ example: 'uuid-of-from-user' })
-  @IsUUID()
+  @IsString()
   fromUserId: string;
 
   @ApiProperty({ example: 'uuid-of-to-user' })
-  @IsUUID()
+  @IsString()
   toUserId: string;
 
   @ApiProperty({ enum: ReviewRole, example: ReviewRole.AGENT })
