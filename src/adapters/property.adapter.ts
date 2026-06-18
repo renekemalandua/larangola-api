@@ -94,6 +94,9 @@ export class PropertyAdapter {
       return entity[field];
     };
 
+    // Allow agent to be passed explicitly, or fall back to entity.agent (set by enrichProperty)
+    const resolvedAgent = agent ?? entity.agent ?? null;
+
     const id = entity.id || (entity.props ? entity.props.id : null);
 
     return {
@@ -129,13 +132,19 @@ export class PropertyAdapter {
 
       createdAt: entity.createdAt || entity.props?.createdAt,
       updatedAt: entity.updatedAt || entity.props?.updatedAt,
-      agent: agent
+      agent: resolvedAgent
         ? {
-            id: agent.id,
-            name: agent.user?.name || agent.name,
-            avatar: agent.user?.avatar || agent.avatar,
-            company: agent.company,
-            isVerified: !!agent.isVerified,
+            id: resolvedAgent.id,
+            userId: resolvedAgent.userId,
+            company: resolvedAgent.company,
+            isVerified: !!resolvedAgent.isVerified,
+            user: {
+              id: resolvedAgent.user?.id || resolvedAgent.userId,
+              name: resolvedAgent.user?.name || resolvedAgent.name || 'Agente LarAngola',
+              email: resolvedAgent.user?.email || '',
+              phone: resolvedAgent.user?.phone || resolvedAgent.phone || '',
+              avatar: resolvedAgent.user?.avatar || resolvedAgent.avatar || null,
+            }
           }
         : null,
     };

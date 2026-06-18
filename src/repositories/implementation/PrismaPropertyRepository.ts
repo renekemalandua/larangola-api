@@ -8,46 +8,70 @@ import { PropertyAdapter } from '../../adapters/property.adapter';
 export class PrismaPropertyRepository implements IPropertyRepository {
   constructor(private readonly prisma: PrismaService) {}
 
+  private readonly agentInclude = {
+    agent: {
+      include: {
+        user: true,
+      },
+    },
+  };
+
+  private enrichProperty(row: any): PropertyEntity {
+    const entity = PropertyAdapter.toDomain(row);
+    (entity as any).agent = row.agent;
+    return entity;
+  }
+
   async create(data: PropertyEntity): Promise<PropertyEntity> {
     const raw = PropertyAdapter.toPrisma(data) as any;
-    const created = await this.prisma.property.create({ data: raw });
-    return PropertyAdapter.toDomain(created);
+    const created = await this.prisma.property.create({
+      data: raw,
+      include: this.agentInclude
+    });
+    return this.enrichProperty(created);
   }
 
   async list(): Promise<PropertyEntity[]> {
     const rows = await this.prisma.property.findMany({
       orderBy: { updatedAt: 'desc' },
+      include: this.agentInclude,
     });
-    return rows.map(PropertyAdapter.toDomain);
+    return rows.map((row) => this.enrichProperty(row));
   }
 
   async listPublished(): Promise<PropertyEntity[]> {
     const rows = await this.prisma.property.findMany({
       where: { status: 'published' },
       orderBy: { createdAt: 'desc' },
+      include: this.agentInclude,
     });
-    return rows.map(PropertyAdapter.toDomain);
+    return rows.map((row) => this.enrichProperty(row));
   }
 
   async listByAgent(agentId: string): Promise<PropertyEntity[]> {
     const rows = await this.prisma.property.findMany({
       where: { agentId },
       orderBy: { updatedAt: 'desc' },
+      include: this.agentInclude,
     });
-    return rows.map(PropertyAdapter.toDomain);
+    return rows.map((row) => this.enrichProperty(row));
   }
 
   async listByCategory(categoryId: string): Promise<PropertyEntity[]> {
     const rows = await this.prisma.property.findMany({
       where: { categoryId },
       orderBy: { updatedAt: 'desc' },
+      include: this.agentInclude,
     });
-    return rows.map(PropertyAdapter.toDomain);
+    return rows.map((row) => this.enrichProperty(row));
   }
 
   async findById(id: string): Promise<PropertyEntity | null> {
-    const row = await this.prisma.property.findUnique({ where: { id } });
-    return row ? PropertyAdapter.toDomain(row) : null;
+    const row = await this.prisma.property.findUnique({
+      where: { id },
+      include: this.agentInclude,
+    });
+    return row ? this.enrichProperty(row) : null;
   }
 
   async update(data: PropertyEntity): Promise<PropertyEntity> {
@@ -59,8 +83,9 @@ export class PrismaPropertyRepository implements IPropertyRepository {
     const updated = await this.prisma.property.update({
       where: { id: data.id },
       data: raw,
+      include: this.agentInclude,
     });
-    return PropertyAdapter.toDomain(updated);
+    return this.enrichProperty(updated);
   }
 
   async delete(id: string): Promise<void> {
@@ -73,15 +98,9 @@ export class PrismaPropertyRepository implements IPropertyRepository {
     const rows = await this.prisma.property.findMany({
       where: { status: status as any },
       orderBy: { createdAt: 'desc' },
-      include: {
-        agent: {
-          include: {
-            user: true,
-          },
-        },
-      },
+      include: this.agentInclude,
     });
-    return rows.map(PropertyAdapter.toDomain);
+    return rows.map((row) => this.enrichProperty(row));
   }
 
   async count(): Promise<number> {
