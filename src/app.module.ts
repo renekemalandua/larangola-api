@@ -24,6 +24,7 @@ import { UserVerificationController } from './controllers/user-verification.cont
 import { PropertyRequestController } from './controllers/property-request.controller';
 import { AdminController } from './controllers/admin.controller';
 import { PaymentController } from './controllers/payment.controller';
+import { PropertyAuditRequestController } from './controllers/property-audit-request.controller';
 
 // Repositories
 import { IPropertyCategoryRepository } from './repositories/IPropertyCategoryRepository';
@@ -60,6 +61,8 @@ import { IPropertyRequestRepository } from './repositories/IPropertyRequestRepos
 import { PrismaPropertyRequestRepository } from './repositories/implementation/PrismaPropertyRequestRepository';
 import { IPaymentRepository } from './repositories/IPaymentRepository';
 import { PaymentPrismaRepository } from './repositories/implementation/PaymentPrismaRepository';
+import { IPropertyAuditRequestRepository } from './repositories/IPropertyAuditRequestRepository';
+import { PrismaPropertyAuditRequestRepository } from './repositories/implementation/PrismaPropertyAuditRequestRepository';
 
 // Use Cases - Auth
 import {
@@ -252,6 +255,18 @@ import {
   ListMyPaymentsUseCase,
 } from './usecases/payment.usecases';
 
+// Use Cases - PropertyAuditRequest
+import {
+  CreatePropertyAuditRequestUseCase,
+  ListPendingPropertyAuditRequestsUseCase,
+  ListMyValidationsUseCase,
+  ClaimPropertyAuditRequestUseCase,
+  ApprovePropertyAuditRequestUseCase,
+  RejectPropertyAuditRequestUseCase,
+  CancelPropertyAuditRequestUseCase,
+} from './usecases/property-audit-request.usecases';
+import { PropertyAuditCronService } from './usecases/property-audit-cron.service';
+
 @Module({
   imports: [ProviderModule],
   controllers: [
@@ -275,6 +290,7 @@ import {
     PropertyRequestController,
     AdminController,
     PaymentController,
+    PropertyAuditRequestController,
   ],
   providers: [
     // Repositories
@@ -314,6 +330,10 @@ import {
       useClass: PrismaPropertyRequestRepository,
     },
     { provide: IPaymentRepository, useClass: PaymentPrismaRepository },
+    {
+      provide: IPropertyAuditRequestRepository,
+      useClass: PrismaPropertyAuditRequestRepository,
+    },
 
     // Use Cases - Auth
     AuthLoginUseCase,
@@ -468,6 +488,16 @@ import {
     CreateSubscriptionPaymentUseCase,
     UploadPaymentProofUseCase,
     ListMyPaymentsUseCase,
+
+    // Use Cases - PropertyAuditRequest
+    CreatePropertyAuditRequestUseCase,
+    ListPendingPropertyAuditRequestsUseCase,
+    ListMyValidationsUseCase,
+    ClaimPropertyAuditRequestUseCase,
+    ApprovePropertyAuditRequestUseCase,
+    RejectPropertyAuditRequestUseCase,
+    CancelPropertyAuditRequestUseCase,
+    PropertyAuditCronService,
 
     // Guards
     JwtAuthGuard,
