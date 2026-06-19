@@ -15,6 +15,7 @@ import { JwtAuthGuard } from '../shared/guards/jwt-auth.guard';
 import {
   CreatePropertyAuditRequestUseCase,
   ListPendingPropertyAuditRequestsUseCase,
+  ListMyPropertyAuditRequestsUseCase,
   ListMyValidationsUseCase,
   ClaimPropertyAuditRequestUseCase,
   ApprovePropertyAuditRequestUseCase,
@@ -30,6 +31,7 @@ export class PropertyAuditRequestController {
   constructor(
     private readonly createUseCase: CreatePropertyAuditRequestUseCase,
     private readonly listPendingUseCase: ListPendingPropertyAuditRequestsUseCase,
+    private readonly listMySubmissionsUseCase: ListMyPropertyAuditRequestsUseCase,
     private readonly listMyValidationsUseCase: ListMyValidationsUseCase,
     private readonly claimUseCase: ClaimPropertyAuditRequestUseCase,
     private readonly approveUseCase: ApprovePropertyAuditRequestUseCase,
@@ -80,6 +82,22 @@ export class PropertyAuditRequestController {
       throw new BadRequestException(error.message);
     }
   }
+
+  @Get('my-submissions/:userId')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'List Property Audits submitted by a specific User' })
+  @ApiParam({ name: 'userId' })
+  @ApiResponse({ status: 200 })
+  async listMySubmissions(@Param('userId') userId: string, @Res() response) {
+    try {
+      const entities = await this.listMySubmissionsUseCase.execute(userId);
+      const data = entities.map((e) => PropertyAuditRequestAdapter.toHttp(e));
+      return response.status(200).json({ status: true, data });
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
 
   @Post(':id/claim')
   @UseGuards(JwtAuthGuard)

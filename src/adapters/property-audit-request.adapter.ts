@@ -24,12 +24,13 @@ export class PropertyAuditRequestAdapter {
       claimedAt: entity.claimedAt,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
+      claimedAgent: entity.claimedAgent,
     };
   }
 
   static fromDb(data: any): PropertyAuditRequest | null {
     if (!data) return null;
-    return new PropertyAuditRequest(
+    const req = new PropertyAuditRequest(
       data.id,
       data.userId,
       data.title,
@@ -52,5 +53,20 @@ export class PropertyAuditRequestAdapter {
       data.createdAt,
       data.updatedAt
     );
+
+    if (data.claimedAgent && data.claimedAgent.user) {
+      req.claimedAgent = {
+        name: data.claimedAgent.user.name,
+        phone: data.claimedAgent.user.phone,
+      };
+    } else if (data.claimedAgent && data.claimedAgent.name) {
+      // In case we mocked it or it came differently structured
+      req.claimedAgent = {
+        name: data.claimedAgent.name,
+        phone: data.claimedAgent.phone,
+      };
+    }
+
+    return req;
   }
 }

@@ -66,6 +66,11 @@ export class CreatePropertyAuditRequestDTO {
   @ApiPropertyOptional()
   @IsOptional()
   images?: any;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  notes?: string;
 }
 
 export class UpdatePropertyAuditRequestDTO {

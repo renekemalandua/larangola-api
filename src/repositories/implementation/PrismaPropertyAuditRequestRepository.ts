@@ -9,7 +9,7 @@ import { AuditStatus } from '@prisma/client';
 export class PrismaPropertyAuditRequestRepository implements IPropertyAuditRequestRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(data: Omit<PropertyAuditRequest, 'id' | 'createdAt' | 'updatedAt' | 'claimedByAgentId' | 'claimedAt' | 'notes' | 'status'>): Promise<PropertyAuditRequest> {
+  async create(data: Omit<PropertyAuditRequest, 'id' | 'createdAt' | 'updatedAt' | 'claimedByAgentId' | 'claimedAt' | 'status'>): Promise<PropertyAuditRequest> {
     const created = await this.prisma.propertyAuditRequest.create({
       data: {
         userId: data.userId,
@@ -26,6 +26,7 @@ export class PrismaPropertyAuditRequestRepository implements IPropertyAuditReque
         propertyType: data.propertyType,
         listingType: data.listingType,
         images: data.images,
+        notes: data.notes,
         status: AuditStatus.PENDING,
       },
     });
@@ -37,6 +38,23 @@ export class PrismaPropertyAuditRequestRepository implements IPropertyAuditReque
       where: { id },
     });
     return PropertyAuditRequestAdapter.fromDb(found);
+  }
+
+  async findByUserId(userId: string): Promise<PropertyAuditRequest[]> {
+    const requests = await this.prisma.propertyAuditRequest.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        claimedAgent: {
+          include: {
+            user: {
+              select: { name: true, phone: true }
+            }
+          }
+        }
+      }
+    });
+    return requests.map(req => PropertyAuditRequestAdapter.fromDb(req)!);
   }
 
   async findPending(): Promise<PropertyAuditRequest[]> {

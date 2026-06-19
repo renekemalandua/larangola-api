@@ -21,5 +21,6 @@ export class PropertyAuditRequest {
     public claimedAt: Date | null,
     public createdAt: Date,
     public updatedAt: Date,
+    public claimedAgent?: { name: string; phone: string; }
   ) {}
 }

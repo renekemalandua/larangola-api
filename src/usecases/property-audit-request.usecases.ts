@@ -23,6 +23,15 @@ export class ListPendingPropertyAuditRequestsUseCase {
 }
 
 @Injectable()
+export class ListMyPropertyAuditRequestsUseCase {
+  constructor(private readonly repository: IPropertyAuditRequestRepository) {}
+
+  async execute(userId: string): Promise<PropertyAuditRequest[]> {
+    return this.repository.findByUserId(userId);
+  }
+}
+
+@Injectable()
 export class ListMyValidationsUseCase {
   constructor(private readonly repository: IPropertyAuditRequestRepository) {}
 
