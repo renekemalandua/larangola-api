@@ -150,6 +150,22 @@ export class PropertyController {
     }
   }
 
+	@Get('my-properties')
+	@UseGuards(JwtAuthGuard)
+	@ApiOperation({ summary: 'List my properties (agent only)' })
+	@ApiResponse({ status: 200 })
+	@ApiResponse({ status: 400, type: HttpErrorResponseDTO })
+	async listMyProperties(@Request() req, @Res() response) {
+		try {
+			const userId = req.user.id;
+			const entities = await this.listMyPropertiesUseCase.execute(userId);
+			const data = entities.map((e) => PropertyAdapter.toHttp(e));
+			return response.status(200).json({ status: true, data });
+		} catch (error) {
+			throw new BadRequestException(error.message);
+		}
+	}
+
   @Get(':id')
   @ApiOperation({ summary: 'Find Property by ID' })
   @ApiParam({ name: 'id' })
@@ -240,22 +256,6 @@ export class PropertyController {
         status: true,
         data: { message: 'Property deleted successfully' },
       });
-    } catch (error) {
-      throw new BadRequestException(error.message);
-    }
-  }
-
-  @Get('my-properties')
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'List my properties (agent only)' })
-  @ApiResponse({ status: 200 })
-  @ApiResponse({ status: 400, type: HttpErrorResponseDTO })
-  async listMyProperties(@Request() req, @Res() response) {
-    try {
-      const userId = req.user.id;
-      const entities = await this.listMyPropertiesUseCase.execute(userId);
-      const data = entities.map((e) => PropertyAdapter.toHttp(e));
-      return response.status(200).json({ status: true, data });
     } catch (error) {
       throw new BadRequestException(error.message);
     }
