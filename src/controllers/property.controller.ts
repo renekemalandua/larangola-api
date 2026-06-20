@@ -273,10 +273,10 @@ export class PropertyController {
     @Res() response
   ) {
     try {
-      const agentId = req.user.agentId || req.user.id;
+      const userId = req.user.id;
       const entity = await this.requestPublicationUseCase.execute({
         propertyId: id,
-        agentId,
+        userId,
       });
       const data = PropertyAdapter.toHttp(entity);
       return response.status(200).json({

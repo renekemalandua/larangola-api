@@ -16,7 +16,7 @@ export class CreatePropertyRequestDTO {
   agentId: string;
 
   @ApiProperty({ example: 'uuid-of-category' })
-  @IsUUID()
+  @IsString()
   categoryId: string;
 
   @ApiProperty({ example: 'T3 no Talatona' })
@@ -125,7 +125,7 @@ export class CreatePropertyRequestDTO {
 export class UpdatePropertyRequestDTO {
   @ApiPropertyOptional({ example: 'uuid-of-new-category' })
   @IsOptional()
-  @IsUUID()
+  @IsString()
   categoryId?: string;
 
   @ApiPropertyOptional({ example: 'Novo título' })

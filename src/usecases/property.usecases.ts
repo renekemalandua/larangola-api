@@ -206,7 +206,7 @@ export class FindPropertyByIdUseCase implements UseCase<
 
 @Injectable()
 export class RequestPublicationUseCase implements UseCase<
-  { propertyId: string; agentId: string },
+  { propertyId: string; userId: string },
   PropertyEntity
 > {
   constructor(
@@ -216,10 +216,10 @@ export class RequestPublicationUseCase implements UseCase<
 
   async execute({
     propertyId,
-    agentId,
+    userId,
   }: {
     propertyId: string;
-    agentId: string;
+    userId: string;
   }): Promise<PropertyEntity> {
     const property = await this.repository.findById(propertyId);
     
@@ -228,8 +228,8 @@ export class RequestPublicationUseCase implements UseCase<
     }
 
     // Verificar se o imóvel pertence ao agente
-    const agent = await this.agentRepository.findById(property.agentId);
-    if (!agent || agent.id !== agentId) {
+    const agent = await this.agentRepository.findByUserId(userId);
+    if (!agent || agent.id !== property.agentId) {
       throw new UnauthorizedException('You can only request publication for your own properties');
     }
 
