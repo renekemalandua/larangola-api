@@ -11,13 +11,16 @@ export async function seedUsers(prisma: PrismaClient) {
   // 1. Admin
   const admin = await prisma.user.upsert({
     where: { email: 'admin@larangola.co.ao' },
-    update: {},
+    update: {
+      adminRole: 'ADMIN',
+    },
     create: {
       email: 'admin@larangola.co.ao',
       phone: '+244900000000',
       password: passwordAdmin,
       name: 'Administrador Larangola',
       isActive: true,
+      adminRole: 'ADMIN',
     },
   });
   console.log('✅ Admin user created');

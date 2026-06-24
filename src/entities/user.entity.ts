@@ -8,6 +8,7 @@ interface IUserProps {
   name: string;
   avatar: string | null;
   isActive: boolean;
+  adminRole: 'NONE' | 'AUDITOR' | 'ADMIN';
   agent?: any;
   roommate?: any;
   createdAt: Date;
@@ -18,7 +19,7 @@ export class UserEntity extends AggregateRoot<IUserProps> {
   static create(
     props: Optional<
       IUserProps,
-      'avatar' | 'isActive' | 'createdAt' | 'updatedAt'
+      'avatar' | 'isActive' | 'adminRole' | 'createdAt' | 'updatedAt'
     >,
     id?: IdValueObject
   ) {
@@ -30,6 +31,7 @@ export class UserEntity extends AggregateRoot<IUserProps> {
         name: props.name,
         avatar: props.avatar ?? DEFAULT_USER_AVATAR,
         isActive: props.isActive ?? true,
+        adminRole: props.adminRole ?? 'NONE',
         agent: props.agent,
         roommate: props.roommate,
         createdAt: props.createdAt ?? new Date(),
@@ -89,6 +91,13 @@ export class UserEntity extends AggregateRoot<IUserProps> {
   }
   public set isActive(v: boolean) {
     this.props.isActive = v;
+    this.touch();
+  }
+  public get adminRole(): 'NONE' | 'AUDITOR' | 'ADMIN' {
+    return this.props.adminRole;
+  }
+  public set adminRole(v: 'NONE' | 'AUDITOR' | 'ADMIN') {
+    this.props.adminRole = v;
     this.touch();
   }
   public get createdAt(): Date {

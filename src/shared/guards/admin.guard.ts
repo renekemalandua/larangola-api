@@ -30,9 +30,9 @@ export class AdminGuard implements CanActivate {
 
       const payload = typeof decoded === 'string' ? JSON.parse(decoded) : decoded;
 
-      // Check if user is admin
-      if (payload.role !== 'ADMIN') {
-        throw new ForbiddenException('Admin access required');
+      // Check if user is admin or auditor
+      if (payload.adminRole !== 'ADMIN' && payload.adminRole !== 'AUDITOR') {
+        throw new ForbiddenException('Admin or Auditor access required');
       }
 
       // Attach admin info to request

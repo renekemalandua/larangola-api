@@ -12,6 +12,7 @@ export class UserAdapter {
         name: raw.name,
         avatar: (raw as any).avatar ?? null,
         isActive: (raw as any).isActive,
+        adminRole: (raw as any).adminRole ?? 'NONE',
         agent: (raw as any).agent,
         roommate: (raw as any).roommate,
         createdAt: (raw as any).createdAt,
@@ -30,6 +31,7 @@ export class UserAdapter {
       name: entity.name,
       avatar: entity.avatar,
       isActive: entity.isActive,
+      adminRole: entity.adminRole as any,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
     };
@@ -43,6 +45,7 @@ export class UserAdapter {
       name: entity.name,
       avatar: entity.avatar,
       isActive: entity.isActive,
+      adminRole: entity.adminRole,
       agent: entity.agent,
       roommate: entity.roommate,
       createdAt: entity.createdAt,

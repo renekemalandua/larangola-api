@@ -11,6 +11,12 @@ datasource db {
 // User Base Table
 // ============================================
 
+enum AdminRole {
+    NONE
+    AUDITOR
+    ADMIN
+}
+
 model User {
     id        String   @id @default(uuid())
     email     String   @unique
@@ -18,9 +24,10 @@ model User {
     password  String
     name      String
     avatar    String?
-    isActive  Boolean  @default(true)
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    isActive  Boolean    @default(true)
+    adminRole AdminRole  @default(NONE)
+    createdAt DateTime   @default(now())
+    updatedAt DateTime   @updatedAt
 
     // Relations
     agent               Agent?
