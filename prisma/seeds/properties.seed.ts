@@ -186,5 +186,123 @@ export async function seedProperties(
     }
   });
 
+  // Property 3: Pending Apartment (Kilamba)
+  await prisma.property.upsert({
+    where: { id: 'seed-prop-3' },
+    update: {},
+    create: {
+      id: 'seed-prop-3',
+      agentId: agentData.agent.id,
+      categoryId: catAptId,
+      title: 'Apartamento T3 Moderno — Centralidade do Kilamba',
+      description: 'Apartamento T3 na Centralidade do Kilamba, bloco limpo e organizado. 3 Quartos, 2 WCs, Cozinha equipada e sala de estar espaçosa.',
+      address: 'Quarteirão U, Edifício U12',
+      city: 'Luanda',
+      state: 'Luanda',
+      country: 'Angola',
+      bedrooms: 3,
+      bathrooms: 2,
+      area: 110,
+      propertyType: 'apartment',
+      amenities: ['Estacionamento Privado', 'Segurança Garantida', 'Elevador', 'Água Canalizada'],
+      images: [
+        'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=80'
+      ],
+      listingType: ListingType.rent,
+      price: 250000,
+      status: PropertyStatus.pending_approval,
+      submittedForApprovalAt: new Date()
+    }
+  });
+
+  // Property 4: Pending Office (Talatona)
+  await prisma.property.upsert({
+    where: { id: 'seed-prop-4' },
+    update: {},
+    create: {
+      id: 'seed-prop-4',
+      agentId: agentData.agent.id,
+      categoryId: catAptId, // Using apt as fallback if commercial doesn't exist
+      title: 'Escritório Corporativo 150m² — Cidade Financeira',
+      description: 'Espaço corporativo open space na Cidade Financeira em Talatona, pronto a ser ocupado. Inclui 2 vagas de garagem.',
+      address: 'Via AL16, Cidade Financeira, Talatona',
+      city: 'Luanda',
+      state: 'Luanda',
+      country: 'Angola',
+      area: 150,
+      propertyType: 'studio',
+      amenities: ['Segurança 24h', 'Controle de Acesso', 'Estacionamento', 'Gerador de Energia', 'Ar Condicionado Central'],
+      images: [
+        'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=800&q=80'
+      ],
+      listingType: ListingType.rent,
+      price: 1500000,
+      status: PropertyStatus.pending_approval,
+      submittedForApprovalAt: new Date()
+    }
+  });
+
+  // Property 5: Rejected House (Benfica)
+  await prisma.property.upsert({
+    where: { id: 'seed-prop-5' },
+    update: {},
+    create: {
+      id: 'seed-prop-5',
+      agentId: agentData.agent.id,
+      categoryId: catHouseId,
+      title: 'Moradia T4 — Benfica',
+      description: 'Moradia T4 localizada no Benfica. (Fotos de má qualidade)',
+      address: 'Benfica, Via Expressa',
+      city: 'Luanda',
+      state: 'Luanda',
+      country: 'Angola',
+      bedrooms: 4,
+      bathrooms: 3,
+      area: 250,
+      propertyType: 'house',
+      images: [
+        'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80'
+      ],
+      listingType: ListingType.buy,
+      price: 60000000,
+      status: PropertyStatus.rejected,
+      rejectionReason: 'As fotografias inseridas têm baixa resolução e iluminação. Por favor, substitua por fotos mais nítidas e com boa luz.',
+      reviewedBy: adminId,
+      reviewedAt: new Date(),
+      submittedForApprovalAt: new Date(Date.now() - 86400000)
+    }
+  });
+
+  // Property 6: Rejected Shop (Maculusso)
+  await prisma.property.upsert({
+    where: { id: 'seed-prop-6' },
+    update: {},
+    create: {
+      id: 'seed-prop-6',
+      agentId: agentData.agent.id,
+      categoryId: catAptId,
+      title: 'Loja com muita confusão',
+      description: 'Aluga-se espaço comercial.',
+      address: 'Rua de Portugal, Maculusso',
+      city: 'Luanda',
+      state: 'Luanda',
+      country: 'Angola',
+      area: 80,
+      propertyType: 'studio',
+      images: [
+        'https://images.unsplash.com/photo-1534452203293-494d7ddbf7e0?auto=format&fit=crop&w=800&q=80'
+      ],
+      listingType: ListingType.rent,
+      price: 800000,
+      status: PropertyStatus.rejected,
+      rejectionReason: 'O título "Loja com muita confusão" não transmite profissionalismo. Por favor, altere para algo como "Loja Comercial no Maculusso" e adicione mais detalhes na descrição.',
+      reviewedBy: adminId,
+      reviewedAt: new Date(),
+      submittedForApprovalAt: new Date(Date.now() - 172800000)
+    }
+  });
+
   console.log('✅ Properties created');
 }
