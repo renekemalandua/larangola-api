@@ -8,6 +8,7 @@ import {
   Request,
   Res,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -21,6 +22,7 @@ import { AdminGuard } from '../shared/guards/admin.guard';
 import type { Response } from 'express';
 import {
   GetDashboardStatsUseCase,
+  ListAdminPropertiesUseCase,
   ListPendingPropertiesUseCase,
   ApprovePropertyUseCase,
   RejectPropertyUseCase,
@@ -44,6 +46,7 @@ import { HttpErrorResponseDTO } from '../shared';
 export class AdminController {
   constructor(
     private readonly getDashboardStatsUseCase: GetDashboardStatsUseCase,
+    private readonly listAdminPropertiesUseCase: ListAdminPropertiesUseCase,
     private readonly listPendingPropertiesUseCase: ListPendingPropertiesUseCase,
     private readonly approvePropertyUseCase: ApprovePropertyUseCase,
     private readonly rejectPropertyUseCase: RejectPropertyUseCase,
@@ -63,6 +66,24 @@ export class AdminController {
     try {
       const stats = await this.getDashboardStatsUseCase.execute();
       return response.status(200).json({ status: true, data: stats });
+    } catch (error) {
+      return response.status(400).json({
+        status: false,
+        message: error.message,
+      });
+    }
+  }
+
+  @Get('properties')
+  @ApiOperation({ summary: 'List properties for admin with optional status filter' })
+  @ApiResponse({ status: 200 })
+  @ApiResponse({ status: 401, type: HttpErrorResponseDTO })
+  @ApiResponse({ status: 403, type: HttpErrorResponseDTO })
+  async listAdminProperties(@Query('status') status: string, @Res() response: Response) {
+    try {
+      const properties = await this.listAdminPropertiesUseCase.execute(status);
+      const data = properties.map((p) => PropertyAdapter.toHttp(p));
+      return response.status(200).json({ status: true, data });
     } catch (error) {
       return response.status(400).json({
         status: false,

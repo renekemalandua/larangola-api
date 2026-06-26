@@ -238,6 +238,7 @@ import {
 // Use Cases - Admin
 import {
   GetDashboardStatsUseCase,
+  ListAdminPropertiesUseCase,
   ListPendingPropertiesUseCase,
   ApprovePropertyUseCase,
   RejectPropertyUseCase,
@@ -476,6 +477,7 @@ import { PropertyAuditCronService } from './usecases/property-audit-cron.service
 
     // Use Cases - Admin
     GetDashboardStatsUseCase,
+    ListAdminPropertiesUseCase,
     ListPendingPropertiesUseCase,
     ApprovePropertyUseCase,
     RejectPropertyUseCase,

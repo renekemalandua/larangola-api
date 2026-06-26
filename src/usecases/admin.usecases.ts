@@ -119,7 +119,20 @@ export class RejectPropertyUseCase implements UseCase<
   }
 }
 
-// List Pending Properties
+// List Admin Properties (by status)
+@Injectable()
+export class ListAdminPropertiesUseCase implements UseCase<string | undefined, PropertyEntity[]> {
+  constructor(private readonly propertyRepository: IPropertyRepository) {}
+
+  async execute(status?: string): Promise<PropertyEntity[]> {
+    if (status) {
+      return this.propertyRepository.listByStatus(status);
+    }
+    return this.propertyRepository.list();
+  }
+}
+
+// List Pending Properties (Legacy)
 @Injectable()
 export class ListPendingPropertiesUseCase implements UseCase<void, PropertyEntity[]> {
   constructor(private readonly propertyRepository: IPropertyRepository) {}
