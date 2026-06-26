@@ -60,5 +60,26 @@ export async function seedUsers(prisma: PrismaClient) {
   });
   console.log('✅ Client user created');
 
-  return { admin, agent, client };
+  // 4. Unverified Agent
+  const unverifiedAgent = await prisma.user.upsert({
+    where: { email: 'agent_unverified@larangola.co.ao' },
+    update: {},
+    create: {
+      email: 'agent_unverified@larangola.co.ao',
+      phone: '+244920000002',
+      password: passwordAgent,
+      name: 'Agente Larangola (Não Verificado)',
+      isActive: true,
+      agent: {
+        create: {
+          profession: 'Corretor Independente',
+          isVerified: false,
+        }
+      }
+    },
+    include: { agent: true }
+  });
+  console.log('✅ Unverified Agent user created');
+
+  return { admin, agent, client, unverifiedAgent };
 }

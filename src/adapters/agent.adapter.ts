@@ -17,6 +17,7 @@ export class AgentAdapter {
         averageResponseTime: raw.averageResponseTime ?? null,
         propertiesCount: raw.propertiesCount,
         averageRating: raw.averageRating,
+        activePlan: (raw as any).activePlan,
         createdAt: raw.createdAt,
         updatedAt: raw.updatedAt,
       },
@@ -64,6 +65,7 @@ export class AgentAdapter {
       reviewCount: reviewCount,
       hasMinimumReviews: hasMinimumReviews,
       displayRating: hasMinimumReviews ? averageRating.toFixed(1) : null,
+      activePlan: entity.activePlan,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
       user: entity.user ? {

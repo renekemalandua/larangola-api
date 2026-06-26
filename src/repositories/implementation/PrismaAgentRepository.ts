@@ -22,6 +22,10 @@ export class PrismaAgentRepository implements IAgentRepository {
     const averageRating = reviewCount > 0 
       ? reviews.reduce((acc, r) => acc + r.rating, 0) / reviewCount
       : 5.0;
+    const activeSub = row.subscriptions?.find((s: any) => s.status === 'active');
+    if (activeSub && activeSub.plan) {
+      row.activePlan = activeSub.plan;
+    }
       
     const entity = AgentAdapter.toDomain(row);
     entity.propertiesCount = propertiesCount;
@@ -35,7 +39,10 @@ export class PrismaAgentRepository implements IAgentRepository {
     const raw = AgentAdapter.toPrisma(data) as any;
     const created = await this.prisma.agent.create({
       data: raw,
-      include: { user: true }
+      include: { 
+        user: true,
+        subscriptions: { where: { status: 'active' }, include: { plan: true } }
+      }
     });
     return this.enrichAgentRow(created);
   }
@@ -43,7 +50,10 @@ export class PrismaAgentRepository implements IAgentRepository {
   async list(): Promise<AgentEntity[]> {
     const rows = await this.prisma.agent.findMany({
       orderBy: { updatedAt: 'desc' },
-      include: { user: true },
+      include: { 
+        user: true,
+        subscriptions: { where: { status: 'active' }, include: { plan: true } }
+      },
     });
     return Promise.all(rows.map((row) => this.enrichAgentRow(row)));
   }
@@ -51,7 +61,10 @@ export class PrismaAgentRepository implements IAgentRepository {
   async findById(id: string): Promise<AgentEntity | null> {
     const row = await this.prisma.agent.findUnique({
       where: { id },
-      include: { user: true },
+      include: { 
+        user: true,
+        subscriptions: { where: { status: 'active' }, include: { plan: true } }
+      },
     });
     if (!row) return null;
     return this.enrichAgentRow(row);
@@ -60,7 +73,10 @@ export class PrismaAgentRepository implements IAgentRepository {
   async findByUserId(userId: string): Promise<AgentEntity | null> {
     const row = await this.prisma.agent.findUnique({
       where: { userId },
-      include: { user: true },
+      include: { 
+        user: true,
+        subscriptions: { where: { status: 'active' }, include: { plan: true } }
+      },
     });
     if (!row) return null;
     return this.enrichAgentRow(row);
@@ -75,7 +91,10 @@ export class PrismaAgentRepository implements IAgentRepository {
     const updated = await this.prisma.agent.update({
       where: { id: data.id },
       data: raw,
-      include: { user: true },
+      include: { 
+        user: true,
+        subscriptions: { where: { status: 'active' }, include: { plan: true } }
+      },
     });
     return this.enrichAgentRow(updated);
   }
@@ -94,7 +113,10 @@ export class PrismaAgentRepository implements IAgentRepository {
     const rows = await this.prisma.agent.findMany({
       where: { isVerified: false },
       orderBy: { createdAt: 'asc' },
-      include: { user: true },
+      include: { 
+        user: true,
+        subscriptions: { where: { status: 'active' }, include: { plan: true } }
+      },
     });
     return Promise.all(rows.map((row) => this.enrichAgentRow(row)));
   }
