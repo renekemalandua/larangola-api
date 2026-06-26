@@ -19,17 +19,19 @@ interface IPaymentProps {
   reference: string;
   method: string;
   proofImageUrl: string | null;
+  rejectionReason: string | null;
   verifiedBy: string | null;
   relatedId: string | null;
   createdAt: Date;
   updatedAt: Date;
+  user?: any; // To pass populated user data
 }
 
 export class PaymentEntity extends AggregateRoot<IPaymentProps> {
   static create(
     props: Optional<
       IPaymentProps,
-      'status' | 'method' | 'proofImageUrl' | 'verifiedBy' | 'relatedId' | 'createdAt' | 'updatedAt'
+      'status' | 'method' | 'proofImageUrl' | 'rejectionReason' | 'verifiedBy' | 'relatedId' | 'createdAt' | 'updatedAt' | 'user'
     >,
     id?: IdValueObject
   ) {
@@ -42,10 +44,12 @@ export class PaymentEntity extends AggregateRoot<IPaymentProps> {
         reference: props.reference,
         method: props.method ?? 'manual',
         proofImageUrl: props.proofImageUrl ?? null,
+        rejectionReason: props.rejectionReason ?? null,
         verifiedBy: props.verifiedBy ?? null,
         relatedId: props.relatedId ?? null,
         createdAt: props.createdAt ?? new Date(),
         updatedAt: props.updatedAt ?? new Date(),
+        user: props.user,
       },
       id
     );
@@ -84,6 +88,13 @@ export class PaymentEntity extends AggregateRoot<IPaymentProps> {
     this.props.proofImageUrl = v;
     this.touch();
   }
+  public get rejectionReason(): string | null {
+    return this.props.rejectionReason;
+  }
+  public set rejectionReason(v: string | null) {
+    this.props.rejectionReason = v;
+    this.touch();
+  }
   public get verifiedBy(): string | null {
     return this.props.verifiedBy;
   }
@@ -99,5 +110,8 @@ export class PaymentEntity extends AggregateRoot<IPaymentProps> {
   }
   public get updatedAt(): Date {
     return this.props.updatedAt;
+  }
+  public get user(): any {
+    return this.props.user;
   }
 }

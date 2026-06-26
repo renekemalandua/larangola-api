@@ -287,12 +287,47 @@ export class VerifyPaymentUseCase implements UseCase<{ paymentId: string; adminI
   }
 }
 
-// List Pending Payments
+// Reject Payment
 @Injectable()
-export class ListPendingPaymentsUseCase implements UseCase<void, PaymentEntity[]> {
+export class RejectPaymentUseCase implements UseCase<{ paymentId: string; adminId: string; reason: string }, PaymentEntity> {
   constructor(private readonly paymentRepository: IPaymentRepository) {}
 
-  async execute(): Promise<PaymentEntity[]> {
-    return this.paymentRepository.listPending();
+  async execute({ paymentId, adminId, reason }: { paymentId: string; adminId: string; reason: string }): Promise<PaymentEntity> {
+    const payment = await this.paymentRepository.findById(paymentId);
+    if (!payment) throw new BadRequestException('Payment not found');
+    if (payment.status !== PaymentStatus.pending) throw new BadRequestException('Payment is not pending');
+
+    payment.status = PaymentStatus.rejected;
+    payment.rejectionReason = reason;
+    payment.verifiedBy = adminId;
+    
+    return this.paymentRepository.update(payment);
+  }
+}
+
+// List Admin Payments
+@Injectable()
+export class ListAdminPaymentsUseCase implements UseCase<string | undefined, PaymentEntity[]> {
+  constructor(private readonly paymentRepository: IPaymentRepository) {}
+
+  async execute(status?: string): Promise<PaymentEntity[]> {
+    if (status && status !== 'all') {
+      return this.paymentRepository.listPayments(status);
+    }
+    return this.paymentRepository.listPayments();
+  }
+}
+
+// Get Admin Payment
+@Injectable()
+export class GetAdminPaymentUseCase implements UseCase<string, PaymentEntity> {
+  constructor(private readonly paymentRepository: IPaymentRepository) {}
+
+  async execute(paymentId: string): Promise<PaymentEntity> {
+    const payment = await this.paymentRepository.findById(paymentId);
+    if (!payment) throw new BadRequestException('Payment not found');
+    // Prisma will include the user inside findById if we modify PaymentPrismaRepository,
+    // but the frontend requires standard data formatting. 
+    return payment;
   }
 }

@@ -18,10 +18,12 @@ export class PaymentPrismaRepository implements IPaymentRepository {
         reference: record.reference,
         method: record.method,
         proofImageUrl: record.proofImageUrl,
+        rejectionReason: record.rejectionReason,
         verifiedBy: record.verifiedBy,
         relatedId: record.relatedId,
         createdAt: record.createdAt,
         updatedAt: record.updatedAt,
+        user: record.user,
       },
       new IdValueObject(record.id)
     );
@@ -38,6 +40,7 @@ export class PaymentPrismaRepository implements IPaymentRepository {
         reference: data.reference,
         method: data.method,
         proofImageUrl: data.proofImageUrl,
+        rejectionReason: data.rejectionReason,
         verifiedBy: data.verifiedBy,
         relatedId: data.relatedId,
         createdAt: data.createdAt,
@@ -53,6 +56,7 @@ export class PaymentPrismaRepository implements IPaymentRepository {
       data: {
         status: data.status,
         proofImageUrl: data.proofImageUrl,
+        rejectionReason: data.rejectionReason,
         verifiedBy: data.verifiedBy,
         updatedAt: data.updatedAt,
       },
@@ -69,7 +73,7 @@ export class PaymentPrismaRepository implements IPaymentRepository {
   }
 
   async findByReference(reference: string): Promise<PaymentEntity | null> {
-    const record = await this.prisma.payment.findUnique({
+    const record = await this.prisma.payment.findFirst({
       where: { reference },
     });
     if (!record) return null;
@@ -80,6 +84,16 @@ export class PaymentPrismaRepository implements IPaymentRepository {
     const records = await this.prisma.payment.findMany({
       where: { userId },
       orderBy: { createdAt: 'desc' },
+    });
+    return records.map((record) => this.toDomain(record));
+  }
+
+  async listPayments(status?: string): Promise<PaymentEntity[]> {
+    const where = status ? { status: status as PaymentStatus } : {};
+    const records = await this.prisma.payment.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      include: { user: true },
     });
     return records.map((record) => this.toDomain(record));
   }

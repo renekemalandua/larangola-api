@@ -11,10 +11,12 @@ export class PaymentAdapter {
       reference: entity.reference,
       method: entity.method,
       proofImageUrl: entity.proofImageUrl,
+      rejectionReason: entity.rejectionReason,
       verifiedBy: entity.verifiedBy,
       relatedId: entity.relatedId,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
+      user: entity.user,
     };
   }
 }

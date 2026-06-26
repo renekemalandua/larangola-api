@@ -29,8 +29,10 @@ import {
   AdminCreateAgentUseCase,
   VerifyAgentUseCase,
   ListPendingAgentsUseCase,
-  ListPendingPaymentsUseCase,
+  ListAdminPaymentsUseCase,
   VerifyPaymentUseCase,
+  RejectPaymentUseCase,
+  GetAdminPaymentUseCase,
 } from '../usecases/admin.usecases';
 import { PaymentAdapter } from '../adapters/payment.adapter';
 import { RejectPropertyDTO, CreateAgentDTO } from '../dto/admin.dto';
@@ -53,8 +55,10 @@ export class AdminController {
     private readonly createAgentUseCase: AdminCreateAgentUseCase,
     private readonly verifyAgentUseCase: VerifyAgentUseCase,
     private readonly listPendingAgentsUseCase: ListPendingAgentsUseCase,
-    private readonly listPendingPaymentsUseCase: ListPendingPaymentsUseCase,
+    private readonly listAdminPaymentsUseCase: ListAdminPaymentsUseCase,
     private readonly verifyPaymentUseCase: VerifyPaymentUseCase,
+    private readonly rejectPaymentUseCase: RejectPaymentUseCase,
+    private readonly getAdminPaymentUseCase: GetAdminPaymentUseCase,
   ) {}
 
   @Get('dashboard/stats')
@@ -241,14 +245,14 @@ export class AdminController {
     }
   }
 
-  @Get('payments/pending')
-  @ApiOperation({ summary: 'List pending payments' })
+  @Get('payments')
+  @ApiOperation({ summary: 'List all payments with optional status filter' })
   @ApiResponse({ status: 200 })
   @ApiResponse({ status: 401, type: HttpErrorResponseDTO })
   @ApiResponse({ status: 403, type: HttpErrorResponseDTO })
-  async listPendingPayments(@Res() response: Response) {
+  async listPayments(@Query('status') status: string, @Res() response: Response) {
     try {
-      const payments = await this.listPendingPaymentsUseCase.execute();
+      const payments = await this.listAdminPaymentsUseCase.execute(status);
       const data = payments.map((p) => PaymentAdapter.toHttp(p));
       return response.status(200).json({ status: true, data });
     } catch (error) {
@@ -259,8 +263,27 @@ export class AdminController {
     }
   }
 
-  @Post('payments/:id/verify')
-  @ApiOperation({ summary: 'Verify a payment' })
+  @Get('payments/:id')
+  @ApiOperation({ summary: 'Get payment details' })
+  @ApiParam({ name: 'id', description: 'Payment ID' })
+  @ApiResponse({ status: 200 })
+  @ApiResponse({ status: 401, type: HttpErrorResponseDTO })
+  @ApiResponse({ status: 403, type: HttpErrorResponseDTO })
+  async getPayment(@Param('id') id: string, @Res() response: Response) {
+    try {
+      const payment = await this.getAdminPaymentUseCase.execute(id);
+      const data = PaymentAdapter.toHttp(payment);
+      return response.status(200).json({ status: true, data });
+    } catch (error) {
+      return response.status(400).json({
+        status: false,
+        message: error.message,
+      });
+    }
+  }
+
+  @Post('payments/:id/approve')
+  @ApiOperation({ summary: 'Approve a payment' })
   @ApiParam({ name: 'id', description: 'Payment ID' })
   @ApiResponse({ status: 200 })
   @ApiResponse({ status: 400, type: HttpErrorResponseDTO })
@@ -281,6 +304,39 @@ export class AdminController {
         status: true,
         data,
         message: 'Payment verified and subscription activated',
+      });
+    } catch (error) {
+      return response.status(400).json({
+        status: false,
+        message: error.message,
+      });
+    }
+  }
+
+  @Post('payments/:id/reject')
+  @ApiOperation({ summary: 'Reject a payment' })
+  @ApiParam({ name: 'id', description: 'Payment ID' })
+  @ApiResponse({ status: 200 })
+  @ApiResponse({ status: 400, type: HttpErrorResponseDTO })
+  @ApiResponse({ status: 401, type: HttpErrorResponseDTO })
+  @ApiResponse({ status: 403, type: HttpErrorResponseDTO })
+  async rejectPayment(
+    @Param('id') id: string,
+    @Body() body: any, // Using any here for quick integration, ideally create a DTO
+    @Request() req,
+    @Res() response: Response,
+  ) {
+    try {
+      const payment = await this.rejectPaymentUseCase.execute({
+        paymentId: id,
+        adminId: req.user.id,
+        reason: body.reason,
+      });
+      const data = PaymentAdapter.toHttp(payment);
+      return response.status(200).json({
+        status: true,
+        data,
+        message: 'Payment rejected successfully',
       });
     } catch (error) {
       return response.status(400).json({

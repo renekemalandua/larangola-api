@@ -245,8 +245,10 @@ import {
   AdminCreateAgentUseCase,
   VerifyAgentUseCase,
   ListPendingAgentsUseCase,
-  ListPendingPaymentsUseCase,
+  ListAdminPaymentsUseCase,
+  GetAdminPaymentUseCase,
   VerifyPaymentUseCase,
+  RejectPaymentUseCase,
 } from './usecases/admin.usecases';
 
 // Use Cases - Payment
@@ -484,8 +486,10 @@ import { PropertyAuditCronService } from './usecases/property-audit-cron.service
     AdminCreateAgentUseCase,
     VerifyAgentUseCase,
     ListPendingAgentsUseCase,
-    ListPendingPaymentsUseCase,
+    ListAdminPaymentsUseCase,
+    GetAdminPaymentUseCase,
     VerifyPaymentUseCase,
+    RejectPaymentUseCase,
 
     // Use Cases - Payment
     CreateSubscriptionPaymentUseCase,
