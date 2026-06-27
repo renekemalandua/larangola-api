@@ -12,7 +12,10 @@ export class PrismaUserRepository implements IUserRepository {
     const raw = UserAdapter.toPrisma(data) as any;
     const created = await this.prisma.user.create({
       data: raw,
-      include: { agent: true, roommate: true },
+      include: { 
+        agent: { include: { subscriptions: { include: { plan: true } } } }, 
+        roommate: true 
+      },
     });
     return UserAdapter.toDomain(created);
   }
@@ -20,7 +23,10 @@ export class PrismaUserRepository implements IUserRepository {
   async list(): Promise<UserEntity[]> {
     const rows = await this.prisma.user.findMany({
       orderBy: { updatedAt: 'desc' },
-      include: { agent: true, roommate: true },
+      include: { 
+        agent: { include: { subscriptions: { include: { plan: true } } } }, 
+        roommate: true 
+      },
     });
     return rows.map(UserAdapter.toDomain);
   }
@@ -28,7 +34,10 @@ export class PrismaUserRepository implements IUserRepository {
   async findById(id: string): Promise<UserEntity | null> {
     const row = await this.prisma.user.findUnique({
       where: { id },
-      include: { agent: true, roommate: true },
+      include: { 
+        agent: { include: { subscriptions: { include: { plan: true } } } }, 
+        roommate: true 
+      },
     });
     return row ? UserAdapter.toDomain(row) : null;
   }
@@ -36,7 +45,10 @@ export class PrismaUserRepository implements IUserRepository {
   async findByEmail(email: string): Promise<UserEntity | null> {
     const row = await this.prisma.user.findUnique({
       where: { email },
-      include: { agent: true, roommate: true },
+      include: { 
+        agent: { include: { subscriptions: { include: { plan: true } } } }, 
+        roommate: true 
+      },
     });
     return row ? UserAdapter.toDomain(row) : null;
   }
@@ -44,7 +56,10 @@ export class PrismaUserRepository implements IUserRepository {
   async findByPhone(phone: string): Promise<UserEntity | null> {
     const row = await this.prisma.user.findUnique({
       where: { phone },
-      include: { agent: true, roommate: true },
+      include: { 
+        agent: { include: { subscriptions: { include: { plan: true } } } }, 
+        roommate: true 
+      },
     });
     return row ? UserAdapter.toDomain(row) : null;
   }
@@ -58,7 +73,10 @@ export class PrismaUserRepository implements IUserRepository {
     const updated = await this.prisma.user.update({
       where: { id: data.id },
       data: raw,
-      include: { agent: true, roommate: true },
+      include: { 
+        agent: { include: { subscriptions: { include: { plan: true } } } }, 
+        roommate: true 
+      },
     });
     return UserAdapter.toDomain(updated);
   }

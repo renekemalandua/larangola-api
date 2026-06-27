@@ -10,8 +10,11 @@ import { PaymentEntity, PaymentStatus } from '../entities/payment.entity';
 import { ICryptoService } from '../shared/services';
 import { IPaymentRepository } from '../repositories/IPaymentRepository';
 import { IAgentSubscriptionRepository } from '../repositories/IAgentSubscriptionRepository';
+import { IAgentPlanRepository } from '../repositories/IAgentPlanRepository';
 import { IUserVerificationRepository } from '../repositories/IUserVerificationRepository';
 import { UserVerificationEntity } from '../entities/user-verification.entity';
+import { AgentSubscriptionEntity, SubscriptionStatus } from '../entities/agent-subscription.entity';
+import { PlanType } from '@prisma/client';
 
 // Dashboard Stats
 @Injectable()
@@ -351,7 +354,9 @@ export class ListPendingVerificationsUseCase implements UseCase<void, UserVerifi
 export class ApproveVerificationUseCase implements UseCase<string, UserVerificationEntity> {
   constructor(
     private readonly verificationRepository: IUserVerificationRepository,
-    private readonly agentRepository: IAgentRepository
+    private readonly agentRepository: IAgentRepository,
+    private readonly agentPlanRepository: IAgentPlanRepository,
+    private readonly agentSubscriptionRepository: IAgentSubscriptionRepository
   ) {}
 
   async execute(verificationId: string): Promise<UserVerificationEntity> {
@@ -366,6 +371,32 @@ export class ApproveVerificationUseCase implements UseCase<string, UserVerificat
     if (agent) {
       agent.isVerified = true;
       await this.agentRepository.update(agent);
+
+      // Create Free Trial Subscription
+      const plans = await this.agentPlanRepository.list();
+      const profPlan = plans.find(p => p.type === PlanType.professional);
+
+      if (profPlan) {
+        const trialEndDate = new Date();
+        trialEndDate.setDate(trialEndDate.getDate() + 15); // 15 days from now
+
+        const trialSubscription = AgentSubscriptionEntity.create({
+          agentId: agent.id,
+          planId: profPlan.id,
+          status: SubscriptionStatus.active,
+          startDate: new Date(),
+          endDate: trialEndDate,
+        });
+
+        await this.agentSubscriptionRepository.create(trialSubscription);
+        
+        // Mock Email/Push Notification
+        console.log(`\n\n=== ✉️ MOCK NOTIFICATION ===`);
+        console.log(`To: Agent ID ${agent.id}`);
+        console.log(`Subject: Parabéns! Conta Verificada e Trial Ativado 🚀`);
+        console.log(`Body: O seu processo de KYC foi aprovado. Oferecemos-lhe 15 dias de Plano Profissional gratuito para começar a fechar negócios na Arkos/LarAngola! Aproveite!`);
+        console.log(`=============================\n\n`);
+      }
     }
 
     return this.verificationRepository.update(verification);
