@@ -3,13 +3,17 @@ import { DocumentType, VerificationStepStatus } from '@prisma/client';
 
 interface IUserVerificationProps {
   userId: string;
-  documentType: DocumentType;
-  documentNumber: string;
+  currentStep: number;
+  status: string;
+  phone: string | null;
+  zonesOfOperation: any | null;
+  documentType: DocumentType | null;
+  documentNumber: string | null;
   nif: string | null;
-  documentFrontUrl: string;
-  documentBackUrl: string;
-  selfieUrl: string;
-  videoUrl: string;
+  documentFrontUrl: string | null;
+  documentBackUrl: string | null;
+  selfieUrl: string | null;
+  videoUrl: string | null;
   step1Status: VerificationStepStatus;
   step1ReviewedAt: Date | null;
   step1ReviewedBy: string | null;
@@ -25,7 +29,17 @@ export class UserVerificationEntity extends AggregateRoot<IUserVerificationProps
   static create(
     props: Optional<
       IUserVerificationProps,
+      | 'currentStep'
+      | 'status'
+      | 'phone'
+      | 'zonesOfOperation'
+      | 'documentType'
+      | 'documentNumber'
       | 'nif'
+      | 'documentFrontUrl'
+      | 'documentBackUrl'
+      | 'selfieUrl'
+      | 'videoUrl'
       | 'step1Status'
       | 'step1ReviewedAt'
       | 'step1ReviewedBy'
@@ -41,6 +55,16 @@ export class UserVerificationEntity extends AggregateRoot<IUserVerificationProps
     return new UserVerificationEntity(
       {
         ...props,
+        currentStep: props.currentStep ?? 1,
+        status: props.status ?? 'DRAFT',
+        phone: props.phone ?? null,
+        zonesOfOperation: props.zonesOfOperation ?? null,
+        documentType: props.documentType ?? null,
+        documentNumber: props.documentNumber ?? null,
+        documentFrontUrl: props.documentFrontUrl ?? null,
+        documentBackUrl: props.documentBackUrl ?? null,
+        selfieUrl: props.selfieUrl ?? null,
+        videoUrl: props.videoUrl ?? null,
         nif: props.nif ?? null,
         step1Status: props.step1Status ?? VerificationStepStatus.PENDING,
         step1ReviewedAt: props.step1ReviewedAt ?? null,
@@ -64,20 +88,32 @@ export class UserVerificationEntity extends AggregateRoot<IUserVerificationProps
     return this.props.userId;
   }
 
-  get documentType(): DocumentType {
+  get currentStep(): number { return this.props.currentStep; }
+  set currentStep(v: number) { this.props.currentStep = v; this.touch(); }
+
+  get status(): string { return this.props.status; }
+  set status(v: string) { this.props.status = v; this.touch(); }
+
+  get phone(): string | null { return this.props.phone; }
+  set phone(v: string | null) { this.props.phone = v; this.touch(); }
+
+  get zonesOfOperation(): any | null { return this.props.zonesOfOperation; }
+  set zonesOfOperation(v: any | null) { this.props.zonesOfOperation = v; this.touch(); }
+
+  get documentType(): DocumentType | null {
     return this.props.documentType;
   }
 
-  set documentType(value: DocumentType) {
+  set documentType(value: DocumentType | null) {
     this.props.documentType = value;
     this.touch();
   }
 
-  get documentNumber(): string {
+  get documentNumber(): string | null {
     return this.props.documentNumber;
   }
 
-  set documentNumber(value: string) {
+  set documentNumber(value: string | null) {
     this.props.documentNumber = value;
     this.touch();
   }
@@ -91,38 +127,38 @@ export class UserVerificationEntity extends AggregateRoot<IUserVerificationProps
     this.touch();
   }
 
-  get documentFrontUrl(): string {
+  get documentFrontUrl(): string | null {
     return this.props.documentFrontUrl;
   }
 
-  set documentFrontUrl(value: string) {
+  set documentFrontUrl(value: string | null) {
     this.props.documentFrontUrl = value;
     this.touch();
   }
 
-  get documentBackUrl(): string {
+  get documentBackUrl(): string | null {
     return this.props.documentBackUrl;
   }
 
-  set documentBackUrl(value: string) {
+  set documentBackUrl(value: string | null) {
     this.props.documentBackUrl = value;
     this.touch();
   }
 
-  get selfieUrl(): string {
+  get selfieUrl(): string | null {
     return this.props.selfieUrl;
   }
 
-  set selfieUrl(value: string) {
+  set selfieUrl(value: string | null) {
     this.props.selfieUrl = value;
     this.touch();
   }
 
-  get videoUrl(): string {
+  get videoUrl(): string | null {
     return this.props.videoUrl;
   }
 
-  set videoUrl(value: string) {
+  set videoUrl(value: string | null) {
     this.props.videoUrl = value;
     this.touch();
   }

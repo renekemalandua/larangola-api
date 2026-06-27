@@ -419,15 +419,21 @@ model UserVerification {
     userId String @unique
     user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    documentType   DocumentType
-    documentNumber String
+    currentStep    Int          @default(1)
+    status         String       @default("DRAFT") // DRAFT, PENDING, APPROVED, REJECTED
+
+    phone          String?
+    zonesOfOperation Json? // array of strings
+
+    documentType   DocumentType?
+    documentNumber String?
     nif            String?
 
-    documentFrontUrl String
-    documentBackUrl  String
+    documentFrontUrl String?
+    documentBackUrl  String?
 
-    selfieUrl String
-    videoUrl  String
+    selfieUrl String?
+    videoUrl  String?
 
     step1Status     VerificationStepStatus @default(PENDING)
     step1ReviewedAt DateTime?

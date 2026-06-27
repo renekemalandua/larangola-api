@@ -3,13 +3,33 @@ import { IsEnum, IsOptional, IsString, IsUrl, IsUUID } from 'class-validator';
 import { DocumentType, VerificationStepStatus } from '@prisma/client';
 
 export class SubmitVerificationRequestDTO {
-  @ApiProperty({ enum: DocumentType })
-  @IsEnum(DocumentType)
-  documentType: DocumentType;
+  @ApiPropertyOptional({ example: 1 })
+  @IsOptional()
+  currentStep?: number;
 
-  @ApiProperty({ example: '123456789' })
+  @ApiPropertyOptional({ example: 'DRAFT' })
+  @IsOptional()
   @IsString()
-  documentNumber: string;
+  status?: string;
+
+  @ApiPropertyOptional({ example: '920000000' })
+  @IsOptional()
+  @IsString()
+  phone?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  zonesOfOperation?: any;
+
+  @ApiPropertyOptional({ enum: DocumentType })
+  @IsOptional()
+  @IsEnum(DocumentType)
+  documentType?: DocumentType;
+
+  @ApiPropertyOptional({ example: '123456789' })
+  @IsOptional()
+  @IsString()
+  documentNumber?: string;
 
   @ApiPropertyOptional({ example: '999999999' })
   @IsOptional()

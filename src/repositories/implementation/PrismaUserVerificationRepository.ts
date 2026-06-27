@@ -10,7 +10,7 @@ export class PrismaUserVerificationRepository implements IUserVerificationReposi
 
   async create(data: UserVerificationEntity): Promise<UserVerificationEntity> {
     const raw = UserVerificationAdapter.toPrisma(data);
-    const created = await this.prisma.userVerification.create({ data: raw });
+    const created = await this.prisma.userVerification.create({ data: raw as any });
     return UserVerificationAdapter.toDomain(created);
   }
 
@@ -36,7 +36,7 @@ export class PrismaUserVerificationRepository implements IUserVerificationReposi
     const raw = UserVerificationAdapter.toPrisma(data);
     await this.prisma.userVerification.update({
       where: { id: data.id },
-      data: raw,
+      data: raw as any,
     });
     return data;
   }
