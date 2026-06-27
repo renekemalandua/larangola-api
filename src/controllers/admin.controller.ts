@@ -33,7 +33,11 @@ import {
   VerifyPaymentUseCase,
   RejectPaymentUseCase,
   GetAdminPaymentUseCase,
+  ListPendingVerificationsUseCase,
+  ApproveVerificationUseCase,
+  RejectVerificationUseCase,
 } from '../usecases/admin.usecases';
+import { UserVerificationAdapter } from '../adapters/user-verification.adapter';
 import { PaymentAdapter } from '../adapters/payment.adapter';
 import { RejectPropertyDTO, CreateAgentDTO } from '../dto/admin.dto';
 import { PropertyAdapter } from '../adapters/property.adapter';
@@ -59,6 +63,9 @@ export class AdminController {
     private readonly verifyPaymentUseCase: VerifyPaymentUseCase,
     private readonly rejectPaymentUseCase: RejectPaymentUseCase,
     private readonly getAdminPaymentUseCase: GetAdminPaymentUseCase,
+    private readonly listPendingVerificationsUseCase: ListPendingVerificationsUseCase,
+    private readonly approveVerificationUseCase: ApproveVerificationUseCase,
+    private readonly rejectVerificationUseCase: RejectVerificationUseCase,
   ) {}
 
   @Get('dashboard/stats')
@@ -345,4 +352,83 @@ export class AdminController {
       });
     }
   }
+
+  // --- Verifications KYC ---
+
+  @Get('verifications/pending')
+  @ApiOperation({ summary: 'List pending KYC verifications' })
+  @ApiResponse({ status: 200 })
+  @ApiResponse({ status: 401, type: HttpErrorResponseDTO })
+  @ApiResponse({ status: 403, type: HttpErrorResponseDTO })
+  async listPendingVerifications(@Res() response: Response) {
+    try {
+      const verifications = await this.listPendingVerificationsUseCase.execute();
+      const data = verifications.map((v) => UserVerificationAdapter.toHttp(v));
+      return response.status(200).json({ status: true, data });
+    } catch (error) {
+      return response.status(400).json({
+        status: false,
+        message: error.message,
+      });
+    }
+  }
+
+  @Post('verifications/:id/approve')
+  @ApiOperation({ summary: 'Approve a pending verification' })
+  @ApiParam({ name: 'id', description: 'Verification ID' })
+  @ApiResponse({ status: 200 })
+  @ApiResponse({ status: 400, type: HttpErrorResponseDTO })
+  @ApiResponse({ status: 401, type: HttpErrorResponseDTO })
+  @ApiResponse({ status: 403, type: HttpErrorResponseDTO })
+  async approveVerification(
+    @Param('id') id: string,
+    @Res() response: Response,
+  ) {
+    try {
+      const verification = await this.approveVerificationUseCase.execute(id);
+      const data = UserVerificationAdapter.toHttp(verification);
+      return response.status(200).json({
+        status: true,
+        data,
+        message: 'Verification approved successfully',
+      });
+    } catch (error) {
+      return response.status(400).json({
+        status: false,
+        message: error.message,
+      });
+    }
+  }
+
+  @Post('verifications/:id/reject')
+  @ApiOperation({ summary: 'Reject a pending verification' })
+  @ApiParam({ name: 'id', description: 'Verification ID' })
+  @ApiResponse({ status: 200 })
+  @ApiResponse({ status: 400, type: HttpErrorResponseDTO })
+  @ApiResponse({ status: 401, type: HttpErrorResponseDTO })
+  @ApiResponse({ status: 403, type: HttpErrorResponseDTO })
+  async rejectVerification(
+    @Param('id') id: string,
+    @Body() body: { reason: string },
+    @Res() response: Response,
+  ) {
+    try {
+      const verification = await this.rejectVerificationUseCase.execute({
+        verificationId: id,
+        reason: body.reason,
+      });
+      const data = UserVerificationAdapter.toHttp(verification);
+      return response.status(200).json({
+        status: true,
+        data,
+        message: 'Verification rejected successfully',
+      });
+    } catch (error) {
+      return response.status(400).json({
+        status: false,
+        message: error.message,
+      });
+    }
+  }
 }
+

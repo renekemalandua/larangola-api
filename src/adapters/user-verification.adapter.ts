@@ -83,6 +83,7 @@ export class UserVerificationAdapter {
       step2Notes: entity.step2Notes,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
+      user: (entity as any)._user,
     };
   }
 }

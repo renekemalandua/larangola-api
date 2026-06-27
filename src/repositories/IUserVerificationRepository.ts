@@ -10,4 +10,5 @@ export abstract class IUserVerificationRepository {
   abstract findById(id: string): Promise<UserVerificationEntity | null>;
   abstract findByUserId(userId: string): Promise<UserVerificationEntity | null>;
   abstract delete(id: string): Promise<void>;
+  abstract listByStatus(status: string): Promise<UserVerificationEntity[]>;
 }

@@ -48,4 +48,27 @@ export class PrismaUserVerificationRepository implements IUserVerificationReposi
     if (!exists) throw new NotFoundException('User verification not found');
     await this.prisma.userVerification.delete({ where: { id } });
   }
+
+  async listByStatus(status: string): Promise<UserVerificationEntity[]> {
+    const rawList = await this.prisma.userVerification.findMany({
+      where: { status },
+      include: {
+        user: {
+          select: {
+            name: true,
+            email: true,
+            phone: true,
+            avatar: true,
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+    return rawList.map(raw => {
+      const entity = UserVerificationAdapter.toDomain(raw as any);
+      // We attach the user data to the entity dynamically so the DTO adapter can access it
+      (entity as any)._user = raw.user;
+      return entity;
+    });
+  }
 }

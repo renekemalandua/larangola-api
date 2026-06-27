@@ -10,6 +10,8 @@ import { PaymentEntity, PaymentStatus } from '../entities/payment.entity';
 import { ICryptoService } from '../shared/services';
 import { IPaymentRepository } from '../repositories/IPaymentRepository';
 import { IAgentSubscriptionRepository } from '../repositories/IAgentSubscriptionRepository';
+import { IUserVerificationRepository } from '../repositories/IUserVerificationRepository';
+import { UserVerificationEntity } from '../entities/user-verification.entity';
 
 // Dashboard Stats
 @Injectable()
@@ -19,6 +21,7 @@ export class GetDashboardStatsUseCase implements UseCase<void, any> {
     private readonly userRepository: IUserRepository,
     private readonly agentRepository: IAgentRepository,
     private readonly paymentRepository: IPaymentRepository,
+    private readonly verificationRepository: IUserVerificationRepository,
   ) {}
 
   async execute(): Promise<any> {
@@ -37,6 +40,7 @@ export class GetDashboardStatsUseCase implements UseCase<void, any> {
     ]);
 
     const pendingPayments = await this.paymentRepository.countPending();
+    const pendingVerifications = (await this.verificationRepository.listByStatus('PENDING')).length;
 
     return {
       totalProperties,
@@ -44,7 +48,7 @@ export class GetDashboardStatsUseCase implements UseCase<void, any> {
       publishedProperties,
       totalAgents,
       totalUsers,
-      pendingVerifications: 0, // TODO: Add verification count
+      pendingVerifications,
       pendingPayments,
     };
   }
@@ -329,5 +333,68 @@ export class GetAdminPaymentUseCase implements UseCase<string, PaymentEntity> {
     // Prisma will include the user inside findById if we modify PaymentPrismaRepository,
     // but the frontend requires standard data formatting. 
     return payment;
+  }
+}
+
+// List Pending Verifications
+@Injectable()
+export class ListPendingVerificationsUseCase implements UseCase<void, UserVerificationEntity[]> {
+  constructor(private readonly verificationRepository: IUserVerificationRepository) {}
+
+  async execute(): Promise<UserVerificationEntity[]> {
+    return this.verificationRepository.listByStatus('PENDING');
+  }
+}
+
+// Approve Verification
+@Injectable()
+export class ApproveVerificationUseCase implements UseCase<string, UserVerificationEntity> {
+  constructor(
+    private readonly verificationRepository: IUserVerificationRepository,
+    private readonly agentRepository: IAgentRepository
+  ) {}
+
+  async execute(verificationId: string): Promise<UserVerificationEntity> {
+    const verification = await this.verificationRepository.findById(verificationId);
+    if (!verification) throw new BadRequestException('Verification not found');
+    if (verification.status !== 'PENDING') throw new BadRequestException('Verification is not pending');
+
+    verification.status = 'APPROVED';
+    
+    // Update linked agent
+    const agent = await this.agentRepository.findByUserId(verification.userId);
+    if (agent) {
+      agent.isVerified = true;
+      await this.agentRepository.update(agent);
+    }
+
+    return this.verificationRepository.update(verification);
+  }
+}
+
+// Reject Verification
+@Injectable()
+export class RejectVerificationUseCase implements UseCase<{ verificationId: string; reason: string }, UserVerificationEntity> {
+  constructor(
+    private readonly verificationRepository: IUserVerificationRepository,
+    private readonly agentRepository: IAgentRepository
+  ) {}
+
+  async execute({ verificationId, reason }: { verificationId: string; reason: string }): Promise<UserVerificationEntity> {
+    const verification = await this.verificationRepository.findById(verificationId);
+    if (!verification) throw new BadRequestException('Verification not found');
+    if (verification.status !== 'PENDING') throw new BadRequestException('Verification is not pending');
+
+    verification.status = 'DRAFT'; // Or REJECTED
+    // We could store the reason in a new field if we had one, but DRAFT sends them back to the start.
+    
+    // Ensure linked agent is not verified
+    const agent = await this.agentRepository.findByUserId(verification.userId);
+    if (agent) {
+      agent.isVerified = false;
+      await this.agentRepository.update(agent);
+    }
+
+    return this.verificationRepository.update(verification);
   }
 }

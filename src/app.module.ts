@@ -249,6 +249,9 @@ import {
   GetAdminPaymentUseCase,
   VerifyPaymentUseCase,
   RejectPaymentUseCase,
+  ListPendingVerificationsUseCase,
+  ApproveVerificationUseCase,
+  RejectVerificationUseCase,
 } from './usecases/admin.usecases';
 
 // Use Cases - Payment
@@ -490,6 +493,9 @@ import { PropertyAuditCronService } from './usecases/property-audit-cron.service
     GetAdminPaymentUseCase,
     VerifyPaymentUseCase,
     RejectPaymentUseCase,
+    ListPendingVerificationsUseCase,
+    ApproveVerificationUseCase,
+    RejectVerificationUseCase,
 
     // Use Cases - Payment
     CreateSubscriptionPaymentUseCase,
