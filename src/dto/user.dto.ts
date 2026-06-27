@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEmail, IsOptional, IsString, IsBoolean } from 'class-validator';
+import { IsEmail, IsOptional, IsString, IsBoolean, IsNumber } from 'class-validator';
 
 export class CreateUserRequestDTO {
   @ApiProperty({ example: 'user@example.com' })
@@ -54,4 +54,14 @@ export class UpdateUserRequestDTO {
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;
+}
+
+export class AssignPlanRequestDTO {
+  @ApiProperty({ example: 'plan-uuid' })
+  @IsString()
+  planId: string;
+
+  @ApiProperty({ example: 30 })
+  @IsNumber()
+  durationInDays: number;
 }

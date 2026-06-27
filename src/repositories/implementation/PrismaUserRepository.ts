@@ -35,10 +35,31 @@ export class PrismaUserRepository implements IUserRepository {
     const row = await this.prisma.user.findUnique({
       where: { id },
       include: { 
-        agent: { include: { subscriptions: { include: { plan: true } } } }, 
+        agent: { 
+          include: { 
+            subscriptions: { include: { plan: true } },
+            properties: {
+              take: 5,
+              orderBy: { createdAt: 'desc' },
+              include: { category: true }
+            },
+            _count: {
+              select: { properties: true }
+            }
+          } 
+        }, 
         roommate: true 
       },
     });
+
+    if (row && row.agent) {
+      const leadsCount = await this.prisma.propertyInterest.count({
+        where: { property: { agentId: row.agent.id } }
+      });
+      (row.agent as any).realPropertiesCount = row.agent._count.properties;
+      (row.agent as any).leadsCount = leadsCount;
+    }
+
     return row ? UserAdapter.toDomain(row) : null;
   }
 

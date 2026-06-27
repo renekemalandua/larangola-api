@@ -195,6 +195,7 @@ import {
   ListAgentSubscriptionsUseCase,
   ListAgentSubscriptionsByAgentUseCase,
   FindAgentSubscriptionByIdUseCase,
+  AssignAgentSubscriptionUseCase,
 } from './usecases/agent-subscription.usecases';
 
 // Use Cases - Chat
@@ -448,6 +449,7 @@ import { PropertyAuditCronService } from './usecases/property-audit-cron.service
     ListAgentSubscriptionsUseCase,
     ListAgentSubscriptionsByAgentUseCase,
     FindAgentSubscriptionByIdUseCase,
+    AssignAgentSubscriptionUseCase,
 
     // Use Cases - Chat
     CreateChatUseCase,
