@@ -9,6 +9,7 @@ import {
 } from '../dto/property.dto';
 
 import { IAgentRepository } from '../repositories/IAgentRepository';
+import { PrismaService } from '../shared/db-conection/prisma.service';
 
 @Injectable()
 export class CreatePropertyUseCase implements UseCase<
@@ -211,7 +212,8 @@ export class RequestPublicationUseCase implements UseCase<
 > {
   constructor(
     private readonly repository: IPropertyRepository,
-    private readonly agentRepository: IAgentRepository
+    private readonly agentRepository: IAgentRepository,
+    private readonly prisma: PrismaService
   ) {}
 
   async execute({
@@ -248,6 +250,54 @@ export class RequestPublicationUseCase implements UseCase<
 
     if (!property.title || property.title.length < 5) {
       throw new BadRequestException('Title must be at least 5 characters');
+    }
+
+    // ============================================
+    // LIMITES DO PLANO (DUAL-LIMIT SYSTEM)
+    // ============================================
+    const planName = agent.activePlan?.name?.toLowerCase() || 'gratuito';
+    let capacityLimit = 10; // Básico
+    let weeklyLimit = 12; // Básico
+
+    if (planName.includes('pro') || planName.includes('profissional')) {
+      capacityLimit = 25;
+      weeklyLimit = 30;
+    } else if (planName.includes('premium') || planName.includes('enterprise') || planName.includes('top')) {
+      capacityLimit = 999999; // Unlimited
+      weeklyLimit = 999999; // Unlimited
+    }
+
+    // 1. Total Capacity Check
+    const activeCount = await this.prisma.property.count({
+      where: {
+        agentId: agent.id,
+        status: { in: ['published', 'pending_approval'] },
+      },
+    });
+
+    if (activeCount >= capacityLimit) {
+      throw new BadRequestException(`Atingiu a capacidade máxima do seu portfólio (${capacityLimit} anúncios ativos). Por favor, remova ou cancele um anúncio antigo, ou faça upgrade do seu plano.`);
+    }
+
+    // 2. Weekly Velocity Check (Resets on Sunday 00:00)
+    const now = new Date();
+    const currentDay = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
+    const daysSinceSunday = currentDay === 0 ? 0 : currentDay;
+    const lastSunday = new Date(now);
+    lastSunday.setDate(now.getDate() - daysSinceSunday);
+    lastSunday.setHours(0, 0, 0, 0);
+
+    const weeklySubmissions = await this.prisma.property.count({
+      where: {
+        agentId: agent.id,
+        submittedForApprovalAt: {
+          gte: lastSunday,
+        },
+      },
+    });
+
+    if (weeklySubmissions >= weeklyLimit) {
+      throw new BadRequestException(`Atingiu o seu limite semanal de submissões (${weeklyLimit}). O seu contador será reiniciado no próximo Domingo.`);
     }
 
     // Atualizar status

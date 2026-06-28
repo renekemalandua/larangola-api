@@ -7,8 +7,9 @@ export async function seedPlans(prisma: PrismaClient) {
     where: { type: PlanType.basic },
     update: {
       price: 8000,
-      description: 'Até 12 anúncios por semana. Ideal para iniciantes.',
+      description: 'Até 10 anúncios em simultâneo. Ideal para iniciantes.',
       features: [
+        'Até 10 Anúncios Simultâneos',
         '12 Anúncios por semana',
         'Gestão de visitas e chat interno',
         'Visibilidade normal',
@@ -21,8 +22,9 @@ export async function seedPlans(prisma: PrismaClient) {
       name: 'Plano Básico',
       price: 8000,
       pricePeriod: 'month',
-      description: 'Até 12 anúncios por semana. Ideal para iniciantes.',
+      description: 'Até 10 anúncios em simultâneo. Ideal para iniciantes.',
       features: [
+        'Até 10 Anúncios Simultâneos',
         '12 Anúncios por semana',
         'Gestão de visitas e chat interno',
         'Visibilidade normal',
@@ -36,9 +38,10 @@ export async function seedPlans(prisma: PrismaClient) {
     where: { type: PlanType.professional },
     update: {
       price: 17000,
-      description: 'Até 30 anúncios, Contacto Direto e Solicitações.',
+      description: 'Até 25 anúncios, Contacto Direto e Solicitações.',
       features: [
         'Tudo do Básico',
+        'Até 25 Anúncios Simultâneos',
         '30 Anúncios por semana',
         'Contacto direto no perfil público',
         'Acesso a Solicitações de Clientes',
@@ -53,9 +56,10 @@ export async function seedPlans(prisma: PrismaClient) {
       name: 'Plano Profissional',
       price: 17000,
       pricePeriod: 'month',
-      description: 'Até 30 anúncios, Contacto Direto e Solicitações.',
+      description: 'Até 25 anúncios, Contacto Direto e Solicitações.',
       features: [
         'Tudo do Básico',
+        'Até 25 Anúncios Simultâneos',
         '30 Anúncios por semana',
         'Contacto direto no perfil público',
         'Acesso a Solicitações de Clientes',
@@ -71,10 +75,11 @@ export async function seedPlans(prisma: PrismaClient) {
     where: { type: PlanType.premium },
     update: {
       price: 28000,
-      description: 'Publicação Ilimitada, Destaques Ilimitados e AI Insights.',
+      description: 'Capacidade Ilimitada, Destaques Ilimitados e AI Insights.',
       features: [
         'Tudo do Profissional',
-        'Publicação Ilimitada',
+        'Anúncios Simultâneos Ilimitados',
+        'Publicação Ilimitada por Semana',
         'Destaques Ilimitados',
         'Prioridade alta nas pesquisas',
         'LarAngola Insights (AI)'
@@ -86,10 +91,11 @@ export async function seedPlans(prisma: PrismaClient) {
       name: 'Plano Premium',
       price: 28000,
       pricePeriod: 'month',
-      description: 'Publicação Ilimitada, Destaques Ilimitados e AI Insights.',
+      description: 'Capacidade Ilimitada, Destaques Ilimitados e AI Insights.',
       features: [
         'Tudo do Profissional',
-        'Publicação Ilimitada',
+        'Anúncios Simultâneos Ilimitados',
+        'Publicação Ilimitada por Semana',
         'Destaques Ilimitados',
         'Prioridade alta nas pesquisas',
         'LarAngola Insights (AI)'
