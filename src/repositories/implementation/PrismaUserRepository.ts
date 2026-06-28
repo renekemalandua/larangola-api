@@ -8,6 +8,16 @@ import { UserAdapter } from '../../adapters/user.adapter';
 export class PrismaUserRepository implements IUserRepository {
   constructor(private readonly prisma: PrismaService) {}
 
+  private mapAgentActivePlan(row: any) {
+    if (row && row.agent && row.agent.subscriptions) {
+      const activeSub = row.agent.subscriptions.find((sub: any) => sub.status === 'active');
+      if (activeSub && activeSub.plan) {
+        row.agent.activePlan = activeSub.plan;
+      }
+    }
+    return row;
+  }
+
   async create(data: UserEntity): Promise<UserEntity> {
     const raw = UserAdapter.toPrisma(data) as any;
     const created = await this.prisma.user.create({
@@ -17,7 +27,7 @@ export class PrismaUserRepository implements IUserRepository {
         roommate: true 
       },
     });
-    return UserAdapter.toDomain(created);
+    return UserAdapter.toDomain(this.mapAgentActivePlan(created));
   }
 
   async list(): Promise<UserEntity[]> {
@@ -28,7 +38,7 @@ export class PrismaUserRepository implements IUserRepository {
         roommate: true 
       },
     });
-    return rows.map(UserAdapter.toDomain);
+    return rows.map((row) => UserAdapter.toDomain(this.mapAgentActivePlan(row)));
   }
 
   async findById(id: string): Promise<UserEntity | null> {
@@ -60,7 +70,7 @@ export class PrismaUserRepository implements IUserRepository {
       (row.agent as any).leadsCount = leadsCount;
     }
 
-    return row ? UserAdapter.toDomain(row) : null;
+    return row ? UserAdapter.toDomain(this.mapAgentActivePlan(row)) : null;
   }
 
   async findByEmail(email: string): Promise<UserEntity | null> {
@@ -71,7 +81,7 @@ export class PrismaUserRepository implements IUserRepository {
         roommate: true 
       },
     });
-    return row ? UserAdapter.toDomain(row) : null;
+    return row ? UserAdapter.toDomain(this.mapAgentActivePlan(row)) : null;
   }
 
   async findByPhone(phone: string): Promise<UserEntity | null> {
@@ -82,7 +92,7 @@ export class PrismaUserRepository implements IUserRepository {
         roommate: true 
       },
     });
-    return row ? UserAdapter.toDomain(row) : null;
+    return row ? UserAdapter.toDomain(this.mapAgentActivePlan(row)) : null;
   }
 
   async update(data: UserEntity): Promise<UserEntity> {
@@ -99,7 +109,7 @@ export class PrismaUserRepository implements IUserRepository {
         roommate: true 
       },
     });
-    return UserAdapter.toDomain(updated);
+    return UserAdapter.toDomain(this.mapAgentActivePlan(updated));
   }
 
   async delete(id: string): Promise<void> {
