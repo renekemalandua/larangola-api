@@ -122,6 +122,7 @@ import {
   FindAgentByIdUseCase,
   FindAgentByUserIdUseCase,
 } from './usecases/agent.usecases';
+import { GetAgentDashboardStatsUseCase } from './usecases/agent-dashboard-stats.usecases';
 
 // Use Cases - Roommate
 import {
@@ -389,6 +390,7 @@ import { PropertyAuditCronService } from './usecases/property-audit-cron.service
     ListAgentsUseCase,
     FindAgentByIdUseCase,
     FindAgentByUserIdUseCase,
+    GetAgentDashboardStatsUseCase,
 
     // Use Cases - Roommate
     CreateRoommateUseCase,

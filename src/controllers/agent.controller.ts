@@ -19,6 +19,7 @@ import {
   FindAgentByIdUseCase,
   FindAgentByUserIdUseCase,
 } from '../usecases/agent.usecases';
+import { GetAgentDashboardStatsUseCase } from '../usecases/agent-dashboard-stats.usecases';
 import { CreateAgentRequestDTO, UpdateAgentRequestDTO } from '../dto/agent.dto';
 import { AgentAdapter } from '../adapters/agent.adapter';
 import { IReviewRepository } from '../repositories/IReviewRepository';
@@ -33,6 +34,7 @@ export class AgentController {
     private readonly listUseCase: ListAgentsUseCase,
     private readonly findByIdUseCase: FindAgentByIdUseCase,
     private readonly findByUserIdUseCase: FindAgentByUserIdUseCase,
+    private readonly getDashboardStatsUseCase: GetAgentDashboardStatsUseCase,
     private readonly reviewRepository: IReviewRepository
   ) {}
 
@@ -105,6 +107,20 @@ export class AgentController {
       );
       (entity as any).reviewCount = reviewCount;
       const data = AgentAdapter.toHttp(entity!);
+      return response.status(200).json({ status: true, data });
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  @Get(':id/dashboard-stats')
+  @ApiOperation({ summary: 'Get Agent Dashboard Stats (Tier-based)' })
+  @ApiParam({ name: 'id' })
+  @ApiResponse({ status: 200 })
+  @ApiResponse({ status: 400, type: HttpErrorResponseDTO })
+  async getDashboardStats(@Param('id') id: string, @Res() response) {
+    try {
+      const data = await this.getDashboardStatsUseCase.execute(id);
       return response.status(200).json({ status: true, data });
     } catch (error) {
       throw new BadRequestException(error.message);
