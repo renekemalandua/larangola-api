@@ -8,7 +8,7 @@ export enum ClosedDealStatus {
 interface IClosedDealProps {
   propertyId: string;
   agentId: string;
-  clientId: string;
+  clientId?: string | null;
   commissionAmount: number;
   commissionRate: number;
   status: ClosedDealStatus;
@@ -48,7 +48,7 @@ export class ClosedDealEntity extends AggregateRoot<IClosedDealProps> {
   public get agentId(): string {
     return this.props.agentId;
   }
-  public get clientId(): string {
+  public get clientId(): string | null | undefined {
     return this.props.clientId;
   }
   public get commissionAmount(): number {

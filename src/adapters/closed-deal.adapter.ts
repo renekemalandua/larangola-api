@@ -31,7 +31,7 @@ export class ClosedDealAdapter {
       id: entity.id,
       propertyId: entity.propertyId,
       agentId: entity.agentId,
-      clientId: entity.clientId,
+      clientId: entity.clientId ?? null,
       commissionAmount: entity.commissionAmount,
       commissionRate: entity.commissionRate,
       status: entity.status as ClosedDealStatusPrisma,

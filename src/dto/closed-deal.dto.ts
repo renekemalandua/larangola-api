@@ -18,9 +18,10 @@ export class CreateClosedDealRequestDTO {
   @IsUUID()
   agentId: string;
 
-  @ApiProperty({ example: 'uuid-of-client' })
+  @ApiPropertyOptional({ example: 'uuid-of-client' })
+  @IsOptional()
   @IsUUID()
-  clientId: string;
+  clientId?: string;
 
   @ApiProperty({ example: 7500 })
   @IsNumber()

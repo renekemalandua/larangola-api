@@ -25,6 +25,7 @@ import { PropertyRequestController } from './controllers/property-request.contro
 import { AdminController } from './controllers/admin.controller';
 import { PaymentController } from './controllers/payment.controller';
 import { PropertyAuditRequestController } from './controllers/property-audit-request.controller';
+import { CommissionController } from './controllers/commission.controller';
 
 // Repositories
 import { IPropertyCategoryRepository } from './repositories/IPropertyCategoryRepository';
@@ -179,6 +180,13 @@ import {
   FindClosedDealByIdUseCase,
 } from './usecases/closed-deal.usecases';
 
+// Use Cases - Commission
+import {
+  CloseDealAndCalculateCommissionUseCase,
+  GetCommissionStatsUseCase,
+  GetCommissionHistoryUseCase,
+} from './usecases/commission.usecases';
+
 // Use Cases - AgentPlan
 import {
   CreateAgentPlanUseCase,
@@ -300,6 +308,7 @@ import { PropertyAuditCronService } from './usecases/property-audit-cron.service
     AdminController,
     PaymentController,
     PropertyAuditRequestController,
+    CommissionController,
   ],
   providers: [
     // Repositories
@@ -436,6 +445,11 @@ import { PropertyAuditCronService } from './usecases/property-audit-cron.service
     ListClosedDealsByAgentUseCase,
     ListClosedDealsByClientUseCase,
     FindClosedDealByIdUseCase,
+
+    // Use Cases - Commission
+    CloseDealAndCalculateCommissionUseCase,
+    GetCommissionStatsUseCase,
+    GetCommissionHistoryUseCase,
 
     // Use Cases - AgentPlan
     CreateAgentPlanUseCase,

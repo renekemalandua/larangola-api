@@ -321,7 +321,7 @@ model ClosedDeal {
     id               String           @id @default(uuid())
     propertyId       String
     agentId          String
-    clientId         String
+    clientId         String?
     commissionAmount Float
     commissionRate   Float // percentage
     status           ClosedDealStatus @default(pending_payment)
@@ -331,7 +331,7 @@ model ClosedDeal {
 
     property Property @relation(fields: [propertyId], references: [id])
     agent    Agent    @relation("ClosedDealAgent", fields: [agentId], references: [id])
-    client   User     @relation("ClosedDealClient", fields: [clientId], references: [id])
+    client   User?    @relation("ClosedDealClient", fields: [clientId], references: [id])
 }
 
 // ============================================
