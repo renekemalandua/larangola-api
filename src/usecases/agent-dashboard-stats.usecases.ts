@@ -9,6 +9,14 @@ export interface AgentDashboardStatsResponse {
   totalLeads: number;
   pendingVisits: number;
   recentLeads: any[];
+  // PRO metrics
+  portfolioValue?: number;
+  leadsGrowth?: number;
+  realizedVisits?: number;
+  responseRate?: number;
+  averageResponseTime?: string;
+  topProperties?: any[];
+  performanceHistory?: any[];
 }
 
 @Injectable()
@@ -59,17 +67,132 @@ export class GetAgentDashboardStatsUseCase implements UseCase<string, AgentDashb
       createdAt: lead.createdAt
     }));
 
+    let portfolioValue = 0;
+    let leadsGrowth = 0;
+    let realizedVisits = 0;
+    let responseRate = agent.responseRate || 0;
+    let averageResponseTime = agent.averageResponseTime || 'N/A';
+    let topProperties: any[] = [];
+    let performanceHistory: any[] = [];
+
+    if (planTier >= 2) {
+      // 1. Portfolio Value
+      const portfolioAgg = await this.prisma.property.aggregate({
+        _sum: { price: true },
+        where: { agentId, status: 'published' }
+      });
+      portfolioValue = portfolioAgg._sum.price || 0;
+
+      // 2. Leads Growth
+      const now = new Date();
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(now.getDate() - 30);
+      const sixtyDaysAgo = new Date();
+      sixtyDaysAgo.setDate(now.getDate() - 60);
+
+      const leadsLast30Days = await this.prisma.propertyInterest.count({
+        where: { property: { agentId }, createdAt: { gte: thirtyDaysAgo } }
+      });
+      const leadsPrev30Days = await this.prisma.propertyInterest.count({
+        where: { property: { agentId }, createdAt: { gte: sixtyDaysAgo, lt: thirtyDaysAgo } }
+      });
+      
+      if (leadsPrev30Days === 0) {
+        leadsGrowth = leadsLast30Days > 0 ? 100 : 0;
+      } else {
+        leadsGrowth = Math.round(((leadsLast30Days - leadsPrev30Days) / leadsPrev30Days) * 100);
+      }
+
+      // 3. Realized Visits (this month)
+      const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      realizedVisits = await this.prisma.scheduledVisit.count({
+        where: {
+          property: { agentId },
+          status: 'completed',
+          scheduledDate: { gte: firstDayOfMonth }
+        }
+      });
+
+      // 4. Top 3 Properties by Leads
+      const topPropsRaw = await this.prisma.property.findMany({
+        where: { agentId },
+        include: {
+          _count: { select: { propertyInterests: true } }
+        },
+        orderBy: { propertyInterests: { _count: 'desc' } },
+        take: 3
+      });
+
+      topProperties = topPropsRaw.map((p, index) => ({
+        id: p.id,
+        title: p.title,
+        price: p.price ? `${p.price.toLocaleString('pt-AO')} Kz` : `Sob consulta`,
+        leads: p._count.propertyInterests,
+        views: 0
+      }));
+
+      // 5. Performance History (Last 7 days Leads vs Closed Deals)
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(now.getDate() - 6);
+      sevenDaysAgo.setHours(0,0,0,0);
+
+      const recentLeadsList = await this.prisma.propertyInterest.findMany({
+        where: { property: { agentId }, createdAt: { gte: sevenDaysAgo } },
+        select: { createdAt: true }
+      });
+
+      const recentDealsList = await this.prisma.closedDeal.findMany({
+        where: { agentId, createdAt: { gte: sevenDaysAgo } },
+        select: { createdAt: true }
+      });
+
+      const days = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+      const historyMap = new Map();
+      
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(sevenDaysAgo);
+        d.setDate(d.getDate() + i);
+        const dayStr = d.toISOString().split('T')[0];
+        historyMap.set(dayStr, {
+          day: days[d.getDay()],
+          leads: 0,
+          deals: 0
+        });
+      }
+
+      recentLeadsList.forEach(l => {
+        const dayStr = l.createdAt.toISOString().split('T')[0];
+        if (historyMap.has(dayStr)) {
+          historyMap.get(dayStr).leads++;
+        }
+      });
+
+      recentDealsList.forEach(d => {
+        const dayStr = d.createdAt.toISOString().split('T')[0];
+        if (historyMap.has(dayStr)) {
+          historyMap.get(dayStr).deals++;
+        }
+      });
+
+      performanceHistory = Array.from(historyMap.values());
+    }
+
     const response: AgentDashboardStatsResponse = {
       planTier,
       activeProperties,
       totalLeads,
       pendingVisits,
       recentLeads,
+      ...(planTier >= 2 && {
+        portfolioValue,
+        leadsGrowth,
+        realizedVisits,
+        responseRate,
+        averageResponseTime,
+        topProperties,
+        performanceHistory
+      })
     };
-
-    // Advanced filtering (Tier 2/3/4) can be added here later
-    // e.g. if (planTier < 2) return response; 
-    // else { fetch and append funnel data }
 
     return response;
   }
