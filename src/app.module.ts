@@ -155,6 +155,8 @@ import {
   ListReviewsByPropertyUseCase,
   ListReviewsByToUserUseCase,
   FindReviewByIdUseCase,
+  GetReviewStatsUseCase,
+  ListMyReviewsUseCase
 } from './usecases/review.usecases';
 
 // Use Cases - PropertyInterest
@@ -426,6 +428,8 @@ import { PropertyAuditCronService } from './usecases/property-audit-cron.service
     ListReviewsByPropertyUseCase,
     ListReviewsByToUserUseCase,
     FindReviewByIdUseCase,
+    GetReviewStatsUseCase,
+    ListMyReviewsUseCase,
 
     // Use Cases - PropertyInterest
     CreatePropertyInterestUseCase,
