@@ -276,6 +276,7 @@ import {
 // Use Cases - PropertyAuditRequest
 import {
   CreatePropertyAuditRequestUseCase,
+  GetPropertyAuditRequestUseCase,
   ListPendingPropertyAuditRequestsUseCase,
   ListMyValidationsUseCase,
   ListMyPropertyAuditRequestsUseCase,
@@ -526,6 +527,7 @@ import { PropertyAuditCronService } from './usecases/property-audit-cron.service
 
     // Use Cases - PropertyAuditRequest
     CreatePropertyAuditRequestUseCase,
+    GetPropertyAuditRequestUseCase,
     ListPendingPropertyAuditRequestsUseCase,
     ListMyPropertyAuditRequestsUseCase,
     ListMyValidationsUseCase,

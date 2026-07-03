@@ -36,6 +36,11 @@ export class PrismaPropertyAuditRequestRepository implements IPropertyAuditReque
   async findById(id: string): Promise<PropertyAuditRequest | null> {
     const found = await this.prisma.propertyAuditRequest.findUnique({
       where: { id },
+      include: {
+        user: {
+          select: { name: true, email: true, phone: true }
+        }
+      }
     });
     return PropertyAuditRequestAdapter.fromDb(found);
   }

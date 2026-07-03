@@ -23,6 +23,19 @@ export class ListPendingPropertyAuditRequestsUseCase {
 }
 
 @Injectable()
+export class GetPropertyAuditRequestUseCase {
+  constructor(private readonly repository: IPropertyAuditRequestRepository) {}
+
+  async execute(id: string): Promise<PropertyAuditRequest> {
+    const request = await this.repository.findById(id);
+    if (!request) {
+      throw new BadRequestException('Request not found');
+    }
+    return request;
+  }
+}
+
+@Injectable()
 export class ListMyPropertyAuditRequestsUseCase {
   constructor(private readonly repository: IPropertyAuditRequestRepository) {}
 
