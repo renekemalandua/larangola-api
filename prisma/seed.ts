@@ -5,6 +5,7 @@ import { seedCategories } from './seeds/categories.seed';
 import { seedProperties } from './seeds/properties.seed';
 import { seedPayments } from './seeds/payments.seed';
 import { seedReviews } from './seeds/reviews.seed';
+import { seedPropertyAudits } from './seeds/property-audits.seed';
 
 const prisma = new PrismaClient();
 
@@ -26,6 +27,9 @@ async function main() {
 
     // 4. Auxiliary entities (Reviews)
     await seedReviews(prisma);
+
+    // 5. Market entities (Property Audits)
+    await seedPropertyAudits(prisma);
 
     console.log('🌱 Seed completed successfully!');
   } catch (error) {

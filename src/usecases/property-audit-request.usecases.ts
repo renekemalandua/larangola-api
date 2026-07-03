@@ -88,7 +88,7 @@ export class ApprovePropertyAuditRequestUseCase {
       propertyType: request.propertyType,
       listingType: request.listingType,
       images: request.images,
-      status: 'published' as any
+      status: 'draft' as any
     };
 
     const newProperty = await this.propertyRepository.create(newPropertyData as any);

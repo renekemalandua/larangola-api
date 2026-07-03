@@ -22,9 +22,9 @@ export class PropertyAuditRequestAdapter {
       notes: entity.notes,
       claimedByAgentId: entity.claimedByAgentId,
       claimedAt: entity.claimedAt,
-      createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
       claimedAgent: entity.claimedAgent,
+      user: entity.user,
     };
   }
 
@@ -64,6 +64,14 @@ export class PropertyAuditRequestAdapter {
       req.claimedAgent = {
         name: data.claimedAgent.name,
         phone: data.claimedAgent.phone,
+      };
+    }
+
+    if (data.user) {
+      req.user = {
+        name: data.user.name,
+        email: data.user.email,
+        phone: data.user.phone,
       };
     }
 
