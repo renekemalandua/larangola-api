@@ -17,6 +17,12 @@ export interface AgentDashboardStatsResponse {
   averageResponseTime?: string;
   topProperties?: any[];
   performanceHistory?: any[];
+  // PREMIUM metrics
+  premiumInsights?: { message: string, title?: string } | null;
+  potentialCommission?: number;
+  premiumRoi?: number;
+  urgentFollowUps?: number;
+  funnel?: { name: string, value: number }[];
 }
 
 @Injectable()
@@ -177,6 +183,109 @@ export class GetAgentDashboardStatsUseCase implements UseCase<string, AgentDashb
       performanceHistory = Array.from(historyMap.values());
     }
 
+    // ==========================================
+    // TIER 3+ (PREMIUM / ENTERPRISE)
+    // ==========================================
+    let premiumInsights: { title?: string; message: string } | null = null;
+    let potentialCommission = 0;
+    let premiumRoi = 0;
+    let urgentFollowUps = 0;
+    let funnel: any[] = [];
+
+    if (planTier >= 3) {
+      // 1. Funnel Mapping
+      const totalVisits = await this.prisma.scheduledVisit.count({
+        where: { property: { agentId } }
+      });
+      const closedDeals = await this.prisma.closedDeal.findMany({
+        where: { agentId }
+      });
+      
+      funnel = [
+        { name: 'Anúncios Ativos', value: activeProperties },
+        { name: 'Contactos (Leads)', value: totalLeads },
+        { name: 'Visitas Agendadas', value: totalVisits },
+        { name: 'Negócios Fechados', value: closedDeals.length }
+      ];
+
+      // 2. Potential Commission based on historical average
+      let avgCommissionRate = 0.05; // Base 5%
+      if (closedDeals.length > 0) {
+        const sumRates = closedDeals.reduce((acc, deal) => acc + (deal.commissionRate || 0), 0);
+        avgCommissionRate = (sumRates / closedDeals.length) / 100;
+      }
+
+      const propertiesWithLeads = await this.prisma.property.findMany({
+        where: { 
+          agentId, 
+          status: 'published',
+          OR: [
+            { propertyInterests: { some: {} } },
+            { scheduledVisits: { some: { status: 'pending' } } }
+          ]
+        }
+      });
+      const totalPotentialValue = propertiesWithLeads.reduce((acc, p) => acc + (p.price || 0), 0);
+      potentialCommission = totalPotentialValue * avgCommissionRate;
+
+      // 3. Premium ROI
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      const recentDeals = closedDeals.filter(d => d.closedDate >= thirtyDaysAgo);
+      const totalCommissionsEarned = recentDeals.reduce((acc, d) => acc + (d.commissionAmount || 0), 0);
+
+      const activeSub = await this.prisma.agentSubscription.findFirst({
+        where: { agentId, status: 'active' },
+        include: { plan: true }
+      });
+      const planPrice = activeSub?.plan?.price || 0;
+      if (planPrice > 0) {
+        premiumRoi = Math.round((totalCommissionsEarned / planPrice) * 100);
+      } else {
+        premiumRoi = totalCommissionsEarned > 0 ? 999 : 0;
+      }
+
+      // 4. Urgent Follow Ups (Chats with unread messages > 24h)
+      urgentFollowUps = await this.prisma.chat.count({
+        where: {
+          OR: [
+            { user1Id: agent.userId, unreadCountUser1: { gt: 0 } },
+            { user2Id: agent.userId, unreadCountUser2: { gt: 0 } }
+          ],
+          lastMessageTime: { lt: new Date(Date.now() - 24 * 60 * 60 * 1000) }
+        }
+      });
+
+      // 5. AI Insights (Average Price Comparison)
+      if (activeProperties > 0) {
+        const topProp = await this.prisma.property.findFirst({
+          where: { agentId, status: 'published', price: { not: null } },
+          orderBy: { price: 'desc' }
+        });
+        
+        if (topProp && topProp.city && topProp.propertyType) {
+          const agg = await this.prisma.property.aggregate({
+            _avg: { price: true },
+            where: { city: topProp.city, propertyType: topProp.propertyType, status: 'published' }
+          });
+          const avgMarket = agg._avg.price || 0;
+          
+          if (avgMarket > 0 && topProp.price && topProp.price > avgMarket) {
+            const percentage = Math.round(((topProp.price - avgMarket) / avgMarket) * 100);
+            premiumInsights = {
+              title: "LarAngola AI Insights",
+              message: `Analisamos o mercado hoje. O seu imóvel "${topProp.title}" está ${percentage}% acima da média na sua região. Ajustar o preço de forma estratégica pode aumentar os seus leads em até 3x.`
+            };
+          } else {
+            premiumInsights = {
+              title: "LarAngola AI Insights",
+              message: `O seu portfólio está com preços altamente competitivos para o mercado atual em ${topProp.city}. Continue o excelente trabalho de angariação!`
+            };
+          }
+        }
+      }
+    }
+
     const response: AgentDashboardStatsResponse = {
       planTier,
       activeProperties,
@@ -191,6 +300,13 @@ export class GetAgentDashboardStatsUseCase implements UseCase<string, AgentDashb
         averageResponseTime,
         topProperties,
         performanceHistory
+      }),
+      ...(planTier >= 3 && {
+        premiumInsights,
+        potentialCommission,
+        premiumRoi,
+        urgentFollowUps,
+        funnel
       })
     };
 
