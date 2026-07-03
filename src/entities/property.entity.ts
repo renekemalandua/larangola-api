@@ -44,6 +44,9 @@ interface IPropertyProps {
   rejectionReason: string | null;
   reviewedBy: string | null;
   reviewedAt: Date | null;
+  // Highlight Fields
+  isHighlighted: boolean;
+  highlightedUntil: Date | null;
 
   createdAt: Date;
   updatedAt: Date;
@@ -74,6 +77,8 @@ export class PropertyEntity extends AggregateRoot<IPropertyProps> {
       | 'rejectionReason'
       | 'reviewedBy'
       | 'reviewedAt'
+      | 'isHighlighted'
+      | 'highlightedUntil'
       | 'createdAt'
       | 'updatedAt'
     >,
@@ -108,6 +113,9 @@ export class PropertyEntity extends AggregateRoot<IPropertyProps> {
         rejectionReason: props.rejectionReason ?? null,
         reviewedBy: props.reviewedBy ?? null,
         reviewedAt: props.reviewedAt ?? null,
+
+        isHighlighted: props.isHighlighted ?? false,
+        highlightedUntil: props.highlightedUntil ?? null,
 
         createdAt: props.createdAt ?? new Date(),
         updatedAt: props.updatedAt ?? new Date(),
@@ -295,6 +303,22 @@ export class PropertyEntity extends AggregateRoot<IPropertyProps> {
   }
   public set reviewedAt(v: Date | null) {
     this.props.reviewedAt = v;
+    this.touch();
+  }
+
+  // Highlight Getters/Setters
+  public get isHighlighted(): boolean {
+    return this.props.isHighlighted;
+  }
+  public set isHighlighted(v: boolean) {
+    this.props.isHighlighted = v;
+    this.touch();
+  }
+  public get highlightedUntil(): Date | null {
+    return this.props.highlightedUntil;
+  }
+  public set highlightedUntil(v: Date | null) {
+    this.props.highlightedUntil = v;
     this.touch();
   }
 }

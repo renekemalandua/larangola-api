@@ -33,7 +33,10 @@ export class PrismaPropertyRepository implements IPropertyRepository {
 
   async list(): Promise<PropertyEntity[]> {
     const rows = await this.prisma.property.findMany({
-      orderBy: { updatedAt: 'desc' },
+      orderBy: [
+        { isHighlighted: 'desc' },
+        { updatedAt: 'desc' }
+      ],
       include: this.agentInclude,
     });
     return rows.map((row) => this.enrichProperty(row));
@@ -42,7 +45,10 @@ export class PrismaPropertyRepository implements IPropertyRepository {
   async listPublished(): Promise<PropertyEntity[]> {
     const rows = await this.prisma.property.findMany({
       where: { status: 'published' },
-      orderBy: { createdAt: 'desc' },
+      orderBy: [
+        { isHighlighted: 'desc' },
+        { createdAt: 'desc' }
+      ],
       include: this.agentInclude,
     });
     return rows.map((row) => this.enrichProperty(row));
@@ -51,7 +57,10 @@ export class PrismaPropertyRepository implements IPropertyRepository {
   async listByAgent(agentId: string): Promise<PropertyEntity[]> {
     const rows = await this.prisma.property.findMany({
       where: { agentId },
-      orderBy: { updatedAt: 'desc' },
+      orderBy: [
+        { isHighlighted: 'desc' },
+        { updatedAt: 'desc' }
+      ],
       include: this.agentInclude,
     });
     return rows.map((row) => this.enrichProperty(row));
@@ -60,7 +69,10 @@ export class PrismaPropertyRepository implements IPropertyRepository {
   async listByCategory(categoryId: string): Promise<PropertyEntity[]> {
     const rows = await this.prisma.property.findMany({
       where: { categoryId },
-      orderBy: { updatedAt: 'desc' },
+      orderBy: [
+        { isHighlighted: 'desc' },
+        { updatedAt: 'desc' }
+      ],
       include: this.agentInclude,
     });
     return rows.map((row) => this.enrichProperty(row));
@@ -97,7 +109,10 @@ export class PrismaPropertyRepository implements IPropertyRepository {
   async listByStatus(status: string): Promise<PropertyEntity[]> {
     const rows = await this.prisma.property.findMany({
       where: { status: status as any },
-      orderBy: { createdAt: 'desc' },
+      orderBy: [
+        { isHighlighted: 'desc' },
+        { createdAt: 'desc' }
+      ],
       include: this.agentInclude,
     });
     return rows.map((row) => this.enrichProperty(row));

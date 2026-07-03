@@ -330,3 +330,78 @@ export class ListMyPropertiesUseCase implements UseCase<
     return this.repository.listByAgent(agent.id);
   }
 }
+
+@Injectable()
+export class HighlightPropertyUseCase implements UseCase<
+  { propertyId: string; userId: string },
+  PropertyEntity
+> {
+  constructor(
+    private readonly repository: IPropertyRepository,
+    private readonly agentRepository: IAgentRepository,
+    private readonly prisma: PrismaService
+  ) {}
+
+  async execute({
+    propertyId,
+    userId,
+  }: {
+    propertyId: string;
+    userId: string;
+  }): Promise<PropertyEntity> {
+    const property = await this.repository.findById(propertyId);
+    
+    if (!property) {
+      throw new BadRequestException('Property not found');
+    }
+
+    // Verificar se o imóvel pertence ao agente
+    const agent = await this.agentRepository.findByUserId(userId);
+    if (!agent || agent.id !== property.agentId) {
+      throw new UnauthorizedException('You can only highlight your own properties');
+    }
+
+    if (property.status !== PropertyStatus.published) {
+      throw new BadRequestException('Only published properties can be highlighted');
+    }
+
+    if (property.isHighlighted && property.highlightedUntil && property.highlightedUntil > new Date()) {
+      throw new BadRequestException('Property is already highlighted');
+    }
+
+    const planName = (agent as any).activePlan?.name?.toLowerCase() || 'gratuito';
+    
+    if (planName.includes('básico') || planName.includes('basic') || planName.includes('gratuito')) {
+      throw new BadRequestException('O Plano Básico não permite destaques. Faça upgrade para o Plano Profissional ou Premium.');
+    }
+
+    // Obter subscrição ativa
+    const activeSub = await this.prisma.agentSubscription.findFirst({
+      where: { agentId: agent.id, status: 'active' },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    if (!activeSub) {
+      throw new BadRequestException('Nenhuma subscrição ativa encontrada.');
+    }
+
+    // Limites para o Plano Profissional
+    if (planName.includes('pro') || planName.includes('profissional')) {
+      if (activeSub.highlightsUsed >= 10) {
+        throw new BadRequestException('Atingiu o limite de 10 destaques mensais do Plano Profissional.');
+      }
+      
+      await this.prisma.agentSubscription.update({
+        where: { id: activeSub.id },
+        data: { highlightsUsed: activeSub.highlightsUsed + 1 }
+      });
+    }
+
+    property.isHighlighted = true;
+    const expiration = new Date();
+    expiration.setDate(expiration.getDate() + 7);
+    property.highlightedUntil = expiration;
+
+    return this.repository.update(property);
+  }
+}

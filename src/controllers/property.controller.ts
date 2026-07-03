@@ -34,6 +34,7 @@ import {
   UpdatePropertyUseCase,
   RequestPublicationUseCase,
   ListMyPropertiesUseCase,
+  HighlightPropertyUseCase,
 } from '../usecases/property.usecases';
 import { JwtAuthGuard } from '../shared/guards/jwt-auth.guard';
 import {
@@ -55,6 +56,7 @@ export class PropertyController {
     private readonly findByIdUseCase: FindPropertyByIdUseCase,
     private readonly requestPublicationUseCase: RequestPublicationUseCase,
     private readonly listMyPropertiesUseCase: ListMyPropertiesUseCase,
+    private readonly highlightPropertyUseCase: HighlightPropertyUseCase,
     private readonly uploadService: UploadService
   ) {}
 
@@ -283,6 +285,34 @@ export class PropertyController {
         status: true,
         data,
         message: 'Property submitted for approval successfully',
+      });
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  @Post(':id/highlight')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Highlight a property' })
+  @ApiParam({ name: 'id' })
+  @ApiResponse({ status: 200 })
+  @ApiResponse({ status: 400, type: HttpErrorResponseDTO })
+  async highlightProperty(
+    @Param('id') id: string,
+    @Request() req,
+    @Res() response
+  ) {
+    try {
+      const userId = req.user.id;
+      const entity = await this.highlightPropertyUseCase.execute({
+        propertyId: id,
+        userId,
+      });
+      const data = PropertyAdapter.toHttp(entity);
+      return response.status(200).json({
+        status: true,
+        data,
+        message: 'Imóvel destacado com sucesso!',
       });
     } catch (error) {
       throw new BadRequestException(error.message);

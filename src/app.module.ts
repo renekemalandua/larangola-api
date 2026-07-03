@@ -101,6 +101,7 @@ import {
   FindPropertyByIdUseCase,
   RequestPublicationUseCase,
   ListMyPropertiesUseCase,
+  HighlightPropertyUseCase,
 } from './usecases/property.usecases';
 
 // Use Cases - Listing (Removed)
@@ -385,6 +386,7 @@ import { PropertyAuditCronService } from './usecases/property-audit-cron.service
     FindPropertyByIdUseCase,
     RequestPublicationUseCase,
     ListMyPropertiesUseCase,
+    HighlightPropertyUseCase,
 
     // Use Cases - Listing (Removed)
     // CreateListingUseCase,

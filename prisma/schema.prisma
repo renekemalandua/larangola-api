@@ -103,6 +103,10 @@ model Property {
     reviewedBy             String?
     reviewedAt             DateTime?
     
+    // Highlight Fields
+    isHighlighted          Boolean  @default(false)
+    highlightedUntil       DateTime?
+    
     createdAt    DateTime @default(now())
     updatedAt    DateTime @updatedAt
 
@@ -374,6 +378,7 @@ model AgentSubscription {
     status    SubscriptionStatus @default(active)
     startDate DateTime
     endDate   DateTime?
+    highlightsUsed Int @default(0) // Tracks highlights used in the current billing cycle
     createdAt DateTime           @default(now())
     updatedAt DateTime           @updatedAt
 
