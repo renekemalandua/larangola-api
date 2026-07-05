@@ -26,6 +26,7 @@ import { AdminController } from './controllers/admin.controller';
 import { PaymentController } from './controllers/payment.controller';
 import { PropertyAuditRequestController } from './controllers/property-audit-request.controller';
 import { CommissionController } from './controllers/commission.controller';
+import { NotificationController } from './controllers/notification.controller';
 
 // Repositories
 import { IPropertyCategoryRepository } from './repositories/IPropertyCategoryRepository';
@@ -48,6 +49,8 @@ import { IPropertyInterestRepository } from './repositories/IPropertyInterestRep
 import { PrismaPropertyInterestRepository } from './repositories/implementation/PrismaPropertyInterestRepository';
 import { IClosedDealRepository } from './repositories/IClosedDealRepository';
 import { PrismaClosedDealRepository } from './repositories/implementation/PrismaClosedDealRepository';
+import { INotificationRepository } from './repositories/INotificationRepository';
+import { PrismaNotificationRepository } from './repositories/implementation/PrismaNotificationRepository';
 import { IAgentPlanRepository } from './repositories/IAgentPlanRepository';
 import { PrismaAgentPlanRepository } from './repositories/implementation/PrismaAgentPlanRepository';
 import { IAgentSubscriptionRepository } from './repositories/IAgentSubscriptionRepository';
@@ -248,6 +251,14 @@ import {
   DeletePropertyRequestUseCase,
 } from './usecases/property-request.usecases';
 
+// Use Cases - Notification
+import {
+  CreateNotificationUseCase,
+  GetUserNotificationsUseCase,
+  MarkNotificationAsReadUseCase,
+  MarkAllNotificationsAsReadUseCase,
+} from './usecases/notification.usecases';
+
 // Use Cases - Admin
 import {
   GetDashboardStatsUseCase,
@@ -313,6 +324,7 @@ import { PropertyAuditCronService } from './usecases/property-audit-cron.service
     PaymentController,
     PropertyAuditRequestController,
     CommissionController,
+    NotificationController,
   ],
   providers: [
     // Repositories
@@ -355,6 +367,10 @@ import { PropertyAuditCronService } from './usecases/property-audit-cron.service
     {
       provide: IPropertyAuditRequestRepository,
       useClass: PrismaPropertyAuditRequestRepository,
+    },
+    {
+      provide: 'INotificationRepository',
+      useClass: PrismaNotificationRepository,
     },
 
     // Use Cases - Auth
@@ -542,12 +558,19 @@ import { PropertyAuditCronService } from './usecases/property-audit-cron.service
     // Guards
     JwtAuthGuard,
     AdminGuard,
+
+    // Use Cases - Notification
+    CreateNotificationUseCase,
+    GetUserNotificationsUseCase,
+    MarkNotificationAsReadUseCase,
+    MarkAllNotificationsAsReadUseCase,
   ],
   exports: [
     FindPropertyCategoryByIdUseCase,
     FindPropertyByIdUseCase,
     FindUserByIdUseCase,
     // FindListingByIdUseCase, // Removed
+    CreateNotificationUseCase,
   ],
 })
 export class AppModule {}
