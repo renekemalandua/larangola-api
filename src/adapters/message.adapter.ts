@@ -3,7 +3,7 @@ import { MessageEntity } from '../entities/message.entity';
 import { IdValueObject } from '../shared';
 
 export class MessageAdapter {
-  static toDomain(raw: Message): MessageEntity {
+  static toDomain(raw: any): MessageEntity {
     return MessageEntity.create(
       {
         chatId: raw.chatId,
@@ -12,6 +12,7 @@ export class MessageAdapter {
         isRead: raw.isRead,
         createdAt: raw.createdAt,
         propertyId: raw.propertyId ?? undefined,
+        property: raw.property,
       },
       new IdValueObject(raw.id)
     );
@@ -38,6 +39,7 @@ export class MessageAdapter {
       isRead: entity.isRead,
       createdAt: entity.createdAt,
       propertyId: entity.propertyId,
+      property: entity.property,
     };
   }
 }

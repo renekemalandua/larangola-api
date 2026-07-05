@@ -7,11 +7,12 @@ interface IMessageProps {
   isRead: boolean;
   createdAt: Date;
   propertyId?: string;
+  property?: any;
 }
 
 export class MessageEntity extends AggregateRoot<IMessageProps> {
   static create(
-    props: Optional<IMessageProps, 'isRead' | 'createdAt' | 'propertyId'>,
+    props: Optional<IMessageProps, 'isRead' | 'createdAt' | 'propertyId' | 'property'>,
     id?: IdValueObject
   ) {
     return new MessageEntity(
@@ -22,6 +23,7 @@ export class MessageEntity extends AggregateRoot<IMessageProps> {
         isRead: props.isRead ?? false,
         createdAt: props.createdAt ?? new Date(),
         propertyId: props.propertyId,
+        property: props.property,
       },
       id
     );
@@ -35,6 +37,9 @@ export class MessageEntity extends AggregateRoot<IMessageProps> {
   }
   public get propertyId(): string | undefined {
     return this.props.propertyId;
+  }
+  public get property(): any {
+    return this.props.property;
   }
   public get text(): string {
     return this.props.text;
