@@ -1,9 +1,9 @@
-import { NotificationEntity } from '../../entities/notification.entity';
+import { NotificationEntity } from '../entities/notification.entity';
 
-export interface INotificationRepository {
-  create(notification: NotificationEntity): Promise<NotificationEntity>;
-  findByUserId(userId: string): Promise<NotificationEntity[]>;
-  markAsRead(notificationId: string): Promise<NotificationEntity>;
-  markAllAsRead(userId: string): Promise<void>;
-  getUnreadCount(userId: string): Promise<number>;
+export abstract class INotificationRepository {
+  abstract create(notification: NotificationEntity): Promise<NotificationEntity>;
+  abstract findByUserId(userId: string): Promise<NotificationEntity[]>;
+  abstract markAsRead(notificationId: string): Promise<NotificationEntity>;
+  abstract markAllAsRead(userId: string): Promise<void>;
+  abstract getUnreadCount(userId: string): Promise<number>;
 }

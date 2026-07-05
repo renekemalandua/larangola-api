@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
+import { PrismaService } from '../../shared/db-conection/prisma.service';
 import { INotificationRepository } from '../INotificationRepository';
 import { NotificationEntity } from '../../entities/notification.entity';
 import { Notification } from '@prisma/client';

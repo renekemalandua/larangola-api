@@ -3,6 +3,9 @@ import { UseCase } from '../shared';
 import { ScheduledVisitEntity } from '../entities/scheduled-visit.entity';
 import { IScheduledVisitRepository } from '../repositories/IScheduledVisitRepository';
 import { IPropertyRepository } from '../repositories/IPropertyRepository';
+import { IAgentRepository } from '../repositories/IAgentRepository';
+import { CreateNotificationUseCase } from './notification.usecases';
+import { NotificationType } from '@prisma/client';
 import {
   CreateScheduledVisitRequestDTO,
   UpdateScheduledVisitRequestDTO,
@@ -15,7 +18,9 @@ export class CreateScheduledVisitUseCase implements UseCase<
 > {
   constructor(
     private readonly repository: IScheduledVisitRepository,
-    private readonly propertyRepository: IPropertyRepository
+    private readonly propertyRepository: IPropertyRepository,
+    private readonly agentRepository: IAgentRepository,
+    private readonly createNotificationUseCase: CreateNotificationUseCase
   ) {}
   async execute(
     request: CreateScheduledVisitRequestDTO
@@ -37,7 +42,20 @@ export class CreateScheduledVisitUseCase implements UseCase<
       ...request,
       scheduledDate: new Date(request.scheduledDate),
     });
-    return this.repository.create(entity);
+    const created = await this.repository.create(entity);
+
+    const agent = await this.agentRepository.findById(property.agentId);
+    if (agent) {
+      await this.createNotificationUseCase.execute({
+        userId: agent.userId,
+        type: NotificationType.VISIT_REQUESTED,
+        title: 'Nova Visita Solicitada',
+        message: `Uma nova visita foi solicitada para o imóvel: ${property.title}. Data: ${request.scheduledDate} às ${request.scheduledTime}.`,
+        link: '/visitas'
+      });
+    }
+
+    return created;
   }
 }
 
@@ -46,7 +64,10 @@ export class UpdateScheduledVisitUseCase implements UseCase<
   { id: string; data: UpdateScheduledVisitRequestDTO },
   ScheduledVisitEntity
 > {
-  constructor(private readonly repository: IScheduledVisitRepository) {}
+  constructor(
+    private readonly repository: IScheduledVisitRepository,
+    private readonly createNotificationUseCase: CreateNotificationUseCase
+  ) {}
   async execute({
     id,
     data,
@@ -62,7 +83,29 @@ export class UpdateScheduledVisitUseCase implements UseCase<
       entity.scheduledTime = data.scheduledTime;
     if (data.status !== undefined) entity.status = data.status;
     if (data.notes !== undefined) entity.notes = data.notes ?? null;
-    return this.repository.update(entity);
+    
+    const updated = await this.repository.update(entity);
+
+    if (data.status !== undefined) {
+      const statusMap: Record<string, string> = {
+        confirmed: 'Confirmada',
+        completed: 'Concluída',
+        cancelled: 'Cancelada',
+        rejected: 'Rejeitada'
+      };
+      
+      const ptStatus = statusMap[data.status] || data.status;
+      
+      await this.createNotificationUseCase.execute({
+        userId: entity.userId,
+        type: NotificationType.VISIT_STATUS_UPDATED,
+        title: 'Atualização de Visita',
+        message: `O status da sua visita para o dia ${updated.scheduledDate.toLocaleDateString('pt-PT')} às ${updated.scheduledTime} foi alterado para: ${ptStatus}.`,
+        link: '/visitas'
+      });
+    }
+
+    return updated;
   }
 }
 

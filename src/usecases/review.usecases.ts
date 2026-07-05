@@ -9,7 +9,8 @@ import {
 
 import { IAgentRepository } from '../repositories/IAgentRepository';
 import { IRoommateRepository } from '../repositories/IRoommateRepository';
-import { ReviewRole } from '@prisma/client';
+import { ReviewRole, NotificationType } from '@prisma/client';
+import { CreateNotificationUseCase } from './notification.usecases';
 
 @Injectable()
 export class CreateReviewUseCase implements UseCase<
@@ -19,7 +20,8 @@ export class CreateReviewUseCase implements UseCase<
   constructor(
     private readonly repository: IReviewRepository,
     private readonly agentRepository: IAgentRepository,
-    private readonly roommateRepository: IRoommateRepository
+    private readonly roommateRepository: IRoommateRepository,
+    private readonly createNotificationUseCase: CreateNotificationUseCase
   ) {}
 
   async execute(request: CreateReviewRequestDTO): Promise<ReviewEntity> {
@@ -40,6 +42,14 @@ export class CreateReviewUseCase implements UseCase<
     const created = await this.repository.create(entity);
 
     await this.updateUserRating(request.toUserId, request.role);
+
+    await this.createNotificationUseCase.execute({
+      userId: request.toUserId,
+      type: NotificationType.REVIEW_RECEIVED,
+      title: 'Nova Avaliação',
+      message: `Recebeu uma nova avaliação de ${request.rating} estrelas no seu perfil.`,
+      link: '/perfil'
+    });
 
     return created;
   }

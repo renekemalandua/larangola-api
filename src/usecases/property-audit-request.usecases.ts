@@ -3,6 +3,8 @@ import { IPropertyAuditRequestRepository } from '../repositories/IPropertyAuditR
 import { IPropertyRepository } from '../repositories/IPropertyRepository';
 import { CreatePropertyAuditRequestDTO } from '../dto/property-audit-request.dto';
 import { PropertyAuditRequest } from '../entities/PropertyAuditRequest';
+import { CreateNotificationUseCase } from './notification.usecases';
+import { NotificationType } from '@prisma/client';
 
 @Injectable()
 export class CreatePropertyAuditRequestUseCase {
@@ -73,7 +75,8 @@ export class ClaimPropertyAuditRequestUseCase {
 export class ApprovePropertyAuditRequestUseCase {
   constructor(
     private readonly repository: IPropertyAuditRequestRepository,
-    private readonly propertyRepository: IPropertyRepository
+    private readonly propertyRepository: IPropertyRepository,
+    private readonly createNotificationUseCase: CreateNotificationUseCase
   ) {}
 
   async execute(id: string, agentId: string, categoryId: string): Promise<any> {
@@ -107,6 +110,15 @@ export class ApprovePropertyAuditRequestUseCase {
     const newProperty = await this.propertyRepository.create(newPropertyData as any);
     await this.repository.updateStatus(id, 'APPROVED', agentId, `Converted to Property ID: ${newProperty.id}`);
     
+    // Notify the user who requested the audit
+    await this.createNotificationUseCase.execute({
+      userId: request.userId,
+      type: NotificationType.PROPERTY_APPROVED,
+      title: 'Imóvel Aprovado',
+      message: `O seu imóvel "${request.title}" foi aprovado pelo agente e já se encontra registado no sistema.`,
+      link: '/imoveis' // Example link
+    });
+
     return newProperty;
   }
 }

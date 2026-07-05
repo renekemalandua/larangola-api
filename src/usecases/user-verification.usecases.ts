@@ -14,7 +14,8 @@ import {
   ReviewVerificationStepRequestDTO,
   UpdateVerificationRequestDTO,
 } from '../dto/user-verification.dto';
-import { VerificationStepStatus } from '@prisma/client';
+import { VerificationStepStatus, NotificationType } from '@prisma/client';
+import { CreateNotificationUseCase } from './notification.usecases';
 
 import { IUploadService } from '../shared/services/IUploadService';
 
@@ -208,7 +209,8 @@ export class ReviewVerificationUseCase implements UseCase<
   constructor(
     private readonly repository: IUserVerificationRepository,
     private readonly agentRepository: IAgentRepository,
-    private readonly roommateRepository: IRoommateRepository
+    private readonly roommateRepository: IRoommateRepository,
+    private readonly createNotificationUseCase: CreateNotificationUseCase
   ) {}
 
   async execute({
@@ -278,6 +280,16 @@ export class ReviewVerificationUseCase implements UseCase<
       if (agent.isVerified !== isVerified) {
         agent.isVerified = isVerified;
         await this.agentRepository.update(agent);
+        
+        if (isVerified) {
+          await this.createNotificationUseCase.execute({
+            userId,
+            type: NotificationType.ACCOUNT_VERIFIED,
+            title: 'Conta Verificada',
+            message: 'Parabéns! A sua conta foi verificada com sucesso. O seu selo de agente já está visível.',
+            link: '/perfil'
+          });
+        }
       }
     }
   }

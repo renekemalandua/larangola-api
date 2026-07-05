@@ -1,5 +1,5 @@
 import { Controller, Get, Patch, Param, UseGuards, Request } from '@nestjs/common';
-import { JwtAuthGuard } from '../middleware/auth.guard';
+import { JwtAuthGuard } from '../shared/guards/jwt-auth.guard';
 import {
   GetUserNotificationsUseCase,
   MarkNotificationAsReadUseCase,
