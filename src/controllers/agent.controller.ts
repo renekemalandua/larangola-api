@@ -65,6 +65,18 @@ export class AgentController {
         const verified = isVerified === 'true';
         entities = entities.filter((e) => e.isVerified === verified);
       }
+
+      // Hide Basic/Gratuito agents from the public directory
+      // Only agents with paid plans (Pro, Premium, Enterprise) have public profiles
+      entities = entities.filter((e) => {
+        const planName = e.activePlan?.name?.toLowerCase() || 'gratuito';
+        return (
+          planName.includes('pro') ||
+          planName.includes('premium') ||
+          planName.includes('enterprise') ||
+          planName.includes('profissional')
+        );
+      });
       
       const data = entities.map((e) => AgentAdapter.toHttp(e));
       return response.status(200).json({ status: true, data });
