@@ -116,7 +116,7 @@ export class ApprovePropertyAuditRequestUseCase {
       type: NotificationType.PROPERTY_APPROVED,
       title: 'Imóvel Aprovado',
       message: `O seu imóvel "${request.title}" foi aprovado pelo agente e já se encontra registado no sistema.`,
-      link: '/imoveis' // Example link
+      link: '/meus-anuncios'
     });
 
     return newProperty;

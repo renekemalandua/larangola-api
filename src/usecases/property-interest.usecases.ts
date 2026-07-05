@@ -46,7 +46,7 @@ export class CreatePropertyInterestUseCase implements UseCase<
         type: NotificationType.NEW_LEAD,
         title: 'Nova Lead no seu Imóvel!',
         message: `Tem um novo cliente interessado no imóvel: ${property.title}. Verifique a aba de Leads.`,
-        link: '/painel-intermediario'
+        link: '/dashboard'
       });
     }
 

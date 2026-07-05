@@ -51,7 +51,7 @@ export class CreateScheduledVisitUseCase implements UseCase<
         type: NotificationType.VISIT_REQUESTED,
         title: 'Nova Visita Solicitada',
         message: `Uma nova visita foi solicitada para o imóvel: ${property.title}. Data: ${request.scheduledDate} às ${request.scheduledTime}.`,
-        link: '/visitas'
+        link: '/agendar-visitas'
       });
     }
 
@@ -101,7 +101,7 @@ export class UpdateScheduledVisitUseCase implements UseCase<
         type: NotificationType.VISIT_STATUS_UPDATED,
         title: 'Atualização de Visita',
         message: `O status da sua visita para o dia ${updated.scheduledDate.toLocaleDateString('pt-PT')} às ${updated.scheduledTime} foi alterado para: ${ptStatus}.`,
-        link: '/visitas'
+        link: '/minhas-visitas'
       });
     }
 
