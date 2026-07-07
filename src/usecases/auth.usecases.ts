@@ -7,6 +7,7 @@ import { IJwtService, ICryptoService, UseCase, GLOBAL_CONFIG } from '../shared';
 import { AuthLoginDTO, AuthRegisterDTO } from '../dto/auth.dto';
 import { IUserRepository } from '../repositories/IUserRepository';
 import { UserEntity } from '../entities/user.entity';
+import { EmailService } from '../shared/providers/email';
 
 @Injectable()
 export class AuthLoginUseCase implements UseCase<
@@ -63,7 +64,8 @@ export class AuthRegisterUseCase implements UseCase<
   constructor(
     private readonly repository: IUserRepository,
     private readonly jwtService: IJwtService,
-    private readonly cryptoService: ICryptoService
+    private readonly cryptoService: ICryptoService,
+    private readonly emailService: EmailService
   ) {}
 
   async execute(request: AuthRegisterDTO) {
@@ -107,6 +109,9 @@ export class AuthRegisterUseCase implements UseCase<
       secret: GLOBAL_CONFIG.jwtAuthSecret,
       exp: GLOBAL_CONFIG.jwtAuthExp,
     });
+
+    // Send welcome email asynchronously
+    this.emailService.sendWelcome(user.email, user.name).catch(console.error);
 
     return { token, user };
   }

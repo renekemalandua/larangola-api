@@ -23,6 +23,7 @@ import { MessageController } from './controllers/message.controller';
 import { UserVerificationController } from './controllers/user-verification.controller';
 import { PropertyRequestController } from './controllers/property-request.controller';
 import { AdminController } from './controllers/admin.controller';
+import { AdminEmailController } from './controllers/admin-email.controller';
 import { PaymentController } from './controllers/payment.controller';
 import { PropertyAuditRequestController } from './controllers/property-audit-request.controller';
 import { CommissionController } from './controllers/commission.controller';
@@ -277,6 +278,7 @@ import {
   ApproveVerificationUseCase,
   RejectVerificationUseCase,
 } from './usecases/admin.usecases';
+import { AdminBroadcastEmailUseCase } from './usecases/admin-email.usecases';
 
 // Use Cases - Payment
 import {
@@ -321,6 +323,7 @@ import { PropertyAuditCronService } from './usecases/property-audit-cron.service
     UserVerificationController,
     PropertyRequestController,
     AdminController,
+    AdminEmailController,
     PaymentController,
     PropertyAuditRequestController,
     CommissionController,
@@ -537,6 +540,7 @@ import { PropertyAuditCronService } from './usecases/property-audit-cron.service
     ListPendingVerificationsUseCase,
     ApproveVerificationUseCase,
     RejectVerificationUseCase,
+    AdminBroadcastEmailUseCase,
 
     // Use Cases - Payment
     CreateSubscriptionPaymentUseCase,

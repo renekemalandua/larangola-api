@@ -10,6 +10,8 @@ import {
   CreateScheduledVisitRequestDTO,
   UpdateScheduledVisitRequestDTO,
 } from '../dto/scheduled-visit.dto';
+import { IUserRepository } from '../repositories/IUserRepository';
+import { EmailService } from '../shared/providers/email';
 
 @Injectable()
 export class CreateScheduledVisitUseCase implements UseCase<
@@ -20,7 +22,9 @@ export class CreateScheduledVisitUseCase implements UseCase<
     private readonly repository: IScheduledVisitRepository,
     private readonly propertyRepository: IPropertyRepository,
     private readonly agentRepository: IAgentRepository,
-    private readonly createNotificationUseCase: CreateNotificationUseCase
+    private readonly createNotificationUseCase: CreateNotificationUseCase,
+    private readonly userRepository: IUserRepository,
+    private readonly emailService: EmailService
   ) {}
   async execute(
     request: CreateScheduledVisitRequestDTO
@@ -55,6 +59,32 @@ export class CreateScheduledVisitUseCase implements UseCase<
       });
     }
 
+    // Send Emails
+    const client = await this.userRepository.findById(request.userId);
+    if (client) {
+      this.emailService.sendVisitConfirmation(
+        client.email,
+        client.name,
+        property.title,
+        request.scheduledDate,
+        request.scheduledTime
+      ).catch(console.error);
+    }
+
+    if (agent) {
+      const agentUser = await this.userRepository.findById(agent.userId);
+      if (agentUser && client) {
+        this.emailService.sendVisitNotificationToAgent(
+          agentUser.email,
+          agentUser.name,
+          client.name,
+          property.title,
+          request.scheduledDate,
+          request.scheduledTime
+        ).catch(console.error);
+      }
+    }
+
     return created;
   }
 }
@@ -66,7 +96,10 @@ export class UpdateScheduledVisitUseCase implements UseCase<
 > {
   constructor(
     private readonly repository: IScheduledVisitRepository,
-    private readonly createNotificationUseCase: CreateNotificationUseCase
+    private readonly createNotificationUseCase: CreateNotificationUseCase,
+    private readonly userRepository: IUserRepository,
+    private readonly propertyRepository: IPropertyRepository,
+    private readonly emailService: EmailService
   ) {}
   async execute({
     id,
@@ -103,6 +136,20 @@ export class UpdateScheduledVisitUseCase implements UseCase<
         message: `O status da sua visita para o dia ${updated.scheduledDate.toLocaleDateString('pt-PT')} às ${updated.scheduledTime} foi alterado para: ${ptStatus}.`,
         link: '/minhas-visitas'
       });
+      
+      const client = await this.userRepository.findById(entity.userId);
+      const property = await this.propertyRepository.findById(entity.propertyId);
+      
+      if (client && property) {
+        this.emailService.sendVisitStatusUpdate(
+          client.email,
+          client.name,
+          ptStatus,
+          property.title,
+          updated.scheduledDate.toLocaleDateString('pt-PT'),
+          updated.scheduledTime
+        ).catch(console.error);
+      }
     }
 
     return updated;
