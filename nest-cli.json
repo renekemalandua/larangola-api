@@ -7,6 +7,11 @@
   "compilerOptions": {
     "deleteOutDir": true,
     "webpack": false,
-    "tsConfigPath": "tsconfig.build.json"
+    "tsConfigPath": "tsconfig.build.json",
+    "assets": [
+      { "include": "**/*.hbs", "outDir": "dist/src" },
+      { "include": "**/*.html", "outDir": "dist/src" }
+    ],
+    "watchAssets": true
   }
 }

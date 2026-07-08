@@ -3,6 +3,6 @@ export const GLOBAL_CONFIG = {
   jwtAuthSecret: process.env.JWT_AUTH_SECRET,
 
   resendApiKey: process.env.RESEND_API_KEY,
-  emailLogo: process.env.EMAIL_LOGO || 'https://larangola.ao/logo-full.svg',
+  emailLogo: process.env.EMAIL_LOGO || '',
   mailFrom: process.env.MAIL_FROM || 'info@larangola.co.ao',
 };
