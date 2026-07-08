@@ -36,7 +36,7 @@ export class EmailService implements OnModuleInit {
       const baseSource = fs.readFileSync(path.join(templatesDir, 'base.hbs'), 'utf8');
       this.baseTemplate = handlebars.compile(baseSource);
 
-      const templateFiles = ['welcome', 'visit-confirmation', 'visit-notification', 'visit-status'];
+      const templateFiles = ['welcome', 'visit-confirmation', 'visit-notification', 'visit-status', 'reset-otp'];
       
       for (const file of templateFiles) {
         const source = fs.readFileSync(path.join(templatesDir, `${file}.hbs`), 'utf8');
@@ -96,6 +96,12 @@ export class EmailService implements OnModuleInit {
     if (newStatus.toLowerCase().includes('cancelada') || newStatus.toLowerCase().includes('rejeitada')) statusColor = '#dc2626';
 
     const html = this.compileHtml('visit-status', { title, name, newStatus, propertyTitle, date, time, statusColor, isConfirmed });
+    return this.sendEmail(to, title, html);
+  }
+
+  async sendPasswordResetOtp(to: string, name: string, otp: string): Promise<boolean> {
+    const title = 'Código de Recuperação de Senha 🔒';
+    const html = this.compileHtml('reset-otp', { title, name, otp });
     return this.sendEmail(to, title, html);
   }
 

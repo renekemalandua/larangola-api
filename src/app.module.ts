@@ -73,6 +73,9 @@ import { PrismaPropertyAuditRequestRepository } from './repositories/implementat
 import {
   AuthLoginUseCase,
   AuthRegisterUseCase,
+  AuthForgotPasswordUseCase,
+  AuthVerifyOtpUseCase,
+  AuthResetPasswordUseCase,
 } from './usecases/auth.usecases';
 
 // Use Cases - PropertyCategory
@@ -379,6 +382,9 @@ import { PropertyAuditCronService } from './usecases/property-audit-cron.service
     // Use Cases - Auth
     AuthLoginUseCase,
     AuthRegisterUseCase,
+    AuthForgotPasswordUseCase,
+    AuthVerifyOtpUseCase,
+    AuthResetPasswordUseCase,
 
     // Use Cases - PropertyCategory
     CreatePropertyCategoryUseCase,

@@ -26,8 +26,12 @@ model User {
   avatar    String?
   isActive  Boolean   @default(true)
   adminRole AdminRole @default(NONE)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Password Reset OTP
+  resetOtpCode    String?
+  resetOtpExpiresAt DateTime?
 
   // Relations
   agent               Agent?

@@ -116,3 +116,82 @@ export class AuthRegisterUseCase implements UseCase<
     return { token, user };
   }
 }
+
+@Injectable()
+export class AuthForgotPasswordUseCase implements UseCase<string, { message: string }> {
+  constructor(
+    private readonly repository: IUserRepository,
+    private readonly emailService: EmailService
+  ) {}
+
+  async execute(email: string) {
+    const user = await this.repository.findByEmail(email);
+    if (!user) {
+      // Return success even if user doesn't exist to prevent email enumeration
+      return { message: 'If an account exists, an email has been sent.' };
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+
+    user.resetOtpCode = otp;
+    user.resetOtpExpiresAt = expiresAt;
+    
+    await this.repository.update(user);
+
+    await this.emailService.sendPasswordResetOtp(user.email, user.name, otp);
+
+    return { message: 'If an account exists, an email has been sent.' };
+  }
+}
+
+@Injectable()
+export class AuthVerifyOtpUseCase implements UseCase<{ email: string; otp: string }, { valid: boolean }> {
+  constructor(private readonly repository: IUserRepository) {}
+
+  async execute(request: { email: string; otp: string }) {
+    const user = await this.repository.findByEmail(request.email);
+    if (!user) throw new BadRequestException('Invalid OTP or Email');
+
+    if (user.resetOtpCode !== request.otp || !user.resetOtpExpiresAt) {
+      throw new BadRequestException('Invalid OTP');
+    }
+
+    if (user.resetOtpExpiresAt < new Date()) {
+      throw new BadRequestException('OTP has expired');
+    }
+
+    return { valid: true };
+  }
+}
+
+@Injectable()
+export class AuthResetPasswordUseCase implements UseCase<any, { message: string }> {
+  constructor(
+    private readonly repository: IUserRepository,
+    private readonly cryptoService: ICryptoService
+  ) {}
+
+  async execute(request: any) {
+    const user = await this.repository.findByEmail(request.email);
+    if (!user) throw new BadRequestException('Invalid OTP or Email');
+
+    if (user.resetOtpCode !== request.otp || !user.resetOtpExpiresAt) {
+      throw new BadRequestException('Invalid OTP');
+    }
+
+    if (user.resetOtpExpiresAt < new Date()) {
+      throw new BadRequestException('OTP has expired');
+    }
+
+    const hashedPassword = await this.cryptoService.hash(request.newPassword);
+    
+    user.password = hashedPassword;
+    user.resetOtpCode = null;
+    user.resetOtpExpiresAt = null;
+
+    await this.repository.update(user);
+
+    return { message: 'Password reset successfully' };
+  }
+}

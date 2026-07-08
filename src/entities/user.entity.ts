@@ -13,13 +13,15 @@ interface IUserProps {
   roommate?: any;
   createdAt: Date;
   updatedAt: Date;
+  resetOtpCode: string | null;
+  resetOtpExpiresAt: Date | null;
 }
 
 export class UserEntity extends AggregateRoot<IUserProps> {
   static create(
     props: Optional<
       IUserProps,
-      'avatar' | 'isActive' | 'adminRole' | 'createdAt' | 'updatedAt'
+      'avatar' | 'isActive' | 'adminRole' | 'createdAt' | 'updatedAt' | 'resetOtpCode' | 'resetOtpExpiresAt'
     >,
     id?: IdValueObject
   ) {
@@ -36,6 +38,8 @@ export class UserEntity extends AggregateRoot<IUserProps> {
         roommate: props.roommate,
         createdAt: props.createdAt ?? new Date(),
         updatedAt: props.updatedAt ?? new Date(),
+        resetOtpCode: props.resetOtpCode ?? null,
+        resetOtpExpiresAt: props.resetOtpExpiresAt ?? null,
       },
       id
     );
@@ -105,5 +109,19 @@ export class UserEntity extends AggregateRoot<IUserProps> {
   }
   public get updatedAt(): Date {
     return this.props.updatedAt;
+  }
+  public get resetOtpCode(): string | null {
+    return this.props.resetOtpCode;
+  }
+  public set resetOtpCode(v: string | null) {
+    this.props.resetOtpCode = v;
+    this.touch();
+  }
+  public get resetOtpExpiresAt(): Date | null {
+    return this.props.resetOtpExpiresAt;
+  }
+  public set resetOtpExpiresAt(v: Date | null) {
+    this.props.resetOtpExpiresAt = v;
+    this.touch();
   }
 }

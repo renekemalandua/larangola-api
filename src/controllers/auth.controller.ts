@@ -3,8 +3,11 @@ import { ApiBody, ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
 import {
   AuthLoginUseCase,
   AuthRegisterUseCase,
+  AuthForgotPasswordUseCase,
+  AuthVerifyOtpUseCase,
+  AuthResetPasswordUseCase,
 } from '../usecases/auth.usecases';
-import { AuthLoginDTO, AuthRegisterDTO } from '../dto/auth.dto';
+import { AuthLoginDTO, AuthRegisterDTO, ForgotPasswordDTO, VerifyOtpDTO, ResetPasswordDTO } from '../dto/auth.dto';
 import { UserAdapter } from '../adapters/user.adapter';
 
 @ApiTags('Auth')
@@ -12,7 +15,10 @@ import { UserAdapter } from '../adapters/user.adapter';
 export class AuthController {
   constructor(
     private readonly loginUseCase: AuthLoginUseCase,
-    private readonly registerUseCase: AuthRegisterUseCase
+    private readonly registerUseCase: AuthRegisterUseCase,
+    private readonly forgotPasswordUseCase: AuthForgotPasswordUseCase,
+    private readonly verifyOtpUseCase: AuthVerifyOtpUseCase,
+    private readonly resetPasswordUseCase: AuthResetPasswordUseCase
   ) {}
 
   @ApiBody({ type: AuthLoginDTO, description: 'Required data to login user' })
@@ -45,5 +51,31 @@ export class AuthController {
       token: res.token,
       user: UserAdapter.toHttp(res.user),
     });
+  }
+
+  @ApiBody({ type: ForgotPasswordDTO })
+  @ApiOkResponse({ description: 'OTP sent to email if account exists' })
+  @Post('forgot-password')
+  async forgotPassword(@Body() data: ForgotPasswordDTO, @Res() response) {
+    const res = await this.forgotPasswordUseCase.execute(data.email);
+    return response.status(200).json({ status: true, ...res });
+  }
+
+  @ApiBody({ type: VerifyOtpDTO })
+  @ApiOkResponse({ description: 'OTP is valid' })
+  @ApiResponse({ status: 400, description: 'Invalid or expired OTP' })
+  @Post('verify-otp')
+  async verifyOtp(@Body() data: VerifyOtpDTO, @Res() response) {
+    const res = await this.verifyOtpUseCase.execute(data);
+    return response.status(200).json({ status: true, ...res });
+  }
+
+  @ApiBody({ type: ResetPasswordDTO })
+  @ApiOkResponse({ description: 'Password reset successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid OTP or payload' })
+  @Post('reset-password')
+  async resetPassword(@Body() data: ResetPasswordDTO, @Res() response) {
+    const res = await this.resetPasswordUseCase.execute(data);
+    return response.status(200).json({ status: true, ...res });
   }
 }

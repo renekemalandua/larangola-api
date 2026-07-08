@@ -17,6 +17,8 @@ export class UserAdapter {
         roommate: (raw as any).roommate,
         createdAt: (raw as any).createdAt,
         updatedAt: (raw as any).updatedAt,
+        resetOtpCode: (raw as any).resetOtpCode,
+        resetOtpExpiresAt: (raw as any).resetOtpExpiresAt,
       },
       new IdValueObject((raw as any).id)
     );
@@ -34,6 +36,8 @@ export class UserAdapter {
       adminRole: entity.adminRole as any,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
+      resetOtpCode: entity.resetOtpCode,
+      resetOtpExpiresAt: entity.resetOtpExpiresAt,
     };
   }
 
