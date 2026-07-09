@@ -36,7 +36,7 @@ export class EmailService implements OnModuleInit {
       const baseSource = fs.readFileSync(path.join(templatesDir, 'base.hbs'), 'utf8');
       this.baseTemplate = handlebars.compile(baseSource);
 
-      const templateFiles = ['welcome', 'visit-confirmation', 'visit-notification', 'visit-status', 'reset-otp'];
+      const templateFiles = ['client-welcome', 'agent-welcome', 'agent-upgrade', 'visit-confirmation', 'visit-notification', 'visit-status', 'reset-otp'];
       
       for (const file of templateFiles) {
         const source = fs.readFileSync(path.join(templatesDir, `${file}.hbs`), 'utf8');
@@ -68,9 +68,21 @@ export class EmailService implements OnModuleInit {
     return body;
   }
 
-  async sendWelcome(to: string, name: string): Promise<boolean> {
+  async sendClientWelcome(to: string, name: string): Promise<boolean> {
     const title = 'Bem-vindo ao LarAngola! 🏠';
-    const html = this.compileHtml('welcome', { title, name });
+    const html = this.compileHtml('client-welcome', { title, name });
+    return this.sendEmail(to, title, html);
+  }
+
+  async sendAgentWelcome(to: string, name: string): Promise<boolean> {
+    const title = 'Bem-vindo à Rede de Agentes LarAngola! 💼';
+    const html = this.compileHtml('agent-welcome', { title, name });
+    return this.sendEmail(to, title, html);
+  }
+
+  async sendAgentUpgrade(to: string, name: string): Promise<boolean> {
+    const title = 'Parabéns pelo Upgrade para Agente! 🚀';
+    const html = this.compileHtml('agent-upgrade', { title, name });
     return this.sendEmail(to, title, html);
   }
 

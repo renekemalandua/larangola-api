@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsString, MinLength, IsOptional, IsBoolean } from 'class-validator';
 
 export class AuthLoginDTO {
   @ApiProperty({
@@ -53,6 +53,15 @@ export class AuthRegisterDTO {
   })
   @IsString()
   name: string;
+
+  @ApiProperty({
+    required: false,
+    description: 'Indicates if the user is registering directly as an agent',
+    example: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  isAgent?: boolean;
 }
 
 export class ForgotPasswordDTO {
