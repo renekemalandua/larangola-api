@@ -10,7 +10,7 @@ import {
 import { Type } from 'class-transformer';
 import { ListingType, PropertyStatus } from '../entities/property.entity';
 
-export class CreatePropertyRequestDTO {
+export class CreatePropertyDTO {
   @ApiProperty({ example: 'uuid-of-agent' })
   @IsUUID()
   agentId: string;
@@ -122,7 +122,7 @@ export class CreatePropertyRequestDTO {
   status?: PropertyStatus;
 }
 
-export class UpdatePropertyRequestDTO {
+export class UpdatePropertyDTO {
   @ApiPropertyOptional({ example: 'uuid-of-new-category' })
   @IsOptional()
   @IsString()

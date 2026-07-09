@@ -4,8 +4,8 @@ import { PropertyEntity, PropertyStatus } from '../entities/property.entity';
 import { IPropertyRepository } from '../repositories/IPropertyRepository';
 import { IPropertyCategoryRepository } from '../repositories/IPropertyCategoryRepository';
 import {
-  CreatePropertyRequestDTO,
-  UpdatePropertyRequestDTO,
+  CreatePropertyDTO,
+  UpdatePropertyDTO,
 } from '../dto/property.dto';
 
 import { IAgentRepository } from '../repositories/IAgentRepository';
@@ -13,7 +13,7 @@ import { PrismaService } from '../shared/db-conection/prisma.service';
 
 @Injectable()
 export class CreatePropertyUseCase implements UseCase<
-  CreatePropertyRequestDTO,
+  CreatePropertyDTO,
   PropertyEntity
 > {
   constructor(
@@ -21,7 +21,7 @@ export class CreatePropertyUseCase implements UseCase<
     private readonly categoryRepository: IPropertyCategoryRepository,
     private readonly agentRepository: IAgentRepository
   ) {}
-  async execute(request: CreatePropertyRequestDTO): Promise<PropertyEntity> {
+  async execute(request: CreatePropertyDTO): Promise<PropertyEntity> {
     console.log(
       '[CreatePropertyUseCase] Executing with request:',
       JSON.stringify(request, null, 2)
@@ -79,7 +79,7 @@ export class CreatePropertyUseCase implements UseCase<
 
 @Injectable()
 export class UpdatePropertyUseCase implements UseCase<
-  { id: string; data: UpdatePropertyRequestDTO },
+  { id: string; data: UpdatePropertyDTO; files?: Express.Multer.File[] },
   PropertyEntity
 > {
   constructor(
@@ -91,7 +91,7 @@ export class UpdatePropertyUseCase implements UseCase<
     data,
   }: {
     id: string;
-    data: UpdatePropertyRequestDTO;
+    data: UpdatePropertyDTO;
   }): Promise<PropertyEntity> {
     const entity = await this.repository.findById(id);
     if (!entity) throw new BadRequestException('Property not found');

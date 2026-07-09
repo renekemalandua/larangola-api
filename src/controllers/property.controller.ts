@@ -38,8 +38,8 @@ import {
 } from '../usecases/property.usecases';
 import { JwtAuthGuard } from '../shared/guards/jwt-auth.guard';
 import {
-  CreatePropertyRequestDTO,
-  UpdatePropertyRequestDTO,
+  CreatePropertyDTO,
+  UpdatePropertyDTO,
 } from '../dto/property.dto';
 import { PropertyAdapter } from '../adapters/property.adapter';
 
@@ -67,7 +67,7 @@ export class PropertyController {
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FilesInterceptor('images'))
   async create(
-    @Body() body: CreatePropertyRequestDTO,
+    @Body() body: CreatePropertyDTO,
     @UploadedFiles() files: Array<Express.Multer.File>,
     @Res() response
   ) {
@@ -225,7 +225,7 @@ export class PropertyController {
   @UseInterceptors(FilesInterceptor('images'))
   async update(
     @Param('id') id: string,
-    @Body() body: UpdatePropertyRequestDTO,
+    @Body() body: UpdatePropertyDTO,
     @UploadedFiles() files: Array<Express.Multer.File>,
     @Res() response
   ) {
