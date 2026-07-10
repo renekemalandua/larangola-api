@@ -43,8 +43,17 @@ export class PrismaPropertyRepository implements IPropertyRepository {
   }
 
   async listPublished(): Promise<PropertyEntity[]> {
+    const seventyTwoHoursAgo = new Date(Date.now() - 72 * 60 * 60 * 1000);
     const rows = await this.prisma.property.findMany({
-      where: { status: 'published' },
+      where: { 
+        OR: [
+          { status: 'published' },
+          { 
+            status: 'finished',
+            statusUpdatedAt: { gte: seventyTwoHoursAgo }
+          }
+        ]
+      },
       orderBy: [
         { isHighlighted: 'desc' },
         { createdAt: 'desc' }

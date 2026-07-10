@@ -41,6 +41,7 @@ export class PropertyAdapter {
         rejectionReason: (raw as any).rejectionReason ?? null,
         reviewedBy: (raw as any).reviewedBy ?? null,
         reviewedAt: (raw as any).reviewedAt ?? null,
+        statusUpdatedAt: (raw as any).statusUpdatedAt ?? null,
 
         isHighlighted: (raw as any).isHighlighted ?? false,
         highlightedUntil: (raw as any).highlightedUntil ?? null,
@@ -82,6 +83,7 @@ export class PropertyAdapter {
       rejectionReason: entity.rejectionReason ?? undefined,
       reviewedBy: entity.reviewedBy ?? undefined,
       reviewedAt: entity.reviewedAt ?? undefined,
+      statusUpdatedAt: entity.statusUpdatedAt ?? undefined,
 
       isHighlighted: entity.isHighlighted ?? false,
       highlightedUntil: entity.highlightedUntil ?? undefined,
@@ -139,6 +141,7 @@ export class PropertyAdapter {
       isHighlighted: entity.isHighlighted !== undefined ? entity.isHighlighted : (entity.props?.isHighlighted || false),
       highlightedUntil: entity.highlightedUntil || entity.props?.highlightedUntil || null,
 
+      statusUpdatedAt: entity.statusUpdatedAt || entity.props?.statusUpdatedAt || null,
       createdAt: entity.createdAt || entity.props?.createdAt,
       updatedAt: entity.updatedAt || entity.props?.updatedAt,
       agent: resolvedAgent

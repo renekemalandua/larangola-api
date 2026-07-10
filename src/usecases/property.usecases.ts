@@ -143,6 +143,14 @@ export class UpdatePropertyUseCase implements UseCase<
           );
         }
       }
+      if (data.status !== entity.status) {
+        if (data.status === 'finished') {
+          entity.statusUpdatedAt = new Date();
+        } else if (entity.status === 'finished') {
+          // If moving away from finished, reset the timer
+          entity.statusUpdatedAt = null;
+        }
+      }
       entity.status = data.status;
     }
 

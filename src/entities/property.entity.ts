@@ -38,6 +38,7 @@ interface IPropertyProps {
   price: number | null;
   currency: string;
   status: PropertyStatus;
+  statusUpdatedAt: Date | null;
 
   // Approval Fields
   submittedForApprovalAt: Date | null;
@@ -81,6 +82,7 @@ export class PropertyEntity extends AggregateRoot<IPropertyProps> {
       | 'highlightedUntil'
       | 'createdAt'
       | 'updatedAt'
+      | 'statusUpdatedAt'
     >,
     id?: IdValueObject
   ) {
@@ -108,6 +110,7 @@ export class PropertyEntity extends AggregateRoot<IPropertyProps> {
         price: props.price ?? null,
         currency: props.currency ?? 'AOA',
         status: props.status ?? PropertyStatus.draft,
+        statusUpdatedAt: props.statusUpdatedAt ?? null,
 
         submittedForApprovalAt: props.submittedForApprovalAt ?? null,
         rejectionReason: props.rejectionReason ?? null,
@@ -273,6 +276,13 @@ export class PropertyEntity extends AggregateRoot<IPropertyProps> {
   }
   public set status(v: PropertyStatus) {
     this.props.status = v;
+    this.touch();
+  }
+  public get statusUpdatedAt(): Date | null {
+    return this.props.statusUpdatedAt;
+  }
+  public set statusUpdatedAt(v: Date | null) {
+    this.props.statusUpdatedAt = v;
     this.touch();
   }
 

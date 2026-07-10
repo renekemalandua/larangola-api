@@ -101,6 +101,7 @@ model Property {
   price       Float?
   currency    String         @default("AOA")
   status      PropertyStatus @default(draft)
+  statusUpdatedAt DateTime?
 
   // Approval Fields
   submittedForApprovalAt DateTime?
