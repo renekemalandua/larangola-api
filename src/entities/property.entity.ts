@@ -51,6 +51,9 @@ interface IPropertyProps {
 
   createdAt: Date;
   updatedAt: Date;
+
+  // Virtual/Computed Fields
+  interactionCount: number | null;
 }
 
 export class PropertyEntity extends AggregateRoot<IPropertyProps> {
@@ -83,6 +86,7 @@ export class PropertyEntity extends AggregateRoot<IPropertyProps> {
       | 'createdAt'
       | 'updatedAt'
       | 'statusUpdatedAt'
+      | 'interactionCount'
     >,
     id?: IdValueObject
   ) {
@@ -122,6 +126,7 @@ export class PropertyEntity extends AggregateRoot<IPropertyProps> {
 
         createdAt: props.createdAt ?? new Date(),
         updatedAt: props.updatedAt ?? new Date(),
+        interactionCount: props.interactionCount ?? null,
       },
       id
     );
@@ -330,5 +335,9 @@ export class PropertyEntity extends AggregateRoot<IPropertyProps> {
   public set highlightedUntil(v: Date | null) {
     this.props.highlightedUntil = v;
     this.touch();
+  }
+
+  public get interactionCount(): number | null {
+    return this.props.interactionCount;
   }
 }

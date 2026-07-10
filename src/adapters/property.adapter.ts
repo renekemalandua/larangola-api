@@ -48,6 +48,7 @@ export class PropertyAdapter {
 
         createdAt: raw.createdAt,
         updatedAt: raw.updatedAt,
+        interactionCount: (raw as any).interactionCount ?? null,
       },
       new IdValueObject(raw.id)
     );
@@ -142,6 +143,7 @@ export class PropertyAdapter {
       highlightedUntil: entity.highlightedUntil || entity.props?.highlightedUntil || null,
 
       statusUpdatedAt: entity.statusUpdatedAt || entity.props?.statusUpdatedAt || null,
+      interactionCount: entity.interactionCount || entity.props?.interactionCount || null,
       createdAt: entity.createdAt || entity.props?.createdAt,
       updatedAt: entity.updatedAt || entity.props?.updatedAt,
       agent: resolvedAgent

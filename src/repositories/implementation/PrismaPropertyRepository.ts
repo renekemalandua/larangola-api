@@ -14,10 +14,23 @@ export class PrismaPropertyRepository implements IPropertyRepository {
         user: true,
       },
     },
+    _count: {
+      select: {
+        scheduledVisits: true,
+        propertyInterests: true,
+      }
+    }
   };
 
   private enrichProperty(row: any): PropertyEntity {
-    const entity = PropertyAdapter.toDomain(row);
+    const interactionCount = row._count 
+      ? (row._count.scheduledVisits || 0) + (row._count.propertyInterests || 0) 
+      : null;
+      
+    const entity = PropertyAdapter.toDomain({
+      ...row,
+      interactionCount
+    });
     (entity as any).agent = row.agent;
     return entity;
   }
