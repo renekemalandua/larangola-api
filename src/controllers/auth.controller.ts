@@ -1,14 +1,16 @@
-import { Body, Controller, Post, Req, Res } from '@nestjs/common';
-import { ApiBody, ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { ApiBody, ApiOkResponse, ApiResponse, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import {
   AuthLoginUseCase,
   AuthRegisterUseCase,
   AuthForgotPasswordUseCase,
   AuthVerifyOtpUseCase,
   AuthResetPasswordUseCase,
+  AuthChangePasswordUseCase,
 } from '../usecases/auth.usecases';
-import { AuthLoginDTO, AuthRegisterDTO, ForgotPasswordDTO, VerifyOtpDTO, ResetPasswordDTO } from '../dto/auth.dto';
+import { AuthLoginDTO, AuthRegisterDTO, ForgotPasswordDTO, VerifyOtpDTO, ResetPasswordDTO, ChangePasswordDTO } from '../dto/auth.dto';
 import { UserAdapter } from '../adapters/user.adapter';
+import { JwtAuthGuard } from '../shared/guards/jwt-auth.guard';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -18,7 +20,8 @@ export class AuthController {
     private readonly registerUseCase: AuthRegisterUseCase,
     private readonly forgotPasswordUseCase: AuthForgotPasswordUseCase,
     private readonly verifyOtpUseCase: AuthVerifyOtpUseCase,
-    private readonly resetPasswordUseCase: AuthResetPasswordUseCase
+    private readonly resetPasswordUseCase: AuthResetPasswordUseCase,
+    private readonly changePasswordUseCase: AuthChangePasswordUseCase
   ) {}
 
   @ApiBody({ type: AuthLoginDTO, description: 'Required data to login user' })
@@ -76,6 +79,26 @@ export class AuthController {
   @Post('reset-password')
   async resetPassword(@Body() data: ResetPasswordDTO, @Res() response) {
     const res = await this.resetPasswordUseCase.execute(data);
+    return response.status(200).json({ status: true, ...res });
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiBody({ type: ChangePasswordDTO })
+  @ApiOkResponse({ description: 'Password changed successfully' })
+  @ApiResponse({ status: 400, description: 'User not found' })
+  @ApiResponse({ status: 401, description: 'Current password does not match' })
+  @Post('change-password')
+  async changePassword(
+    @Body() data: ChangePasswordDTO,
+    @Req() request: any,
+    @Res() response
+  ) {
+    const res = await this.changePasswordUseCase.execute({
+      userId: request.user.id,
+      currentPassword: data.currentPassword,
+      newPassword: data.newPassword,
+    });
     return response.status(200).json({ status: true, ...res });
   }
 }

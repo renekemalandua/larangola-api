@@ -120,3 +120,23 @@ export class ResetPasswordDTO {
   @MinLength(6)
   newPassword: string;
 }
+
+export class ChangePasswordDTO {
+  @ApiProperty({
+    required: true,
+    description: 'Current user password',
+    example: 'password123',
+  })
+  @IsString()
+  @MinLength(6)
+  currentPassword: string;
+
+  @ApiProperty({
+    required: true,
+    description: 'New user password',
+    example: 'newpassword123',
+  })
+  @IsString()
+  @MinLength(6)
+  newPassword: string;
+}

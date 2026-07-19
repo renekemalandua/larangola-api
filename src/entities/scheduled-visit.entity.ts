@@ -14,6 +14,8 @@ interface IScheduledVisitProps {
   scheduledTime: string;
   status: VisitStatus;
   notes: string | null;
+  clientArrivedAt: Date | null;
+  agentArrivedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -22,7 +24,7 @@ export class ScheduledVisitEntity extends AggregateRoot<IScheduledVisitProps> {
   static create(
     props: Optional<
       IScheduledVisitProps,
-      'notes' | 'status' | 'createdAt' | 'updatedAt'
+      'notes' | 'status' | 'createdAt' | 'updatedAt' | 'clientArrivedAt' | 'agentArrivedAt'
     >,
     id?: IdValueObject
   ) {
@@ -34,6 +36,8 @@ export class ScheduledVisitEntity extends AggregateRoot<IScheduledVisitProps> {
         scheduledTime: props.scheduledTime,
         status: props.status ?? VisitStatus.pending,
         notes: props.notes ?? null,
+        clientArrivedAt: props.clientArrivedAt ?? null,
+        agentArrivedAt: props.agentArrivedAt ?? null,
         createdAt: props.createdAt ?? new Date(),
         updatedAt: props.updatedAt ?? new Date(),
       },
@@ -77,6 +81,20 @@ export class ScheduledVisitEntity extends AggregateRoot<IScheduledVisitProps> {
   }
   public set notes(v: string | null) {
     this.props.notes = v;
+    this.touch();
+  }
+  public get clientArrivedAt(): Date | null {
+    return this.props.clientArrivedAt;
+  }
+  public set clientArrivedAt(v: Date | null) {
+    this.props.clientArrivedAt = v;
+    this.touch();
+  }
+  public get agentArrivedAt(): Date | null {
+    return this.props.agentArrivedAt;
+  }
+  public set agentArrivedAt(v: Date | null) {
+    this.props.agentArrivedAt = v;
     this.touch();
   }
   public get createdAt(): Date {

@@ -197,3 +197,32 @@ export class AuthResetPasswordUseCase implements UseCase<any, { message: string 
     return { message: 'Password reset successfully' };
   }
 }
+
+@Injectable()
+export class AuthChangePasswordUseCase implements UseCase<{ userId: string; currentPassword: string; newPassword: string }, { message: string }> {
+  constructor(
+    private readonly repository: IUserRepository,
+    private readonly cryptoService: ICryptoService
+  ) {}
+
+  async execute(request: { userId: string; currentPassword: string; newPassword: string }) {
+    const user = await this.repository.findById(request.userId);
+    if (!user) throw new BadRequestException('User not found');
+
+    const matchPassword = await this.cryptoService.compare(
+      user.password,
+      request.currentPassword
+    );
+
+    if (!matchPassword) {
+      throw new UnauthorizedException('Current password does not match');
+    }
+
+    const hashedPassword = await this.cryptoService.hash(request.newPassword);
+    
+    user.password = hashedPassword;
+    await this.repository.update(user);
+
+    return { message: 'Password changed successfully' };
+  }
+}

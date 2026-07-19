@@ -211,3 +211,29 @@ export class FindScheduledVisitByIdUseCase implements UseCase<
     return entity;
   }
 }
+
+@Injectable()
+export class CheckInVisitUseCase implements UseCase<{ id: string; userId: string }, ScheduledVisitEntity> {
+  constructor(
+    private readonly repository: IScheduledVisitRepository,
+    private readonly propertyRepository: IPropertyRepository
+  ) {}
+
+  async execute(request: { id: string; userId: string }): Promise<ScheduledVisitEntity> {
+    const visit = await this.repository.findById(request.id);
+    if (!visit) throw new BadRequestException('Scheduled visit not found');
+
+    const property = await this.propertyRepository.findById(visit.propertyId);
+    if (!property) throw new BadRequestException('Property not found');
+
+    const isClient = visit.userId === request.userId;
+    
+    if (isClient) {
+      visit.clientArrivedAt = new Date();
+    } else {
+      visit.agentArrivedAt = new Date();
+    }
+
+    return await this.repository.update(visit);
+  }
+}

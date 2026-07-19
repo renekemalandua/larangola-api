@@ -76,6 +76,7 @@ import {
   AuthForgotPasswordUseCase,
   AuthVerifyOtpUseCase,
   AuthResetPasswordUseCase,
+  AuthChangePasswordUseCase,
 } from './usecases/auth.usecases';
 
 // Use Cases - PropertyCategory
@@ -152,6 +153,7 @@ import {
   ListScheduledVisitsByPropertyUseCase,
   ListScheduledVisitsByUserUseCase,
   FindScheduledVisitByIdUseCase,
+  CheckInVisitUseCase,
 } from './usecases/scheduled-visit.usecases';
 
 // Use Cases - Review
@@ -385,6 +387,7 @@ import { PropertyAuditCronService } from './usecases/property-audit-cron.service
     AuthForgotPasswordUseCase,
     AuthVerifyOtpUseCase,
     AuthResetPasswordUseCase,
+    AuthChangePasswordUseCase,
 
     // Use Cases - PropertyCategory
     CreatePropertyCategoryUseCase,
@@ -447,6 +450,7 @@ import { PropertyAuditCronService } from './usecases/property-audit-cron.service
     ListScheduledVisitsByPropertyUseCase,
     ListScheduledVisitsByUserUseCase,
     FindScheduledVisitByIdUseCase,
+    CheckInVisitUseCase,
 
     // Use Cases - Review
     CreateReviewUseCase,

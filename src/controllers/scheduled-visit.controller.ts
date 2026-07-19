@@ -8,9 +8,12 @@ import {
   Post,
   Put,
   Res,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiParam, ApiResponse, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { HttpErrorResponseDTO } from '../shared';
+import { JwtAuthGuard } from '../shared/guards/jwt-auth.guard';
 import {
   CreateScheduledVisitUseCase,
   UpdateScheduledVisitUseCase,
@@ -19,6 +22,7 @@ import {
   ListScheduledVisitsByPropertyUseCase,
   ListScheduledVisitsByUserUseCase,
   FindScheduledVisitByIdUseCase,
+  CheckInVisitUseCase,
 } from '../usecases/scheduled-visit.usecases';
 import {
   CreateScheduledVisitRequestDTO,
@@ -36,7 +40,8 @@ export class ScheduledVisitController {
     private readonly listUseCase: ListScheduledVisitsUseCase,
     private readonly listByPropertyUseCase: ListScheduledVisitsByPropertyUseCase,
     private readonly listByUserUseCase: ListScheduledVisitsByUserUseCase,
-    private readonly findByIdUseCase: FindScheduledVisitByIdUseCase
+    private readonly findByIdUseCase: FindScheduledVisitByIdUseCase,
+    private readonly checkInUseCase: CheckInVisitUseCase
   ) {}
 
   @Post('create')
@@ -161,6 +166,26 @@ export class ScheduledVisitController {
         status: true,
         data: { message: 'Scheduled visit deleted successfully' },
       });
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  @Post(':id/check-in')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Check in at the property for a visit' })
+  @ApiParam({ name: 'id' })
+  @ApiResponse({ status: 200 })
+  @ApiResponse({ status: 400, type: HttpErrorResponseDTO })
+  async checkIn(@Param('id') id: string, @Req() request: any, @Res() response) {
+    try {
+      const entity = await this.checkInUseCase.execute({ id, userId: request.user.id });
+      const data = ScheduledVisitAdapter.toHttp(
+        entity,
+        (entity as any).property
+      );
+      return response.status(200).json({ status: true, data });
     } catch (error) {
       throw new BadRequestException(error.message);
     }
