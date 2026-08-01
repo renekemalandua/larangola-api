@@ -1,0 +1,11 @@
+-- AlterTable
+ALTER TABLE "UserVerification" ADD COLUMN     "currentStep" INTEGER NOT NULL DEFAULT 1,
+ADD COLUMN     "phone" TEXT,
+ADD COLUMN     "status" TEXT NOT NULL DEFAULT 'DRAFT',
+ADD COLUMN     "zonesOfOperation" JSONB,
+ALTER COLUMN "documentType" DROP NOT NULL,
+ALTER COLUMN "documentNumber" DROP NOT NULL,
+ALTER COLUMN "documentFrontUrl" DROP NOT NULL,
+ALTER COLUMN "documentBackUrl" DROP NOT NULL,
+ALTER COLUMN "selfieUrl" DROP NOT NULL,
+ALTER COLUMN "videoUrl" DROP NOT NULL;
