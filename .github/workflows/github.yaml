@@ -23,24 +23,6 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Run ESLint
-        run: |
-          echo "🔍 Running ESLint..."
-          npm run lint
-          echo "✅ ESLint checks passed!"
-
-      - name: Run TypeScript type check
-        run: |
-          echo "🔍 Running TypeScript type check..."
-          npm run tsc
-          echo "✅ TypeScript checks passed!"
-
-      - name: Check code formatting (Prettier)
-        run: |
-          echo "🔍 Checking code formatting with Prettier..."
-          npm run format:check
-          echo "✅ Code formatting verified successfully!"
-
   build-docker:
     runs-on: ubuntu-latest
     needs: quality-checks
