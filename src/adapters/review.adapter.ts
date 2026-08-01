@@ -6,9 +6,10 @@ export class ReviewAdapter {
   static toDomain(raw: Review): ReviewEntity {
     return ReviewEntity.create(
       {
-        listingId: raw.listingId ?? null,
+        propertyId: raw.propertyId ?? null,
         fromUserId: raw.fromUserId,
         toUserId: raw.toUserId,
+        role: raw.role,
         rating: raw.rating,
         comment: raw.comment ?? null,
         createdAt: raw.createdAt,
@@ -21,9 +22,10 @@ export class ReviewAdapter {
   static toPrisma(entity: ReviewEntity): Review {
     return {
       id: entity.id,
-      listingId: entity.listingId,
+      propertyId: entity.propertyId,
       fromUserId: entity.fromUserId,
       toUserId: entity.toUserId,
+      role: entity.role,
       rating: entity.rating,
       comment: entity.comment,
       createdAt: entity.createdAt,
@@ -31,16 +33,22 @@ export class ReviewAdapter {
     };
   }
 
-  static toHttp(entity: ReviewEntity): any {
+  static toHttp(entity: any): any {
     return {
       id: entity.id,
-      listingId: entity.listingId,
+      propertyId: entity.propertyId,
       fromUserId: entity.fromUserId,
       toUserId: entity.toUserId,
+      role: entity.role,
       rating: entity.rating,
       comment: entity.comment,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
+      fromUser: entity.fromUser ? {
+        id: entity.fromUser.id,
+        name: entity.fromUser.name,
+        avatar: entity.fromUser.avatar,
+      } : null,
     };
   }
 }

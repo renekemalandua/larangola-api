@@ -2,7 +2,10 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { UseCase } from '../shared';
 import { PropertyInterestEntity } from '../entities/property-interest.entity';
 import { IPropertyInterestRepository } from '../repositories/IPropertyInterestRepository';
-import { IListingRepository } from '../repositories/IListingRepository';
+import { IPropertyRepository } from '../repositories/IPropertyRepository';
+import { IAgentRepository } from '../repositories/IAgentRepository';
+import { CreateNotificationUseCase } from './notification.usecases';
+import { NotificationType } from '@prisma/client';
 import {
   CreatePropertyInterestRequestDTO,
   UpdatePropertyInterestRequestDTO,
@@ -15,15 +18,39 @@ export class CreatePropertyInterestUseCase implements UseCase<
 > {
   constructor(
     private readonly repository: IPropertyInterestRepository,
-    private readonly listingRepository: IListingRepository
+    private readonly propertyRepository: IPropertyRepository,
+    private readonly agentRepository: IAgentRepository,
+    private readonly createNotificationUseCase: CreateNotificationUseCase
   ) {}
   async execute(
     request: CreatePropertyInterestRequestDTO
   ): Promise<PropertyInterestEntity> {
-    const listing = await this.listingRepository.findById(request.listingId);
-    if (!listing) throw new BadRequestException('Listing does not exist');
+    const property = await this.propertyRepository.findById(request.propertyId);
+    if (!property) throw new BadRequestException('Property does not exist');
+
+    // Idempotency: Check if user already marked interest in this property
+    const existing = await this.repository.listByUser(request.userId);
+    const alreadyExists = existing.find(
+      (i) => i.propertyId === request.propertyId
+    );
+    if (alreadyExists) return alreadyExists;
+
     const entity = PropertyInterestEntity.create(request);
-    return this.repository.create(entity);
+    const created = await this.repository.create(entity);
+
+    // Get the agent to notify
+    const agent = await this.agentRepository.findById(property.agentId);
+    if (agent) {
+      await this.createNotificationUseCase.execute({
+        userId: agent.userId,
+        type: NotificationType.NEW_LEAD,
+        title: 'Nova Lead no seu Imóvel!',
+        message: `Tem um novo cliente interessado no imóvel: ${property.title}. Verifique a aba de Leads.`,
+        link: '/dashboard'
+      });
+    }
+
+    return created;
   }
 }
 
@@ -69,13 +96,13 @@ export class ListPropertyInterestsUseCase implements UseCase<
 }
 
 @Injectable()
-export class ListPropertyInterestsByListingUseCase implements UseCase<
+export class ListPropertyInterestsByPropertyUseCase implements UseCase<
   string,
   PropertyInterestEntity[]
 > {
   constructor(private readonly repository: IPropertyInterestRepository) {}
-  async execute(listingId: string): Promise<PropertyInterestEntity[]> {
-    return this.repository.listByListing(listingId);
+  async execute(propertyId: string): Promise<PropertyInterestEntity[]> {
+    return this.repository.listByProperty(propertyId);
   }
 }
 
@@ -87,6 +114,17 @@ export class ListPropertyInterestsByUserUseCase implements UseCase<
   constructor(private readonly repository: IPropertyInterestRepository) {}
   async execute(userId: string): Promise<PropertyInterestEntity[]> {
     return this.repository.listByUser(userId);
+  }
+}
+
+@Injectable()
+export class ListPropertyInterestsByAgentUseCase implements UseCase<
+  string,
+  PropertyInterestEntity[]
+> {
+  constructor(private readonly repository: IPropertyInterestRepository) {}
+  async execute(agentId: string): Promise<PropertyInterestEntity[]> {
+    return this.repository.listByAgent(agentId);
   }
 }
 

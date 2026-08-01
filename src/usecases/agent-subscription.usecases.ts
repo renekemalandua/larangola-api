@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { UseCase } from '../shared';
-import { AgentSubscriptionEntity } from '../entities/agent-subscription.entity';
+import { AgentSubscriptionEntity, SubscriptionStatus } from '../entities/agent-subscription.entity';
 import { IAgentSubscriptionRepository } from '../repositories/IAgentSubscriptionRepository';
 import { IAgentRepository } from '../repositories/IAgentRepository';
 import { IAgentPlanRepository } from '../repositories/IAgentPlanRepository';
@@ -8,6 +8,9 @@ import {
   CreateAgentSubscriptionRequestDTO,
   UpdateAgentSubscriptionRequestDTO,
 } from '../dto/agent-subscription.dto';
+import { AssignPlanRequestDTO } from '../dto/user.dto';
+import { PrismaService } from '../shared';
+import { IUserRepository } from '../repositories/IUserRepository';
 
 @Injectable()
 export class CreateAgentSubscriptionUseCase implements UseCase<
@@ -99,5 +102,46 @@ export class FindAgentSubscriptionByIdUseCase implements UseCase<
     const entity = await this.repository.findById(id);
     if (!entity) throw new BadRequestException('Agent subscription not found');
     return entity;
+  }
+}
+
+@Injectable()
+export class AssignAgentSubscriptionUseCase implements UseCase<
+  AssignPlanRequestDTO & { userId: string },
+  AgentSubscriptionEntity
+> {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly userRepository: IUserRepository,
+    private readonly planRepository: IAgentPlanRepository,
+    private readonly subscriptionRepository: IAgentSubscriptionRepository
+  ) {}
+
+  async execute(request: AssignPlanRequestDTO & { userId: string }): Promise<AgentSubscriptionEntity> {
+    const user = await this.userRepository.findById(request.userId);
+    if (!user || !user.agent) throw new BadRequestException('User is not an agent');
+    
+    const plan = await this.planRepository.findById(request.planId);
+    if (!plan) throw new BadRequestException('Agent plan does not exist');
+
+    // Desativar todas as subscrições ativas atuais
+    await this.prisma.agentSubscription.updateMany({
+      where: { agentId: user.agent.id, status: SubscriptionStatus.active },
+      data: { status: SubscriptionStatus.cancelled },
+    });
+
+    const startDate = new Date();
+    const endDate = new Date();
+    endDate.setDate(startDate.getDate() + request.durationInDays);
+
+    const entity = AgentSubscriptionEntity.create({
+      agentId: user.agent.id,
+      planId: plan.id,
+      startDate,
+      endDate,
+      status: SubscriptionStatus.active,
+    });
+
+    return this.subscriptionRepository.create(entity);
   }
 }

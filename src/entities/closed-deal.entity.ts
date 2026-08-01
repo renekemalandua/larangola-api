@@ -6,9 +6,9 @@ export enum ClosedDealStatus {
 }
 
 interface IClosedDealProps {
-  listingId: string;
+  propertyId: string;
   agentId: string;
-  clientId: string;
+  clientId?: string | null;
   commissionAmount: number;
   commissionRate: number;
   status: ClosedDealStatus;
@@ -24,7 +24,7 @@ export class ClosedDealEntity extends AggregateRoot<IClosedDealProps> {
   ) {
     return new ClosedDealEntity(
       {
-        listingId: props.listingId,
+        propertyId: props.propertyId,
         agentId: props.agentId,
         clientId: props.clientId,
         commissionAmount: props.commissionAmount,
@@ -42,13 +42,13 @@ export class ClosedDealEntity extends AggregateRoot<IClosedDealProps> {
     this.props.updatedAt = new Date();
   }
 
-  public get listingId(): string {
-    return this.props.listingId;
+  public get propertyId(): string {
+    return this.props.propertyId;
   }
   public get agentId(): string {
     return this.props.agentId;
   }
-  public get clientId(): string {
+  public get clientId(): string | null | undefined {
     return this.props.clientId;
   }
   public get commissionAmount(): number {

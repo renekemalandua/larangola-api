@@ -1,7 +1,21 @@
 import { AggregateRoot, IdValueObject, Optional } from '../shared';
 
+export enum ListingType {
+  rent = 'rent',
+  buy = 'buy',
+}
+
+export enum PropertyStatus {
+  draft = 'draft',
+  pending_approval = 'pending_approval',
+  published = 'published',
+  rejected = 'rejected',
+  finished = 'finished',
+  canceled = 'canceled',
+}
+
 interface IPropertyProps {
-  ownerId: string;
+  agentId: string;
   categoryId: string;
   title: string;
   description: string | null;
@@ -17,8 +31,29 @@ interface IPropertyProps {
   propertyType: string;
   amenities: unknown | null;
   images: unknown | null;
+  rules: unknown | null;
+
+  // Merged Listing Fields
+  listingType: ListingType | null;
+  price: number | null;
+  currency: string;
+  status: PropertyStatus;
+  statusUpdatedAt: Date | null;
+
+  // Approval Fields
+  submittedForApprovalAt: Date | null;
+  rejectionReason: string | null;
+  reviewedBy: string | null;
+  reviewedAt: Date | null;
+  // Highlight Fields
+  isHighlighted: boolean;
+  highlightedUntil: Date | null;
+
   createdAt: Date;
   updatedAt: Date;
+
+  // Virtual/Computed Fields
+  interactionCount: number | null;
 }
 
 export class PropertyEntity extends AggregateRoot<IPropertyProps> {
@@ -37,14 +72,27 @@ export class PropertyEntity extends AggregateRoot<IPropertyProps> {
       | 'area'
       | 'amenities'
       | 'images'
+      | 'rules'
+      | 'listingType'
+      | 'price'
+      | 'currency'
+      | 'status'
+      | 'submittedForApprovalAt'
+      | 'rejectionReason'
+      | 'reviewedBy'
+      | 'reviewedAt'
+      | 'isHighlighted'
+      | 'highlightedUntil'
       | 'createdAt'
       | 'updatedAt'
+      | 'statusUpdatedAt'
+      | 'interactionCount'
     >,
     id?: IdValueObject
   ) {
     return new PropertyEntity(
       {
-        ownerId: props.ownerId,
+        agentId: props.agentId,
         categoryId: props.categoryId,
         title: props.title,
         description: props.description ?? null,
@@ -60,8 +108,25 @@ export class PropertyEntity extends AggregateRoot<IPropertyProps> {
         propertyType: props.propertyType,
         amenities: props.amenities ?? null,
         images: props.images ?? null,
+        rules: props.rules ?? null,
+
+        listingType: props.listingType ?? null,
+        price: props.price ?? null,
+        currency: props.currency ?? 'AOA',
+        status: props.status ?? PropertyStatus.draft,
+        statusUpdatedAt: props.statusUpdatedAt ?? null,
+
+        submittedForApprovalAt: props.submittedForApprovalAt ?? null,
+        rejectionReason: props.rejectionReason ?? null,
+        reviewedBy: props.reviewedBy ?? null,
+        reviewedAt: props.reviewedAt ?? null,
+
+        isHighlighted: props.isHighlighted ?? false,
+        highlightedUntil: props.highlightedUntil ?? null,
+
         createdAt: props.createdAt ?? new Date(),
         updatedAt: props.updatedAt ?? new Date(),
+        interactionCount: props.interactionCount ?? null,
       },
       id
     );
@@ -71,8 +136,8 @@ export class PropertyEntity extends AggregateRoot<IPropertyProps> {
     this.props.updatedAt = new Date();
   }
 
-  public get ownerId(): string {
-    return this.props.ownerId;
+  public get agentId(): string {
+    return this.props.agentId;
   }
   public get categoryId(): string {
     return this.props.categoryId;
@@ -175,10 +240,104 @@ export class PropertyEntity extends AggregateRoot<IPropertyProps> {
     this.props.images = v;
     this.touch();
   }
+  public get rules(): unknown | null {
+    return this.props.rules;
+  }
+  public set rules(v: unknown | null) {
+    this.props.rules = v;
+    this.touch();
+  }
   public get createdAt(): Date {
     return this.props.createdAt;
   }
   public get updatedAt(): Date {
     return this.props.updatedAt;
+  }
+
+  // Listing Getters/Setters
+  public get listingType(): ListingType | null {
+    return this.props.listingType;
+  }
+  public set listingType(v: ListingType | null) {
+    this.props.listingType = v;
+    this.touch();
+  }
+  public get price(): number | null {
+    return this.props.price;
+  }
+  public set price(v: number | null) {
+    this.props.price = v;
+    this.touch();
+  }
+  public get currency(): string {
+    return this.props.currency;
+  }
+  public set currency(v: string) {
+    this.props.currency = v;
+    this.touch();
+  }
+  public get status(): PropertyStatus {
+    return this.props.status;
+  }
+  public set status(v: PropertyStatus) {
+    this.props.status = v;
+    this.touch();
+  }
+  public get statusUpdatedAt(): Date | null {
+    return this.props.statusUpdatedAt;
+  }
+  public set statusUpdatedAt(v: Date | null) {
+    this.props.statusUpdatedAt = v;
+    this.touch();
+  }
+
+  // Approval Getters/Setters
+  public get submittedForApprovalAt(): Date | null {
+    return this.props.submittedForApprovalAt;
+  }
+  public set submittedForApprovalAt(v: Date | null) {
+    this.props.submittedForApprovalAt = v;
+    this.touch();
+  }
+  public get rejectionReason(): string | null {
+    return this.props.rejectionReason;
+  }
+  public set rejectionReason(v: string | null) {
+    this.props.rejectionReason = v;
+    this.touch();
+  }
+  public get reviewedBy(): string | null {
+    return this.props.reviewedBy;
+  }
+  public set reviewedBy(v: string | null) {
+    this.props.reviewedBy = v;
+    this.touch();
+  }
+  public get reviewedAt(): Date | null {
+    return this.props.reviewedAt;
+  }
+  public set reviewedAt(v: Date | null) {
+    this.props.reviewedAt = v;
+    this.touch();
+  }
+
+  // Highlight Getters/Setters
+  public get isHighlighted(): boolean {
+    return this.props.isHighlighted;
+  }
+  public set isHighlighted(v: boolean) {
+    this.props.isHighlighted = v;
+    this.touch();
+  }
+  public get highlightedUntil(): Date | null {
+    return this.props.highlightedUntil;
+  }
+  public set highlightedUntil(v: Date | null) {
+    this.props.highlightedUntil = v;
+    this.touch();
+  }
+
+  public get interactionCount(): number | null {
+    return this.props.interactionCount;
   }
 }

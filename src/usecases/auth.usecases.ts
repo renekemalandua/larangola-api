@@ -7,6 +7,7 @@ import { IJwtService, ICryptoService, UseCase, GLOBAL_CONFIG } from '../shared';
 import { AuthLoginDTO, AuthRegisterDTO } from '../dto/auth.dto';
 import { IUserRepository } from '../repositories/IUserRepository';
 import { UserEntity } from '../entities/user.entity';
+import { EmailService } from '../shared/providers/email';
 
 @Injectable()
 export class AuthLoginUseCase implements UseCase<
@@ -38,6 +39,8 @@ export class AuthLoginUseCase implements UseCase<
       email: user.email,
       phone: user.phone,
       isActive: user.isActive,
+      adminRole: user.adminRole,
+      role: user.adminRole !== 'NONE' ? 'ADMIN' : 'USER',
     };
 
     if (!GLOBAL_CONFIG.jwtAuthExp || !GLOBAL_CONFIG.jwtAuthSecret)
@@ -61,7 +64,8 @@ export class AuthRegisterUseCase implements UseCase<
   constructor(
     private readonly repository: IUserRepository,
     private readonly jwtService: IJwtService,
-    private readonly cryptoService: ICryptoService
+    private readonly cryptoService: ICryptoService,
+    private readonly emailService: EmailService
   ) {}
 
   async execute(request: AuthRegisterDTO) {
@@ -93,6 +97,8 @@ export class AuthRegisterUseCase implements UseCase<
       email: user.email,
       phone: user.phone,
       isActive: user.isActive,
+      adminRole: user.adminRole,
+      role: user.adminRole !== 'NONE' ? 'ADMIN' : 'USER',
     };
 
     if (!GLOBAL_CONFIG.jwtAuthExp || !GLOBAL_CONFIG.jwtAuthSecret)
@@ -104,6 +110,119 @@ export class AuthRegisterUseCase implements UseCase<
       exp: GLOBAL_CONFIG.jwtAuthExp,
     });
 
+    // Send client welcome email asynchronously ONLY if not registering directly as an agent
+    if (!request.isAgent) {
+      this.emailService.sendClientWelcome(user.email, user.name).catch(console.error);
+    }
+
     return { token, user };
+  }
+}
+
+@Injectable()
+export class AuthForgotPasswordUseCase implements UseCase<string, { message: string }> {
+  constructor(
+    private readonly repository: IUserRepository,
+    private readonly emailService: EmailService
+  ) {}
+
+  async execute(email: string) {
+    const user = await this.repository.findByEmail(email);
+    if (!user) {
+      // Return success even if user doesn't exist to prevent email enumeration
+      return { message: 'If an account exists, an email has been sent.' };
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+
+    user.resetOtpCode = otp;
+    user.resetOtpExpiresAt = expiresAt;
+    
+    await this.repository.update(user);
+
+    await this.emailService.sendPasswordResetOtp(user.email, user.name, otp);
+
+    return { message: 'If an account exists, an email has been sent.' };
+  }
+}
+
+@Injectable()
+export class AuthVerifyOtpUseCase implements UseCase<{ email: string; otp: string }, { valid: boolean }> {
+  constructor(private readonly repository: IUserRepository) {}
+
+  async execute(request: { email: string; otp: string }) {
+    const user = await this.repository.findByEmail(request.email);
+    if (!user) throw new BadRequestException('Invalid OTP or Email');
+
+    if (user.resetOtpCode !== request.otp || !user.resetOtpExpiresAt) {
+      throw new BadRequestException('Invalid OTP');
+    }
+
+    if (user.resetOtpExpiresAt < new Date()) {
+      throw new BadRequestException('OTP has expired');
+    }
+
+    return { valid: true };
+  }
+}
+
+@Injectable()
+export class AuthResetPasswordUseCase implements UseCase<any, { message: string }> {
+  constructor(
+    private readonly repository: IUserRepository,
+    private readonly cryptoService: ICryptoService
+  ) {}
+
+  async execute(request: any) {
+    const user = await this.repository.findByEmail(request.email);
+    if (!user) throw new BadRequestException('Invalid OTP or Email');
+
+    if (user.resetOtpCode !== request.otp || !user.resetOtpExpiresAt) {
+      throw new BadRequestException('Invalid OTP');
+    }
+
+    if (user.resetOtpExpiresAt < new Date()) {
+      throw new BadRequestException('OTP has expired');
+    }
+
+    const hashedPassword = await this.cryptoService.hash(request.newPassword);
+    
+    user.password = hashedPassword;
+    user.resetOtpCode = null;
+    user.resetOtpExpiresAt = null;
+
+    await this.repository.update(user);
+
+    return { message: 'Password reset successfully' };
+  }
+}
+
+@Injectable()
+export class AuthChangePasswordUseCase implements UseCase<{ userId: string; currentPassword: string; newPassword: string }, { message: string }> {
+  constructor(
+    private readonly repository: IUserRepository,
+    private readonly cryptoService: ICryptoService
+  ) {}
+
+  async execute(request: { userId: string; currentPassword: string; newPassword: string }) {
+    const user = await this.repository.findById(request.userId);
+    if (!user) throw new BadRequestException('User not found');
+
+    const matchPassword = await this.cryptoService.compare(
+      user.password,
+      request.currentPassword
+    );
+
+    if (!matchPassword) {
+      throw new UnauthorizedException('Current password does not match');
+    }
+
+    const hashedPassword = await this.cryptoService.hash(request.newPassword);
+    
+    user.password = hashedPassword;
+    await this.repository.update(user);
+
+    return { message: 'Password changed successfully' };
   }
 }

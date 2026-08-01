@@ -5,3 +5,4 @@ export * from './dto';
 export * from './providers';
 export * from './services';
 export * from './configs';
+export * from './guards/jwt-auth.guard';

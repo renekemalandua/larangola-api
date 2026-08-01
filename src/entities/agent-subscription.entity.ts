@@ -12,6 +12,7 @@ interface IAgentSubscriptionProps {
   status: SubscriptionStatus;
   startDate: Date;
   endDate: Date | null;
+  highlightsUsed: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -20,7 +21,7 @@ export class AgentSubscriptionEntity extends AggregateRoot<IAgentSubscriptionPro
   static create(
     props: Optional<
       IAgentSubscriptionProps,
-      'status' | 'endDate' | 'createdAt' | 'updatedAt'
+      'status' | 'endDate' | 'highlightsUsed' | 'createdAt' | 'updatedAt'
     >,
     id?: IdValueObject
   ) {
@@ -31,6 +32,7 @@ export class AgentSubscriptionEntity extends AggregateRoot<IAgentSubscriptionPro
         status: props.status ?? SubscriptionStatus.active,
         startDate: props.startDate,
         endDate: props.endDate ?? null,
+        highlightsUsed: props.highlightsUsed ?? 0,
         createdAt: props.createdAt ?? new Date(),
         updatedAt: props.updatedAt ?? new Date(),
       },
@@ -67,6 +69,13 @@ export class AgentSubscriptionEntity extends AggregateRoot<IAgentSubscriptionPro
   }
   public set endDate(v: Date | null) {
     this.props.endDate = v;
+    this.touch();
+  }
+  public get highlightsUsed(): number {
+    return this.props.highlightsUsed;
+  }
+  public set highlightsUsed(v: number) {
+    this.props.highlightsUsed = v;
     this.touch();
   }
   public get createdAt(): Date {

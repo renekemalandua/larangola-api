@@ -29,7 +29,8 @@ import {
   FindUserByIdUseCase,
   FindUserByEmailUseCase,
 } from '../usecases/user.usecases';
-import { CreateUserRequestDTO, UpdateUserRequestDTO } from '../dto/user.dto';
+import { AssignAgentSubscriptionUseCase } from '../usecases/agent-subscription.usecases';
+import { CreateUserRequestDTO, UpdateUserRequestDTO, AssignPlanRequestDTO } from '../dto/user.dto';
 import { UserAdapter } from '../adapters/user.adapter';
 
 @ApiTags('Users')
@@ -42,6 +43,7 @@ export class UserController {
     private readonly listUseCase: ListUsersUseCase,
     private readonly findByIdUseCase: FindUserByIdUseCase,
     private readonly findByEmailUseCase: FindUserByEmailUseCase,
+    private readonly assignSubscriptionUseCase: AssignAgentSubscriptionUseCase,
     private readonly uploadService: UploadService
   ) {}
 
@@ -144,6 +146,24 @@ export class UserController {
       return response
         .status(200)
         .json({ status: true, data: { message: 'User deleted successfully' } });
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  @Post(':id/assign-plan')
+  @ApiOperation({ summary: 'Assign a subscription plan to an agent' })
+  @ApiParam({ name: 'id' })
+  @ApiResponse({ status: 201 })
+  @ApiResponse({ status: 400, type: HttpErrorResponseDTO })
+  async assignPlan(
+    @Param('id') userId: string,
+    @Body() body: AssignPlanRequestDTO,
+    @Res() response
+  ) {
+    try {
+      const entity = await this.assignSubscriptionUseCase.execute({ ...body, userId });
+      return response.status(201).json({ status: true, data: entity });
     } catch (error) {
       throw new BadRequestException(error.message);
     }

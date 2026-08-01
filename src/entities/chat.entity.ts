@@ -10,6 +10,8 @@ interface IChatProps {
   isBlocked: boolean;
   createdAt: Date;
   updatedAt: Date;
+  user1?: any; // Avoiding strict type dependency circularity for simplicity in this layer
+  user2?: any;
 }
 
 export class ChatEntity extends AggregateRoot<IChatProps> {
@@ -23,6 +25,8 @@ export class ChatEntity extends AggregateRoot<IChatProps> {
       | 'isBlocked'
       | 'createdAt'
       | 'updatedAt'
+      | 'user1'
+      | 'user2'
     >,
     id?: IdValueObject
   ) {
@@ -37,6 +41,8 @@ export class ChatEntity extends AggregateRoot<IChatProps> {
         isBlocked: props.isBlocked ?? false,
         createdAt: props.createdAt ?? new Date(),
         updatedAt: props.updatedAt ?? new Date(),
+        user1: props.user1,
+        user2: props.user2,
       },
       id
     );
@@ -51,6 +57,12 @@ export class ChatEntity extends AggregateRoot<IChatProps> {
   }
   public get user2Id(): string {
     return this.props.user2Id;
+  }
+  public get user1(): any {
+    return this.props.user1;
+  }
+  public get user2(): any {
+    return this.props.user2;
   }
   public get lastMessage(): string | null {
     return this.props.lastMessage;

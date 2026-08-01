@@ -16,6 +16,7 @@ export class PrismaMessageRepository implements IMessageRepository {
 
   async list(): Promise<MessageEntity[]> {
     const rows = await this.prisma.message.findMany({
+      include: { property: true },
       orderBy: { createdAt: 'desc' },
     });
     return rows.map(MessageAdapter.toDomain);
@@ -24,6 +25,7 @@ export class PrismaMessageRepository implements IMessageRepository {
   async listByChat(chatId: string): Promise<MessageEntity[]> {
     const rows = await this.prisma.message.findMany({
       where: { chatId },
+      include: { property: true },
       orderBy: { createdAt: 'asc' },
     });
     return rows.map(MessageAdapter.toDomain);

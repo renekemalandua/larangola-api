@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsString, MinLength, IsOptional, IsBoolean } from 'class-validator';
 
 export class AuthLoginDTO {
   @ApiProperty({
@@ -53,4 +53,90 @@ export class AuthRegisterDTO {
   })
   @IsString()
   name: string;
+
+  @ApiProperty({
+    required: false,
+    description: 'Indicates if the user is registering directly as an agent',
+    example: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  isAgent?: boolean;
+}
+
+export class ForgotPasswordDTO {
+  @ApiProperty({
+    required: true,
+    description: 'User email',
+    example: 'user@example.com',
+  })
+  @IsEmail()
+  email: string;
+}
+
+export class VerifyOtpDTO {
+  @ApiProperty({
+    required: true,
+    description: 'User email',
+    example: 'user@example.com',
+  })
+  @IsEmail()
+  email: string;
+
+  @ApiProperty({
+    required: true,
+    description: '6-digit OTP code',
+    example: '123456',
+  })
+  @IsString()
+  @MinLength(6)
+  otp: string;
+}
+
+export class ResetPasswordDTO {
+  @ApiProperty({
+    required: true,
+    description: 'User email',
+    example: 'user@example.com',
+  })
+  @IsEmail()
+  email: string;
+
+  @ApiProperty({
+    required: true,
+    description: '6-digit OTP code',
+    example: '123456',
+  })
+  @IsString()
+  @MinLength(6)
+  otp: string;
+
+  @ApiProperty({
+    required: true,
+    description: 'New user password',
+    example: 'newpassword123',
+  })
+  @IsString()
+  @MinLength(6)
+  newPassword: string;
+}
+
+export class ChangePasswordDTO {
+  @ApiProperty({
+    required: true,
+    description: 'Current user password',
+    example: 'password123',
+  })
+  @IsString()
+  @MinLength(6)
+  currentPassword: string;
+
+  @ApiProperty({
+    required: true,
+    description: 'New user password',
+    example: 'newpassword123',
+  })
+  @IsString()
+  @MinLength(6)
+  newPassword: string;
 }

@@ -8,12 +8,14 @@ export enum VisitStatus {
 }
 
 interface IScheduledVisitProps {
-  listingId: string;
+  propertyId: string;
   userId: string;
   scheduledDate: Date;
   scheduledTime: string;
   status: VisitStatus;
   notes: string | null;
+  clientArrivedAt: Date | null;
+  agentArrivedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -22,18 +24,20 @@ export class ScheduledVisitEntity extends AggregateRoot<IScheduledVisitProps> {
   static create(
     props: Optional<
       IScheduledVisitProps,
-      'notes' | 'status' | 'createdAt' | 'updatedAt'
+      'notes' | 'status' | 'createdAt' | 'updatedAt' | 'clientArrivedAt' | 'agentArrivedAt'
     >,
     id?: IdValueObject
   ) {
     return new ScheduledVisitEntity(
       {
-        listingId: props.listingId,
+        propertyId: props.propertyId,
         userId: props.userId,
         scheduledDate: props.scheduledDate,
         scheduledTime: props.scheduledTime,
         status: props.status ?? VisitStatus.pending,
         notes: props.notes ?? null,
+        clientArrivedAt: props.clientArrivedAt ?? null,
+        agentArrivedAt: props.agentArrivedAt ?? null,
         createdAt: props.createdAt ?? new Date(),
         updatedAt: props.updatedAt ?? new Date(),
       },
@@ -45,8 +49,8 @@ export class ScheduledVisitEntity extends AggregateRoot<IScheduledVisitProps> {
     this.props.updatedAt = new Date();
   }
 
-  public get listingId(): string {
-    return this.props.listingId;
+  public get propertyId(): string {
+    return this.props.propertyId;
   }
   public get userId(): string {
     return this.props.userId;
@@ -77,6 +81,20 @@ export class ScheduledVisitEntity extends AggregateRoot<IScheduledVisitProps> {
   }
   public set notes(v: string | null) {
     this.props.notes = v;
+    this.touch();
+  }
+  public get clientArrivedAt(): Date | null {
+    return this.props.clientArrivedAt;
+  }
+  public set clientArrivedAt(v: Date | null) {
+    this.props.clientArrivedAt = v;
+    this.touch();
+  }
+  public get agentArrivedAt(): Date | null {
+    return this.props.agentArrivedAt;
+  }
+  public set agentArrivedAt(v: Date | null) {
+    this.props.agentArrivedAt = v;
     this.touch();
   }
   public get createdAt(): Date {

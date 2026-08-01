@@ -7,17 +7,20 @@ import {
   VisitStatus,
 } from '../entities/scheduled-visit.entity';
 import { IdValueObject } from '../shared';
+import { PropertyAdapter } from './property.adapter';
 
 export class ScheduledVisitAdapter {
   static toDomain(raw: ScheduledVisit): ScheduledVisitEntity {
     return ScheduledVisitEntity.create(
       {
-        listingId: raw.listingId,
+        propertyId: raw.propertyId,
         userId: raw.userId,
         scheduledDate: raw.scheduledDate,
         scheduledTime: raw.scheduledTime,
         status: raw.status as VisitStatus,
         notes: raw.notes ?? null,
+        clientArrivedAt: raw.clientArrivedAt ?? null,
+        agentArrivedAt: raw.agentArrivedAt ?? null,
         createdAt: raw.createdAt,
         updatedAt: raw.updatedAt,
       },
@@ -28,28 +31,37 @@ export class ScheduledVisitAdapter {
   static toPrisma(entity: ScheduledVisitEntity): ScheduledVisit {
     return {
       id: entity.id,
-      listingId: entity.listingId,
+      propertyId: entity.propertyId,
       userId: entity.userId,
       scheduledDate: entity.scheduledDate,
       scheduledTime: entity.scheduledTime,
       status: entity.status as VisitStatusPrisma,
       notes: entity.notes,
+      clientArrivedAt: entity.clientArrivedAt,
+      agentArrivedAt: entity.agentArrivedAt,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
     };
   }
 
-  static toHttp(entity: ScheduledVisitEntity): any {
+  static toHttp(entity: ScheduledVisitEntity, property?: any): any {
+    const propertyData = property
+      ? PropertyAdapter.toHttp(property, property.agent)
+      : null;
+
     return {
       id: entity.id,
-      listingId: entity.listingId,
+      propertyId: entity.propertyId,
       userId: entity.userId,
       scheduledDate: entity.scheduledDate,
       scheduledTime: entity.scheduledTime,
       status: entity.status,
       notes: entity.notes,
+      clientArrivedAt: entity.clientArrivedAt,
+      agentArrivedAt: entity.agentArrivedAt,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
+      property: propertyData,
     };
   }
 }

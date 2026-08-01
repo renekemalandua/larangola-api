@@ -1,9 +1,12 @@
 import { AggregateRoot, IdValueObject, Optional } from '../shared';
 
+import { ReviewRole } from '@prisma/client';
+
 interface IReviewProps {
-  listingId: string | null;
+  propertyId: string | null;
   fromUserId: string;
   toUserId: string;
+  role: ReviewRole;
   rating: number;
   comment: string | null;
   createdAt: Date;
@@ -14,15 +17,16 @@ export class ReviewEntity extends AggregateRoot<IReviewProps> {
   static create(
     props: Optional<
       IReviewProps,
-      'listingId' | 'comment' | 'createdAt' | 'updatedAt'
+      'propertyId' | 'comment' | 'createdAt' | 'updatedAt'
     >,
     id?: IdValueObject
   ) {
     return new ReviewEntity(
       {
-        listingId: props.listingId ?? null,
+        propertyId: props.propertyId ?? null,
         fromUserId: props.fromUserId,
         toUserId: props.toUserId,
+        role: props.role,
         rating: props.rating,
         comment: props.comment ?? null,
         createdAt: props.createdAt ?? new Date(),
@@ -36,11 +40,11 @@ export class ReviewEntity extends AggregateRoot<IReviewProps> {
     this.props.updatedAt = new Date();
   }
 
-  public get listingId(): string | null {
-    return this.props.listingId;
+  public get propertyId(): string | null {
+    return this.props.propertyId;
   }
-  public set listingId(v: string | null) {
-    this.props.listingId = v;
+  public set propertyId(v: string | null) {
+    this.props.propertyId = v;
     this.touch();
   }
   public get fromUserId(): string {
@@ -48,6 +52,9 @@ export class ReviewEntity extends AggregateRoot<IReviewProps> {
   }
   public get toUserId(): string {
     return this.props.toUserId;
+  }
+  public get role(): ReviewRole {
+    return this.props.role;
   }
   public get rating(): number {
     return this.props.rating;

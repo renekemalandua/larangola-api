@@ -1,19 +1,32 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsInt, IsOptional, IsString, IsUUID, Min, Max } from 'class-validator';
+import {
+  IsEnum,
+  IsInt,
+  IsOptional,
+  IsString,
+  IsUUID,
+  Min,
+  Max,
+} from 'class-validator';
+import { ReviewRole } from '@prisma/client';
 
 export class CreateReviewRequestDTO {
-  @ApiPropertyOptional({ example: 'uuid-of-listing' })
+  @ApiPropertyOptional({ example: 'uuid-of-property' })
   @IsOptional()
-  @IsUUID()
-  listingId?: string;
+  @IsString()
+  propertyId?: string;
 
   @ApiProperty({ example: 'uuid-of-from-user' })
-  @IsUUID()
+  @IsString()
   fromUserId: string;
 
   @ApiProperty({ example: 'uuid-of-to-user' })
-  @IsUUID()
+  @IsString()
   toUserId: string;
+
+  @ApiProperty({ enum: ReviewRole, example: ReviewRole.AGENT })
+  @IsEnum(ReviewRole)
+  role: ReviewRole;
 
   @ApiProperty({ example: 5, minimum: 1, maximum: 5 })
   @IsInt()

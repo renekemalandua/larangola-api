@@ -3,6 +3,8 @@ import { UseCase } from '../shared';
 import { MessageEntity } from '../entities/message.entity';
 import { IMessageRepository } from '../repositories/IMessageRepository';
 import { IChatRepository } from '../repositories/IChatRepository';
+import { CreateNotificationUseCase } from './notification.usecases';
+import { NotificationType } from '@prisma/client';
 import {
   CreateMessageRequestDTO,
   UpdateMessageRequestDTO,
@@ -15,7 +17,8 @@ export class CreateMessageUseCase implements UseCase<
 > {
   constructor(
     private readonly repository: IMessageRepository,
-    private readonly chatRepository: IChatRepository
+    private readonly chatRepository: IChatRepository,
+    private readonly createNotificationUseCase: CreateNotificationUseCase
   ) {}
   async execute(request: CreateMessageRequestDTO): Promise<MessageEntity> {
     const chat = await this.chatRepository.findById(request.chatId);
@@ -32,15 +35,26 @@ export class CreateMessageUseCase implements UseCase<
     const entity = MessageEntity.create(request);
     const created = await this.repository.create(entity);
 
-    // Update chat last message
     chat.lastMessage = request.text;
     chat.lastMessageTime = new Date();
+    
+    const receiverId = chat.user1Id === request.senderId ? chat.user2Id : chat.user1Id;
+    
     if (chat.user1Id === request.senderId) {
       chat.unreadCountUser2 += 1;
     } else {
       chat.unreadCountUser1 += 1;
     }
     await this.chatRepository.update(chat);
+
+    // Notify the receiver
+    await this.createNotificationUseCase.execute({
+      userId: receiverId,
+      type: NotificationType.NEW_MESSAGE,
+      title: 'Nova Mensagem',
+      message: `Recebeu uma nova mensagem no chat.`,
+      link: '/chat'
+    });
 
     return created;
   }

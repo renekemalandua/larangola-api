@@ -8,17 +8,21 @@ import {
   Post,
   Put,
   Res,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiParam, ApiResponse, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { HttpErrorResponseDTO } from '../shared';
+import { JwtAuthGuard } from '../shared/guards/jwt-auth.guard';
 import {
   CreateScheduledVisitUseCase,
   UpdateScheduledVisitUseCase,
   DeleteScheduledVisitUseCase,
   ListScheduledVisitsUseCase,
-  ListScheduledVisitsByListingUseCase,
+  ListScheduledVisitsByPropertyUseCase,
   ListScheduledVisitsByUserUseCase,
   FindScheduledVisitByIdUseCase,
+  CheckInVisitUseCase,
 } from '../usecases/scheduled-visit.usecases';
 import {
   CreateScheduledVisitRequestDTO,
@@ -34,9 +38,10 @@ export class ScheduledVisitController {
     private readonly updateUseCase: UpdateScheduledVisitUseCase,
     private readonly deleteUseCase: DeleteScheduledVisitUseCase,
     private readonly listUseCase: ListScheduledVisitsUseCase,
-    private readonly listByListingUseCase: ListScheduledVisitsByListingUseCase,
+    private readonly listByPropertyUseCase: ListScheduledVisitsByPropertyUseCase,
     private readonly listByUserUseCase: ListScheduledVisitsByUserUseCase,
-    private readonly findByIdUseCase: FindScheduledVisitByIdUseCase
+    private readonly findByIdUseCase: FindScheduledVisitByIdUseCase,
+    private readonly checkInUseCase: CheckInVisitUseCase
   ) {}
 
   @Post('create')
@@ -46,7 +51,10 @@ export class ScheduledVisitController {
   async create(@Body() body: CreateScheduledVisitRequestDTO, @Res() response) {
     try {
       const entity = await this.createUseCase.execute(body);
-      const data = ScheduledVisitAdapter.toHttp(entity);
+      const data = ScheduledVisitAdapter.toHttp(
+        entity,
+        (entity as any).property
+      );
       return response.status(201).json({ status: true, data });
     } catch (error) {
       throw new BadRequestException(error.message);
@@ -60,7 +68,9 @@ export class ScheduledVisitController {
   async list(@Res() response) {
     try {
       const entities = await this.listUseCase.execute();
-      const data = entities.map((e) => ScheduledVisitAdapter.toHttp(e));
+      const data = entities.map((e) =>
+        ScheduledVisitAdapter.toHttp(e, (e as any).property)
+      );
       return response.status(200).json({ status: true, data });
     } catch (error) {
       throw new BadRequestException(error.message);
@@ -75,22 +85,30 @@ export class ScheduledVisitController {
   async findById(@Param('id') id: string, @Res() response) {
     try {
       const entity = await this.findByIdUseCase.execute(id);
-      const data = ScheduledVisitAdapter.toHttp(entity!);
+      const data = ScheduledVisitAdapter.toHttp(
+        entity!,
+        (entity as any).property
+      );
       return response.status(200).json({ status: true, data });
     } catch (error) {
       throw new BadRequestException(error.message);
     }
   }
 
-  @Get('listing/:listingId')
-  @ApiOperation({ summary: 'List Scheduled Visits by Listing' })
-  @ApiParam({ name: 'listingId' })
+  @Get('property/:propertyId')
+  @ApiOperation({ summary: 'List Scheduled Visits by Property' })
+  @ApiParam({ name: 'propertyId' })
   @ApiResponse({ status: 200 })
   @ApiResponse({ status: 400, type: HttpErrorResponseDTO })
-  async listByListing(@Param('listingId') listingId: string, @Res() response) {
+  async listByProperty(
+    @Param('propertyId') propertyId: string,
+    @Res() response
+  ) {
     try {
-      const entities = await this.listByListingUseCase.execute(listingId);
-      const data = entities.map((e) => ScheduledVisitAdapter.toHttp(e));
+      const entities = await this.listByPropertyUseCase.execute(propertyId);
+      const data = entities.map((e) =>
+        ScheduledVisitAdapter.toHttp(e, (e as any).property)
+      );
       return response.status(200).json({ status: true, data });
     } catch (error) {
       throw new BadRequestException(error.message);
@@ -105,7 +123,9 @@ export class ScheduledVisitController {
   async listByUser(@Param('userId') userId: string, @Res() response) {
     try {
       const entities = await this.listByUserUseCase.execute(userId);
-      const data = entities.map((e) => ScheduledVisitAdapter.toHttp(e));
+      const data = entities.map((e) =>
+        ScheduledVisitAdapter.toHttp(e, (e as any).property)
+      );
       return response.status(200).json({ status: true, data });
     } catch (error) {
       throw new BadRequestException(error.message);
@@ -124,7 +144,10 @@ export class ScheduledVisitController {
   ) {
     try {
       const entity = await this.updateUseCase.execute({ id, data: body });
-      const data = ScheduledVisitAdapter.toHttp(entity);
+      const data = ScheduledVisitAdapter.toHttp(
+        entity,
+        (entity as any).property
+      );
       return response.status(200).json({ status: true, data });
     } catch (error) {
       throw new BadRequestException(error.message);
@@ -143,6 +166,26 @@ export class ScheduledVisitController {
         status: true,
         data: { message: 'Scheduled visit deleted successfully' },
       });
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  @Post(':id/check-in')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Check in at the property for a visit' })
+  @ApiParam({ name: 'id' })
+  @ApiResponse({ status: 200 })
+  @ApiResponse({ status: 400, type: HttpErrorResponseDTO })
+  async checkIn(@Param('id') id: string, @Req() request: any, @Res() response) {
+    try {
+      const entity = await this.checkInUseCase.execute({ id, userId: request.user.id });
+      const data = ScheduledVisitAdapter.toHttp(
+        entity,
+        (entity as any).property
+      );
+      return response.status(200).json({ status: true, data });
     } catch (error) {
       throw new BadRequestException(error.message);
     }

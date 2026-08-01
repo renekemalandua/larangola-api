@@ -37,9 +37,9 @@ export class PrismaClosedDealRepository implements IClosedDealRepository {
     return rows.map(ClosedDealAdapter.toDomain);
   }
 
-  async listByListing(listingId: string): Promise<ClosedDealEntity[]> {
+  async listByProperty(propertyId: string): Promise<ClosedDealEntity[]> {
     const rows = await this.prisma.closedDeal.findMany({
-      where: { listingId },
+      where: { propertyId },
       orderBy: { updatedAt: 'desc' },
     });
     return rows.map(ClosedDealAdapter.toDomain);

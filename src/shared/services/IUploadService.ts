@@ -7,4 +7,8 @@ export abstract class IUploadService {
     file: Express.Multer.File,
     folder: string
   ): Promise<string>;
+  abstract uploadVideo(
+    file: Express.Multer.File,
+    folder: string
+  ): Promise<string>;
 }

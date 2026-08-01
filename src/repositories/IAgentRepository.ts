@@ -7,4 +7,6 @@ export abstract class IAgentRepository {
   abstract findByUserId(userId: string): Promise<AgentEntity | null>;
   abstract update(data: AgentEntity): Promise<AgentEntity>;
   abstract delete(id: string): Promise<void>;
+  abstract count(): Promise<number>;
+  abstract listPending(): Promise<AgentEntity[]>;
 }

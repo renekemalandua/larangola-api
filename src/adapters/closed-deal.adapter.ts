@@ -12,7 +12,7 @@ export class ClosedDealAdapter {
   static toDomain(raw: ClosedDeal): ClosedDealEntity {
     return ClosedDealEntity.create(
       {
-        listingId: raw.listingId,
+        propertyId: raw.propertyId,
         agentId: raw.agentId,
         clientId: raw.clientId,
         commissionAmount: raw.commissionAmount,
@@ -29,9 +29,9 @@ export class ClosedDealAdapter {
   static toPrisma(entity: ClosedDealEntity): ClosedDeal {
     return {
       id: entity.id,
-      listingId: entity.listingId,
+      propertyId: entity.propertyId,
       agentId: entity.agentId,
-      clientId: entity.clientId,
+      clientId: entity.clientId ?? null,
       commissionAmount: entity.commissionAmount,
       commissionRate: entity.commissionRate,
       status: entity.status as ClosedDealStatusPrisma,
@@ -44,7 +44,7 @@ export class ClosedDealAdapter {
   static toHttp(entity: ClosedDealEntity): any {
     return {
       id: entity.id,
-      listingId: entity.listingId,
+      propertyId: entity.propertyId,
       agentId: entity.agentId,
       clientId: entity.clientId,
       commissionAmount: entity.commissionAmount,

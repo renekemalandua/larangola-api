@@ -1,4 +1,4 @@
-import {
+import { Query,
   BadRequestException,
   Body,
   Controller,
@@ -19,8 +19,10 @@ import {
   FindAgentByIdUseCase,
   FindAgentByUserIdUseCase,
 } from '../usecases/agent.usecases';
+import { GetAgentDashboardStatsUseCase } from '../usecases/agent-dashboard-stats.usecases';
 import { CreateAgentRequestDTO, UpdateAgentRequestDTO } from '../dto/agent.dto';
 import { AgentAdapter } from '../adapters/agent.adapter';
+import { IReviewRepository } from '../repositories/IReviewRepository';
 
 @ApiTags('Agents')
 @Controller('agents')
@@ -31,7 +33,9 @@ export class AgentController {
     private readonly deleteUseCase: DeleteAgentUseCase,
     private readonly listUseCase: ListAgentsUseCase,
     private readonly findByIdUseCase: FindAgentByIdUseCase,
-    private readonly findByUserIdUseCase: FindAgentByUserIdUseCase
+    private readonly findByUserIdUseCase: FindAgentByUserIdUseCase,
+    private readonly getDashboardStatsUseCase: GetAgentDashboardStatsUseCase,
+    private readonly reviewRepository: IReviewRepository
   ) {}
 
   @Post('create')
@@ -49,12 +53,31 @@ export class AgentController {
   }
 
   @Get('list')
-  @ApiOperation({ summary: 'List all Agents' })
+  @ApiOperation({ summary: 'List all Agents (optionally filter by isVerified)' })
   @ApiResponse({ status: 200 })
   @ApiResponse({ status: 400, type: HttpErrorResponseDTO })
-  async list(@Res() response) {
+  async list(@Query('isVerified') isVerified: string | undefined, @Res() response) {
     try {
-      const entities = await this.listUseCase.execute();
+      let entities = await this.listUseCase.execute();
+      
+      // Filter by isVerified if provided
+      if (isVerified !== undefined) {
+        const verified = isVerified === 'true';
+        entities = entities.filter((e) => e.isVerified === verified);
+      }
+
+      // Hide Basic/Gratuito agents from the public directory
+      // Only agents with paid plans (Pro, Premium, Enterprise) have public profiles
+      entities = entities.filter((e) => {
+        const planName = e.activePlan?.name?.toLowerCase() || 'gratuito';
+        return (
+          planName.includes('pro') ||
+          planName.includes('premium') ||
+          planName.includes('enterprise') ||
+          planName.includes('profissional')
+        );
+      });
+      
       const data = entities.map((e) => AgentAdapter.toHttp(e));
       return response.status(200).json({ status: true, data });
     } catch (error) {
@@ -70,6 +93,11 @@ export class AgentController {
   async findById(@Param('id') id: string, @Res() response) {
     try {
       const entity = await this.findByIdUseCase.execute(id);
+      const reviewCount = await this.reviewRepository.countByUserIdAndRole(
+        entity!.userId,
+        'AGENT'
+      );
+      (entity as any).reviewCount = reviewCount;
       const data = AgentAdapter.toHttp(entity!);
       return response.status(200).json({ status: true, data });
     } catch (error) {
@@ -85,7 +113,26 @@ export class AgentController {
   async findByUserId(@Param('userId') userId: string, @Res() response) {
     try {
       const entity = await this.findByUserIdUseCase.execute(userId);
+      const reviewCount = await this.reviewRepository.countByUserIdAndRole(
+        userId,
+        'AGENT'
+      );
+      (entity as any).reviewCount = reviewCount;
       const data = AgentAdapter.toHttp(entity!);
+      return response.status(200).json({ status: true, data });
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  @Get(':id/dashboard-stats')
+  @ApiOperation({ summary: 'Get Agent Dashboard Stats (Tier-based)' })
+  @ApiParam({ name: 'id' })
+  @ApiResponse({ status: 200 })
+  @ApiResponse({ status: 400, type: HttpErrorResponseDTO })
+  async getDashboardStats(@Param('id') id: string, @Res() response) {
+    try {
+      const data = await this.getDashboardStatsUseCase.execute(id);
       return response.status(200).json({ status: true, data });
     } catch (error) {
       throw new BadRequestException(error.message);

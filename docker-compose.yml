@@ -26,11 +26,14 @@ services:
     container_name: larangola-api
     ports:
       - '8000:8000'
+      - '5555:5555'
     depends_on:
       db:
         condition: service_healthy
     env_file:
       - ./.env
+    volumes:
+      - ./prisma:/app/prisma
     networks:
       - larangolanet
 

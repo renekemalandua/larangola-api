@@ -21,9 +21,9 @@ export class PrismaPropertyInterestRepository implements IPropertyInterestReposi
     return rows.map(PropertyInterestAdapter.toDomain);
   }
 
-  async listByListing(listingId: string): Promise<PropertyInterestEntity[]> {
+  async listByProperty(propertyId: string): Promise<PropertyInterestEntity[]> {
     const rows = await this.prisma.propertyInterest.findMany({
-      where: { listingId },
+      where: { propertyId },
       orderBy: { updatedAt: 'desc' },
     });
     return rows.map(PropertyInterestAdapter.toDomain);
@@ -32,6 +32,38 @@ export class PrismaPropertyInterestRepository implements IPropertyInterestReposi
   async listByUser(userId: string): Promise<PropertyInterestEntity[]> {
     const rows = await this.prisma.propertyInterest.findMany({
       where: { userId },
+      include: {
+        property: {
+          include: {
+            agent: {
+              include: {
+                user: true,
+              },
+            },
+          },
+        },
+        user: true,
+      },
+      orderBy: { updatedAt: 'desc' },
+    });
+    return rows.map(PropertyInterestAdapter.toDomain);
+  }
+
+  async listByAgent(agentId: string): Promise<PropertyInterestEntity[]> {
+    const rows = await this.prisma.propertyInterest.findMany({
+      where: {
+        property: {
+          agentId: agentId,
+        },
+      },
+      include: {
+        property: true,
+        user: {
+          include: {
+            agent: true,
+          },
+        },
+      },
       orderBy: { updatedAt: 'desc' },
     });
     return rows.map(PropertyInterestAdapter.toDomain);

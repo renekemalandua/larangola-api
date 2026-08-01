@@ -8,15 +8,20 @@ interface IUserProps {
   name: string;
   avatar: string | null;
   isActive: boolean;
+  adminRole: 'NONE' | 'AUDITOR' | 'ADMIN';
+  agent?: any;
+  roommate?: any;
   createdAt: Date;
   updatedAt: Date;
+  resetOtpCode: string | null;
+  resetOtpExpiresAt: Date | null;
 }
 
 export class UserEntity extends AggregateRoot<IUserProps> {
   static create(
     props: Optional<
       IUserProps,
-      'avatar' | 'isActive' | 'createdAt' | 'updatedAt'
+      'avatar' | 'isActive' | 'adminRole' | 'createdAt' | 'updatedAt' | 'resetOtpCode' | 'resetOtpExpiresAt'
     >,
     id?: IdValueObject
   ) {
@@ -28,8 +33,13 @@ export class UserEntity extends AggregateRoot<IUserProps> {
         name: props.name,
         avatar: props.avatar ?? DEFAULT_USER_AVATAR,
         isActive: props.isActive ?? true,
+        adminRole: props.adminRole ?? 'NONE',
+        agent: props.agent,
+        roommate: props.roommate,
         createdAt: props.createdAt ?? new Date(),
         updatedAt: props.updatedAt ?? new Date(),
+        resetOtpCode: props.resetOtpCode ?? null,
+        resetOtpExpiresAt: props.resetOtpExpiresAt ?? null,
       },
       id
     );
@@ -74,6 +84,12 @@ export class UserEntity extends AggregateRoot<IUserProps> {
     this.props.avatar = v;
     this.touch();
   }
+  public get agent(): any | undefined {
+    return this.props.agent;
+  }
+  public get roommate(): any | undefined {
+    return this.props.roommate;
+  }
   public get isActive(): boolean {
     return this.props.isActive;
   }
@@ -81,10 +97,31 @@ export class UserEntity extends AggregateRoot<IUserProps> {
     this.props.isActive = v;
     this.touch();
   }
+  public get adminRole(): 'NONE' | 'AUDITOR' | 'ADMIN' {
+    return this.props.adminRole;
+  }
+  public set adminRole(v: 'NONE' | 'AUDITOR' | 'ADMIN') {
+    this.props.adminRole = v;
+    this.touch();
+  }
   public get createdAt(): Date {
     return this.props.createdAt;
   }
   public get updatedAt(): Date {
     return this.props.updatedAt;
+  }
+  public get resetOtpCode(): string | null {
+    return this.props.resetOtpCode;
+  }
+  public set resetOtpCode(v: string | null) {
+    this.props.resetOtpCode = v;
+    this.touch();
+  }
+  public get resetOtpExpiresAt(): Date | null {
+    return this.props.resetOtpExpiresAt;
+  }
+  public set resetOtpExpiresAt(v: Date | null) {
+    this.props.resetOtpExpiresAt = v;
+    this.touch();
   }
 }

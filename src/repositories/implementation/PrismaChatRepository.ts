@@ -10,12 +10,16 @@ export class PrismaChatRepository implements IChatRepository {
 
   async create(data: ChatEntity): Promise<ChatEntity> {
     const raw = ChatAdapter.toPrisma(data) as any;
-    const created = await this.prisma.chat.create({ data: raw });
+    const created = await this.prisma.chat.create({
+      data: raw,
+      include: { user1: true, user2: true },
+    });
     return ChatAdapter.toDomain(created);
   }
 
   async list(): Promise<ChatEntity[]> {
     const rows = await this.prisma.chat.findMany({
+      include: { user1: true, user2: true },
       orderBy: { updatedAt: 'desc' },
     });
     return rows.map(ChatAdapter.toDomain);
@@ -32,6 +36,7 @@ export class PrismaChatRepository implements IChatRepository {
           { user1Id: user2Id, user2Id: user1Id },
         ],
       },
+      include: { user1: true, user2: true },
     });
     return row ? ChatAdapter.toDomain(row) : null;
   }
@@ -41,13 +46,17 @@ export class PrismaChatRepository implements IChatRepository {
       where: {
         OR: [{ user1Id: userId }, { user2Id: userId }],
       },
+      include: { user1: true, user2: true },
       orderBy: { updatedAt: 'desc' },
     });
     return rows.map(ChatAdapter.toDomain);
   }
 
   async findById(id: string): Promise<ChatEntity | null> {
-    const row = await this.prisma.chat.findUnique({ where: { id } });
+    const row = await this.prisma.chat.findUnique({
+      where: { id },
+      include: { user1: true, user2: true },
+    });
     return row ? ChatAdapter.toDomain(row) : null;
   }
 

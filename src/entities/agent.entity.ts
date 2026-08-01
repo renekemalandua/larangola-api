@@ -12,6 +12,7 @@ interface IAgentProps {
   averageResponseTime: string | null;
   propertiesCount: number;
   averageRating: number;
+  activePlan?: any;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -30,6 +31,7 @@ export class AgentEntity extends AggregateRoot<IAgentProps> {
       | 'averageResponseTime'
       | 'propertiesCount'
       | 'averageRating'
+      | 'activePlan'
       | 'createdAt'
       | 'updatedAt'
     >,
@@ -48,6 +50,7 @@ export class AgentEntity extends AggregateRoot<IAgentProps> {
         averageResponseTime: props.averageResponseTime ?? null,
         propertiesCount: props.propertiesCount ?? 0,
         averageRating: props.averageRating ?? 0,
+        activePlan: props.activePlan,
         createdAt: props.createdAt ?? new Date(),
         updatedAt: props.updatedAt ?? new Date(),
       },
@@ -131,6 +134,12 @@ export class AgentEntity extends AggregateRoot<IAgentProps> {
   public set averageRating(v: number) {
     this.props.averageRating = v;
     this.touch();
+  }
+  public get activePlan(): any {
+    return this.props.activePlan;
+  }
+  public set activePlan(v: any) {
+    this.props.activePlan = v;
   }
   public get createdAt(): Date {
     return this.props.createdAt;

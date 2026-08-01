@@ -1,34 +1,85 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { UseCase } from '../shared';
-import { PropertyEntity } from '../entities/property.entity';
+import { PropertyEntity, PropertyStatus } from '../entities/property.entity';
 import { IPropertyRepository } from '../repositories/IPropertyRepository';
 import { IPropertyCategoryRepository } from '../repositories/IPropertyCategoryRepository';
 import {
-  CreatePropertyRequestDTO,
-  UpdatePropertyRequestDTO,
+  CreatePropertyDTO,
+  UpdatePropertyDTO,
 } from '../dto/property.dto';
+
+import { IAgentRepository } from '../repositories/IAgentRepository';
+import { PrismaService } from '../shared/db-conection/prisma.service';
 
 @Injectable()
 export class CreatePropertyUseCase implements UseCase<
-  CreatePropertyRequestDTO,
+  CreatePropertyDTO,
   PropertyEntity
 > {
   constructor(
     private readonly repository: IPropertyRepository,
-    private readonly categoryRepository: IPropertyCategoryRepository
+    private readonly categoryRepository: IPropertyCategoryRepository,
+    private readonly agentRepository: IAgentRepository
   ) {}
-  async execute(request: CreatePropertyRequestDTO): Promise<PropertyEntity> {
-    const category = await this.categoryRepository.findById(request.categoryId);
-    if (!category) throw new BadRequestException('Category does not exist');
+  async execute(request: CreatePropertyDTO): Promise<PropertyEntity> {
+    console.log(
+      '[CreatePropertyUseCase] Executing with request:',
+      JSON.stringify(request, null, 2)
+    );
 
+    console.log(
+      '[CreatePropertyUseCase] Checking categoryId:',
+      request.categoryId
+    );
+    const category = await this.categoryRepository.findById(request.categoryId);
+    if (!category) {
+      console.error(
+        '[CreatePropertyUseCase] Category not found:',
+        request.categoryId
+      );
+      throw new BadRequestException('Category does not exist');
+    }
+    console.log('[CreatePropertyUseCase] Category found:', category.name);
+
+    // Verify Agent exists
+    console.log('[CreatePropertyUseCase] Checking agentId:', request.agentId);
+    const agent = await this.agentRepository.findById(request.agentId);
+    if (!agent) {
+      console.error(
+        '[CreatePropertyUseCase] Agent not found:',
+        request.agentId
+      );
+      throw new BadRequestException('Agent not found');
+    }
+    console.log('[CreatePropertyUseCase] Agent found:', agent.id);
+    /* 
+    if (!agent) {
+      throw new BadRequestException('User is not an agent.');
+    }
+    if (!agent.isVerified) {
+      throw new BadRequestException(
+        'Only verified agents can post properties.'
+      );
+    }
+    */
+
+    console.log('[CreatePropertyUseCase] Creating entity...');
     const entity = PropertyEntity.create(request);
-    return this.repository.create(entity);
+
+    console.log('[CreatePropertyUseCase] Saving entity to repository...');
+    const result = await this.repository.create(entity);
+    console.log(
+      '[CreatePropertyUseCase] Property created successfully:',
+      result.id
+    );
+
+    return result;
   }
 }
 
 @Injectable()
 export class UpdatePropertyUseCase implements UseCase<
-  { id: string; data: UpdatePropertyRequestDTO },
+  { id: string; data: UpdatePropertyDTO; files?: Express.Multer.File[] },
   PropertyEntity
 > {
   constructor(
@@ -40,7 +91,7 @@ export class UpdatePropertyUseCase implements UseCase<
     data,
   }: {
     id: string;
-    data: UpdatePropertyRequestDTO;
+    data: UpdatePropertyDTO;
   }): Promise<PropertyEntity> {
     const entity = await this.repository.findById(id);
     if (!entity) throw new BadRequestException('Property not found');
@@ -65,6 +116,44 @@ export class UpdatePropertyUseCase implements UseCase<
       entity.propertyType = data.propertyType;
     if (data.amenities !== undefined) entity.amenities = data.amenities ?? null;
     if (data.images !== undefined) entity.images = data.images ?? null;
+    if (data.rules !== undefined) entity.rules = data.rules ?? null;
+    // Map new fields
+    if (data.listingType !== undefined)
+      entity.listingType = data.listingType ?? null;
+    if (data.price !== undefined) entity.price = data.price ?? null;
+    if (data.currency !== undefined) entity.currency = data.currency ?? 'AOA';
+
+    // Status Logic & Validation
+    if (data.status !== undefined) {
+      // If publishing, validate required fields
+      if (data.status === 'published' && entity.status !== 'published') {
+        const missingFields: string[] = [];
+        if (!entity.price && !data.price) missingFields.push('price');
+        if (!entity.listingType && !data.listingType)
+          missingFields.push('listingType');
+        if (!entity.propertyType) missingFields.push('propertyType');
+
+        // Check images
+        const imgs = (data.images as string[]) || (entity.images as string[]);
+        if (!imgs || imgs.length === 0) missingFields.push('images');
+
+        if (missingFields.length > 0) {
+          throw new BadRequestException(
+            `Cannot publish. Missing fields: ${missingFields.join(', ')}`
+          );
+        }
+      }
+      if (data.status !== entity.status) {
+        if (data.status === 'finished') {
+          entity.statusUpdatedAt = new Date();
+        } else if (entity.status === 'finished') {
+          // If moving away from finished, reset the timer
+          entity.statusUpdatedAt = null;
+        }
+      }
+      entity.status = data.status;
+    }
+
     return this.repository.update(entity);
   }
 }
@@ -83,18 +172,19 @@ export class DeletePropertyUseCase implements UseCase<string, void> {
 export class ListPropertiesUseCase implements UseCase<void, PropertyEntity[]> {
   constructor(private readonly repository: IPropertyRepository) {}
   async execute(): Promise<PropertyEntity[]> {
-    return this.repository.list();
+    // Lista apenas propriedades publicadas para o feed público
+    return this.repository.listPublished();
   }
 }
 
 @Injectable()
-export class ListPropertiesByOwnerUseCase implements UseCase<
+export class ListPropertiesByAgentUseCase implements UseCase<
   string,
   PropertyEntity[]
 > {
   constructor(private readonly repository: IPropertyRepository) {}
-  async execute(ownerId: string): Promise<PropertyEntity[]> {
-    return this.repository.listByOwner(ownerId);
+  async execute(agentId: string): Promise<PropertyEntity[]> {
+    return this.repository.listByAgent(agentId); // Assumes repo method handles agentId filter
   }
 }
 
@@ -119,5 +209,207 @@ export class FindPropertyByIdUseCase implements UseCase<
     const entity = await this.repository.findById(id);
     if (!entity) throw new BadRequestException('Property not found');
     return entity;
+  }
+}
+
+
+@Injectable()
+export class RequestPublicationUseCase implements UseCase<
+  { propertyId: string; userId: string },
+  PropertyEntity
+> {
+  constructor(
+    private readonly repository: IPropertyRepository,
+    private readonly agentRepository: IAgentRepository,
+    private readonly prisma: PrismaService
+  ) {}
+
+  async execute({
+    propertyId,
+    userId,
+  }: {
+    propertyId: string;
+    userId: string;
+  }): Promise<PropertyEntity> {
+    const property = await this.repository.findById(propertyId);
+    
+    if (!property) {
+      throw new BadRequestException('Property not found');
+    }
+
+    // Verificar se o imóvel pertence ao agente
+    const agent = await this.agentRepository.findByUserId(userId);
+    if (!agent || agent.id !== property.agentId) {
+      throw new UnauthorizedException('You can only request publication for your own properties');
+    }
+
+    if (property.status !== PropertyStatus.draft) {
+      throw new BadRequestException('Only draft properties can be submitted for approval');
+    }
+
+    // Validações mínimas para submeter
+    if (!property.price) {
+      throw new BadRequestException('Price is required to request publication');
+    }
+
+    if (!property.images || (property.images as string[]).length === 0) {
+      throw new BadRequestException('At least one image is required to request publication');
+    }
+
+    if (!property.title || property.title.length < 5) {
+      throw new BadRequestException('Title must be at least 5 characters');
+    }
+
+    // ============================================
+    // LIMITES DO PLANO (DUAL-LIMIT SYSTEM)
+    // ============================================
+    const planName = agent.activePlan?.name?.toLowerCase() || 'gratuito';
+    let capacityLimit = 10; // Básico
+    let weeklyLimit = 12; // Básico
+
+    if (planName.includes('pro') || planName.includes('profissional')) {
+      capacityLimit = 25;
+      weeklyLimit = 30;
+    } else if (planName.includes('premium') || planName.includes('enterprise') || planName.includes('top')) {
+      capacityLimit = 999999; // Unlimited
+      weeklyLimit = 999999; // Unlimited
+    }
+
+    // 1. Total Capacity Check
+    const activeCount = await this.prisma.property.count({
+      where: {
+        agentId: agent.id,
+        status: { in: ['published', 'pending_approval'] },
+      },
+    });
+
+    if (activeCount >= capacityLimit) {
+      throw new BadRequestException(`Atingiu a capacidade máxima do seu portfólio (${capacityLimit} anúncios ativos). Por favor, remova ou cancele um anúncio antigo, ou faça upgrade do seu plano.`);
+    }
+
+    // 2. Weekly Velocity Check (Resets on Sunday 00:00)
+    const now = new Date();
+    const currentDay = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
+    const daysSinceSunday = currentDay === 0 ? 0 : currentDay;
+    const lastSunday = new Date(now);
+    lastSunday.setDate(now.getDate() - daysSinceSunday);
+    lastSunday.setHours(0, 0, 0, 0);
+
+    const weeklySubmissions = await this.prisma.property.count({
+      where: {
+        agentId: agent.id,
+        submittedForApprovalAt: {
+          gte: lastSunday,
+        },
+      },
+    });
+
+    if (weeklySubmissions >= weeklyLimit) {
+      throw new BadRequestException(`Atingiu o seu limite semanal de submissões (${weeklyLimit}). O seu contador será reiniciado no próximo Domingo.`);
+    }
+
+    // Atualizar status
+    property.status = PropertyStatus.pending_approval;
+    property.submittedForApprovalAt = new Date();
+
+    return this.repository.update(property);
+  }
+}
+
+@Injectable()
+export class ListMyPropertiesUseCase implements UseCase<
+  string,
+  PropertyEntity[]
+> {
+  constructor(
+    private readonly repository: IPropertyRepository,
+    private readonly agentRepository: IAgentRepository
+  ) {}
+
+  async execute(userId: string): Promise<PropertyEntity[]> {
+    // Buscar agente pelo userId
+    const agent = await this.agentRepository.findByUserId(userId);
+    
+    if (!agent) {
+      throw new BadRequestException('User is not an agent');
+    }
+
+    // Retornar todos os imóveis do agente (todos os status)
+    return this.repository.listByAgent(agent.id);
+  }
+}
+
+@Injectable()
+export class HighlightPropertyUseCase implements UseCase<
+  { propertyId: string; userId: string },
+  PropertyEntity
+> {
+  constructor(
+    private readonly repository: IPropertyRepository,
+    private readonly agentRepository: IAgentRepository,
+    private readonly prisma: PrismaService
+  ) {}
+
+  async execute({
+    propertyId,
+    userId,
+  }: {
+    propertyId: string;
+    userId: string;
+  }): Promise<PropertyEntity> {
+    const property = await this.repository.findById(propertyId);
+    
+    if (!property) {
+      throw new BadRequestException('Property not found');
+    }
+
+    // Verificar se o imóvel pertence ao agente
+    const agent = await this.agentRepository.findByUserId(userId);
+    if (!agent || agent.id !== property.agentId) {
+      throw new UnauthorizedException('You can only highlight your own properties');
+    }
+
+    if (property.status !== PropertyStatus.published) {
+      throw new BadRequestException('Only published properties can be highlighted');
+    }
+
+    if (property.isHighlighted && property.highlightedUntil && property.highlightedUntil > new Date()) {
+      throw new BadRequestException('Property is already highlighted');
+    }
+
+    const planName = (agent as any).activePlan?.name?.toLowerCase() || 'gratuito';
+    
+    if (planName.includes('básico') || planName.includes('basic') || planName.includes('gratuito')) {
+      throw new BadRequestException('O Plano Básico não permite destaques. Faça upgrade para o Plano Profissional ou Premium.');
+    }
+
+    // Obter subscrição ativa
+    const activeSub = await this.prisma.agentSubscription.findFirst({
+      where: { agentId: agent.id, status: 'active' },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    if (!activeSub) {
+      throw new BadRequestException('Nenhuma subscrição ativa encontrada.');
+    }
+
+    // Limites para o Plano Profissional
+    if (planName.includes('pro') || planName.includes('profissional')) {
+      if (activeSub.highlightsUsed >= 10) {
+        throw new BadRequestException('Atingiu o limite de 10 destaques mensais do Plano Profissional.');
+      }
+      
+      await this.prisma.agentSubscription.update({
+        where: { id: activeSub.id },
+        data: { highlightsUsed: activeSub.highlightsUsed + 1 }
+      });
+    }
+
+    property.isHighlighted = true;
+    const expiration = new Date();
+    expiration.setDate(expiration.getDate() + 7);
+    property.highlightedUntil = expiration;
+
+    return this.repository.update(property);
   }
 }

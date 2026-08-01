@@ -17,6 +17,7 @@ export class AgentAdapter {
         averageResponseTime: raw.averageResponseTime ?? null,
         propertiesCount: raw.propertiesCount,
         averageRating: raw.averageRating,
+        activePlan: (raw as any).activePlan,
         createdAt: raw.createdAt,
         updatedAt: raw.updatedAt,
       },
@@ -43,7 +44,11 @@ export class AgentAdapter {
     };
   }
 
-  static toHttp(entity: AgentEntity): any {
+  static toHttp(entity: any): any {
+    const reviewCount = entity.reviewCount || 0;
+    const hasMinimumReviews = reviewCount >= 3;
+    const averageRating = entity.averageRating || 0;
+
     return {
       id: entity.id,
       userId: entity.userId,
@@ -56,9 +61,20 @@ export class AgentAdapter {
       responseRate: entity.responseRate,
       averageResponseTime: entity.averageResponseTime,
       propertiesCount: entity.propertiesCount,
-      averageRating: entity.averageRating,
+      averageRating: averageRating,
+      reviewCount: reviewCount,
+      hasMinimumReviews: hasMinimumReviews,
+      displayRating: hasMinimumReviews ? averageRating.toFixed(1) : null,
+      activePlan: entity.activePlan,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
+      user: entity.user ? {
+        id: entity.user.id,
+        name: entity.user.name,
+        email: entity.user.email,
+        phone: entity.user.phone,
+        avatar: entity.user.avatar,
+      } : null,
     };
   }
 }

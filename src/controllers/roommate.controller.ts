@@ -24,6 +24,7 @@ import {
   UpdateRoommateRequestDTO,
 } from '../dto/roommate.dto';
 import { RoommateAdapter } from '../adapters/roommate.adapter';
+import { IReviewRepository } from '../repositories/IReviewRepository';
 
 @ApiTags('Roommates')
 @Controller('roommates')
@@ -34,7 +35,8 @@ export class RoommateController {
     private readonly deleteUseCase: DeleteRoommateUseCase,
     private readonly listUseCase: ListRoommatesUseCase,
     private readonly findByIdUseCase: FindRoommateByIdUseCase,
-    private readonly findByUserIdUseCase: FindRoommateByUserIdUseCase
+    private readonly findByUserIdUseCase: FindRoommateByUserIdUseCase,
+    private readonly reviewRepository: IReviewRepository
   ) {}
 
   @Post('create')
@@ -73,6 +75,11 @@ export class RoommateController {
   async findById(@Param('id') id: string, @Res() response) {
     try {
       const entity = await this.findByIdUseCase.execute(id);
+      const reviewCount = await this.reviewRepository.countByUserIdAndRole(
+        entity!.userId,
+        'ROOMMATE'
+      );
+      (entity as any).reviewCount = reviewCount;
       const data = RoommateAdapter.toHttp(entity!);
       return response.status(200).json({ status: true, data });
     } catch (error) {
@@ -88,6 +95,11 @@ export class RoommateController {
   async findByUserId(@Param('userId') userId: string, @Res() response) {
     try {
       const entity = await this.findByUserIdUseCase.execute(userId);
+      const reviewCount = await this.reviewRepository.countByUserIdAndRole(
+        userId,
+        'ROOMMATE'
+      );
+      (entity as any).reviewCount = reviewCount;
       const data = RoommateAdapter.toHttp(entity!);
       return response.status(200).json({ status: true, data });
     } catch (error) {

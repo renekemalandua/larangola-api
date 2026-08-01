@@ -17,29 +17,50 @@ export class PrismaReviewRepository implements IReviewRepository {
   async list(): Promise<ReviewEntity[]> {
     const rows = await this.prisma.review.findMany({
       orderBy: { updatedAt: 'desc' },
+      include: { fromUser: true },
     });
-    return rows.map(ReviewAdapter.toDomain);
+    return rows.map((row) => {
+      const entity = ReviewAdapter.toDomain(row);
+      (entity as any).fromUser = row.fromUser;
+      return entity;
+    });
   }
 
-  async listByListing(listingId: string): Promise<ReviewEntity[]> {
+  async listByProperty(propertyId: string): Promise<ReviewEntity[]> {
     const rows = await this.prisma.review.findMany({
-      where: { listingId },
+      where: { propertyId },
       orderBy: { updatedAt: 'desc' },
+      include: { fromUser: true },
     });
-    return rows.map(ReviewAdapter.toDomain);
+    return rows.map((row) => {
+      const entity = ReviewAdapter.toDomain(row);
+      (entity as any).fromUser = row.fromUser;
+      return entity;
+    });
   }
 
   async listByToUser(toUserId: string): Promise<ReviewEntity[]> {
     const rows = await this.prisma.review.findMany({
       where: { toUserId },
       orderBy: { updatedAt: 'desc' },
+      include: { fromUser: true },
     });
-    return rows.map(ReviewAdapter.toDomain);
+    return rows.map((row) => {
+      const entity = ReviewAdapter.toDomain(row);
+      (entity as any).fromUser = row.fromUser;
+      return entity;
+    });
   }
 
   async findById(id: string): Promise<ReviewEntity | null> {
-    const row = await this.prisma.review.findUnique({ where: { id } });
-    return row ? ReviewAdapter.toDomain(row) : null;
+    const row = await this.prisma.review.findUnique({
+      where: { id },
+      include: { fromUser: true },
+    });
+    if (!row) return null;
+    const entity = ReviewAdapter.toDomain(row);
+    (entity as any).fromUser = row.fromUser;
+    return entity;
   }
 
   async update(data: ReviewEntity): Promise<ReviewEntity> {
@@ -51,13 +72,53 @@ export class PrismaReviewRepository implements IReviewRepository {
     const updated = await this.prisma.review.update({
       where: { id: data.id },
       data: raw,
+      include: { fromUser: true },
     });
-    return ReviewAdapter.toDomain(updated);
+    const entity = ReviewAdapter.toDomain(updated);
+    (entity as any).fromUser = updated.fromUser;
+    return entity;
   }
 
   async delete(id: string): Promise<void> {
     const exists = await this.prisma.review.findUnique({ where: { id } });
     if (!exists) throw new NotFoundException('Review not found');
     await this.prisma.review.delete({ where: { id } });
+  }
+
+  async findByUserIdAndRole(
+    userId: string,
+    role: string
+  ): Promise<ReviewEntity[]> {
+    const rows = await this.prisma.review.findMany({
+      where: { toUserId: userId, role: role as any },
+      orderBy: { updatedAt: 'desc' },
+      include: { fromUser: true },
+    });
+    return rows.map((row) => {
+      const entity = ReviewAdapter.toDomain(row);
+      (entity as any).fromUser = row.fromUser;
+      return entity;
+    });
+  }
+
+  async countByUserIdAndRole(userId: string, role: string): Promise<number> {
+    return this.prisma.review.count({
+      where: { toUserId: userId, role: role as any },
+    });
+  }
+
+  async findByCompositeKey(
+    fromUserId: string,
+    toUserId: string,
+    role: string
+  ): Promise<ReviewEntity | null> {
+    const row = await this.prisma.review.findFirst({
+      where: {
+        fromUserId,
+        toUserId,
+        role: role as any,
+      },
+    });
+    return row ? ReviewAdapter.toDomain(row) : null;
   }
 }
