@@ -40,6 +40,6 @@ lerna-debug.log*
 .env.*.local
 
 # prisma
-/prisma/migrations
+# /prisma/migrations (Removido para que o Render consiga ler as migrações)
 
 
