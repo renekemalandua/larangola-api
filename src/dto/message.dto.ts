@@ -21,7 +21,7 @@ export class CreateMessageRequestDTO {
 
   @ApiPropertyOptional({ example: 'uuid-of-property' })
   @IsOptional()
-  @IsUUID()
+  @IsString()
   propertyId?: string;
 }
 

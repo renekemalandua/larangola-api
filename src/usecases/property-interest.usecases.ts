@@ -3,6 +3,9 @@ import { UseCase } from '../shared';
 import { PropertyInterestEntity } from '../entities/property-interest.entity';
 import { IPropertyInterestRepository } from '../repositories/IPropertyInterestRepository';
 import { IPropertyRepository } from '../repositories/IPropertyRepository';
+import { IAgentRepository } from '../repositories/IAgentRepository';
+import { CreateNotificationUseCase } from './notification.usecases';
+import { NotificationType } from '@prisma/client';
 import {
   CreatePropertyInterestRequestDTO,
   UpdatePropertyInterestRequestDTO,
@@ -15,7 +18,9 @@ export class CreatePropertyInterestUseCase implements UseCase<
 > {
   constructor(
     private readonly repository: IPropertyInterestRepository,
-    private readonly propertyRepository: IPropertyRepository
+    private readonly propertyRepository: IPropertyRepository,
+    private readonly agentRepository: IAgentRepository,
+    private readonly createNotificationUseCase: CreateNotificationUseCase
   ) {}
   async execute(
     request: CreatePropertyInterestRequestDTO
@@ -31,7 +36,21 @@ export class CreatePropertyInterestUseCase implements UseCase<
     if (alreadyExists) return alreadyExists;
 
     const entity = PropertyInterestEntity.create(request);
-    return this.repository.create(entity);
+    const created = await this.repository.create(entity);
+
+    // Get the agent to notify
+    const agent = await this.agentRepository.findById(property.agentId);
+    if (agent) {
+      await this.createNotificationUseCase.execute({
+        userId: agent.userId,
+        type: NotificationType.NEW_LEAD,
+        title: 'Nova Lead no seu Imóvel!',
+        message: `Tem um novo cliente interessado no imóvel: ${property.title}. Verifique a aba de Leads.`,
+        link: '/dashboard'
+      });
+    }
+
+    return created;
   }
 }
 

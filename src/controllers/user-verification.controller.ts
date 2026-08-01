@@ -31,6 +31,7 @@ import {
   UpdateVerificationRequestDTO,
 } from '../dto/user-verification.dto';
 import { UserVerificationAdapter } from '../adapters/user-verification.adapter';
+import { PrismaService } from '../shared';
 
 @ApiTags('User Verification')
 @Controller('verifications')
@@ -39,8 +40,14 @@ export class UserVerificationController {
     private readonly requestUseCase: RequestVerificationUseCase,
     private readonly reviewUseCase: ReviewVerificationUseCase,
     private readonly getMyUseCase: GetMyVerificationUseCase,
-    private readonly updateUseCase: UpdateVerificationUseCase
+    private readonly updateUseCase: UpdateVerificationUseCase,
+    private readonly prisma: PrismaService
   ) {}
+
+  private async resolveUserId(id: string): Promise<string> {
+    const agent = await this.prisma.agent.findUnique({ where: { id } });
+    return agent ? agent.userId : id;
+  }
 
   @Post('submit/:userId')
   @ApiOperation({ summary: 'Submit verification data with files' })
@@ -67,8 +74,9 @@ export class UserVerificationController {
     @Res() response
   ) {
     try {
+      const resolvedUserId = await this.resolveUserId(userId);
       const entity = await this.requestUseCase.execute({
-        userId,
+        userId: resolvedUserId,
         data: body,
         files,
       });
@@ -104,8 +112,9 @@ export class UserVerificationController {
     @Res() response
   ) {
     try {
+      const resolvedUserId = await this.resolveUserId(userId);
       const entity = await this.updateUseCase.execute({
-        userId,
+        userId: resolvedUserId,
         data: body,
         files,
       });
@@ -143,7 +152,8 @@ export class UserVerificationController {
   @ApiResponse({ status: 200 })
   async getStatus(@Param('userId') userId: string, @Res() response) {
     try {
-      const entity = await this.getMyUseCase.execute(userId);
+      const resolvedUserId = await this.resolveUserId(userId);
+      const entity = await this.getMyUseCase.execute(resolvedUserId);
       if (!entity) {
         return response.status(200).json({ status: true, data: null });
       }

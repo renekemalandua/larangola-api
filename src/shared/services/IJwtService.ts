@@ -5,5 +5,5 @@ export type IJwtProps = {
 };
 export abstract class IJwtService {
   abstract encrypt(data: IJwtProps): Promise<string>;
-  abstract verify(token: string, secret: string): Promise<string>;
+  abstract verify(token: string, secret: string): Promise<any>;
 }

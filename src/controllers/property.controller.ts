@@ -5,11 +5,14 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Put,
   Res,
   UseInterceptors,
   UploadedFiles,
+  Request,
+  UseGuards,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import {
@@ -29,10 +32,14 @@ import {
   ListPropertiesByAgentUseCase,
   ListPropertiesUseCase,
   UpdatePropertyUseCase,
+  RequestPublicationUseCase,
+  ListMyPropertiesUseCase,
+  HighlightPropertyUseCase,
 } from '../usecases/property.usecases';
+import { JwtAuthGuard } from '../shared/guards/jwt-auth.guard';
 import {
-  CreatePropertyRequestDTO,
-  UpdatePropertyRequestDTO,
+  CreatePropertyDTO,
+  UpdatePropertyDTO,
 } from '../dto/property.dto';
 import { PropertyAdapter } from '../adapters/property.adapter';
 
@@ -47,6 +54,9 @@ export class PropertyController {
     private readonly listByAgentUseCase: ListPropertiesByAgentUseCase,
     private readonly listByCategoryUseCase: ListPropertiesByCategoryUseCase,
     private readonly findByIdUseCase: FindPropertyByIdUseCase,
+    private readonly requestPublicationUseCase: RequestPublicationUseCase,
+    private readonly listMyPropertiesUseCase: ListMyPropertiesUseCase,
+    private readonly highlightPropertyUseCase: HighlightPropertyUseCase,
     private readonly uploadService: UploadService
   ) {}
 
@@ -57,7 +67,7 @@ export class PropertyController {
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FilesInterceptor('images'))
   async create(
-    @Body() body: CreatePropertyRequestDTO,
+    @Body() body: CreatePropertyDTO,
     @UploadedFiles() files: Array<Express.Multer.File>,
     @Res() response
   ) {
@@ -142,6 +152,22 @@ export class PropertyController {
     }
   }
 
+	@Get('my-properties')
+	@UseGuards(JwtAuthGuard)
+	@ApiOperation({ summary: 'List my properties (agent only)' })
+	@ApiResponse({ status: 200 })
+	@ApiResponse({ status: 400, type: HttpErrorResponseDTO })
+	async listMyProperties(@Request() req, @Res() response) {
+		try {
+			const userId = req.user.id;
+			const entities = await this.listMyPropertiesUseCase.execute(userId);
+			const data = entities.map((e) => PropertyAdapter.toHttp(e));
+			return response.status(200).json({ status: true, data });
+		} catch (error) {
+			throw new BadRequestException(error.message);
+		}
+	}
+
   @Get(':id')
   @ApiOperation({ summary: 'Find Property by ID' })
   @ApiParam({ name: 'id' })
@@ -199,7 +225,7 @@ export class PropertyController {
   @UseInterceptors(FilesInterceptor('images'))
   async update(
     @Param('id') id: string,
-    @Body() body: UpdatePropertyRequestDTO,
+    @Body() body: UpdatePropertyDTO,
     @UploadedFiles() files: Array<Express.Multer.File>,
     @Res() response
   ) {
@@ -231,6 +257,62 @@ export class PropertyController {
       return response.status(200).json({
         status: true,
         data: { message: 'Property deleted successfully' },
+      });
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  @Patch(':id/request-publish')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Request property publication for approval' })
+  @ApiParam({ name: 'id' })
+  @ApiResponse({ status: 200 })
+  @ApiResponse({ status: 400, type: HttpErrorResponseDTO })
+  async requestPublication(
+    @Param('id') id: string,
+    @Request() req,
+    @Res() response
+  ) {
+    try {
+      const userId = req.user.id;
+      const entity = await this.requestPublicationUseCase.execute({
+        propertyId: id,
+        userId,
+      });
+      const data = PropertyAdapter.toHttp(entity);
+      return response.status(200).json({
+        status: true,
+        data,
+        message: 'Property submitted for approval successfully',
+      });
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  @Post(':id/highlight')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Highlight a property' })
+  @ApiParam({ name: 'id' })
+  @ApiResponse({ status: 200 })
+  @ApiResponse({ status: 400, type: HttpErrorResponseDTO })
+  async highlightProperty(
+    @Param('id') id: string,
+    @Request() req,
+    @Res() response
+  ) {
+    try {
+      const userId = req.user.id;
+      const entity = await this.highlightPropertyUseCase.execute({
+        propertyId: id,
+        userId,
+      });
+      const data = PropertyAdapter.toHttp(entity);
+      return response.status(200).json({
+        status: true,
+        data,
+        message: 'Imóvel destacado com sucesso!',
       });
     } catch (error) {
       throw new BadRequestException(error.message);

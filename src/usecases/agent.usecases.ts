@@ -4,6 +4,7 @@ import { AgentEntity } from '../entities/agent.entity';
 import { IAgentRepository } from '../repositories/IAgentRepository';
 import { IUserRepository } from '../repositories/IUserRepository';
 import { CreateAgentRequestDTO, UpdateAgentRequestDTO } from '../dto/agent.dto';
+import { EmailService } from '../shared/providers/email';
 
 @Injectable()
 export class CreateAgentUseCase implements UseCase<
@@ -12,7 +13,8 @@ export class CreateAgentUseCase implements UseCase<
 > {
   constructor(
     private readonly repository: IAgentRepository,
-    private readonly userRepository: IUserRepository
+    private readonly userRepository: IUserRepository,
+    private readonly emailService: EmailService
   ) {}
   async execute(request: CreateAgentRequestDTO): Promise<AgentEntity> {
     const user = await this.userRepository.findById(request.userId);
@@ -21,7 +23,18 @@ export class CreateAgentUseCase implements UseCase<
     if (existing)
       throw new BadRequestException('Agent already exists for this user');
     const entity = AgentEntity.create(request);
-    return this.repository.create(entity);
+    const savedAgent = await this.repository.create(entity);
+
+    // Determine if this is a fresh registration or an upgrade based on account creation time
+    const isNewRegistration = (Date.now() - user.createdAt.getTime()) < 60000; // less than 1 minute old
+
+    if (isNewRegistration) {
+      this.emailService.sendAgentWelcome(user.email, user.name).catch(console.error);
+    } else {
+      this.emailService.sendAgentUpgrade(user.email, user.name).catch(console.error);
+    }
+
+    return savedAgent;
   }
 }
 

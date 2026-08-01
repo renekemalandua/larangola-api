@@ -3,11 +3,11 @@ import { IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class CreatePropertyInterestRequestDTO {
   @ApiProperty({ example: 'uuid-of-property' })
-  @IsUUID()
+  @IsString()
   propertyId: string;
 
   @ApiProperty({ example: 'uuid-of-user' })
-  @IsUUID()
+  @IsString()
   userId: string;
 
   @ApiPropertyOptional({ example: 'Tenho interesse neste imóvel' })

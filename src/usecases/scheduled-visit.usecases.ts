@@ -3,10 +3,15 @@ import { UseCase } from '../shared';
 import { ScheduledVisitEntity } from '../entities/scheduled-visit.entity';
 import { IScheduledVisitRepository } from '../repositories/IScheduledVisitRepository';
 import { IPropertyRepository } from '../repositories/IPropertyRepository';
+import { IAgentRepository } from '../repositories/IAgentRepository';
+import { CreateNotificationUseCase } from './notification.usecases';
+import { NotificationType } from '@prisma/client';
 import {
   CreateScheduledVisitRequestDTO,
   UpdateScheduledVisitRequestDTO,
 } from '../dto/scheduled-visit.dto';
+import { IUserRepository } from '../repositories/IUserRepository';
+import { EmailService } from '../shared/providers/email';
 
 @Injectable()
 export class CreateScheduledVisitUseCase implements UseCase<
@@ -15,7 +20,11 @@ export class CreateScheduledVisitUseCase implements UseCase<
 > {
   constructor(
     private readonly repository: IScheduledVisitRepository,
-    private readonly propertyRepository: IPropertyRepository
+    private readonly propertyRepository: IPropertyRepository,
+    private readonly agentRepository: IAgentRepository,
+    private readonly createNotificationUseCase: CreateNotificationUseCase,
+    private readonly userRepository: IUserRepository,
+    private readonly emailService: EmailService
   ) {}
   async execute(
     request: CreateScheduledVisitRequestDTO
@@ -37,7 +46,46 @@ export class CreateScheduledVisitUseCase implements UseCase<
       ...request,
       scheduledDate: new Date(request.scheduledDate),
     });
-    return this.repository.create(entity);
+    const created = await this.repository.create(entity);
+
+    const agent = await this.agentRepository.findById(property.agentId);
+    if (agent) {
+      await this.createNotificationUseCase.execute({
+        userId: agent.userId,
+        type: NotificationType.VISIT_REQUESTED,
+        title: 'Nova Visita Solicitada',
+        message: `Uma nova visita foi solicitada para o imóvel: ${property.title}. Data: ${request.scheduledDate} às ${request.scheduledTime}.`,
+        link: '/agendar-visitas'
+      });
+    }
+
+    // Send Emails
+    const client = await this.userRepository.findById(request.userId);
+    if (client) {
+      this.emailService.sendVisitConfirmation(
+        client.email,
+        client.name,
+        property.title,
+        request.scheduledDate,
+        request.scheduledTime
+      ).catch(console.error);
+    }
+
+    if (agent) {
+      const agentUser = await this.userRepository.findById(agent.userId);
+      if (agentUser && client) {
+        this.emailService.sendVisitNotificationToAgent(
+          agentUser.email,
+          agentUser.name,
+          client.name,
+          property.title,
+          request.scheduledDate,
+          request.scheduledTime
+        ).catch(console.error);
+      }
+    }
+
+    return created;
   }
 }
 
@@ -46,7 +94,13 @@ export class UpdateScheduledVisitUseCase implements UseCase<
   { id: string; data: UpdateScheduledVisitRequestDTO },
   ScheduledVisitEntity
 > {
-  constructor(private readonly repository: IScheduledVisitRepository) {}
+  constructor(
+    private readonly repository: IScheduledVisitRepository,
+    private readonly createNotificationUseCase: CreateNotificationUseCase,
+    private readonly userRepository: IUserRepository,
+    private readonly propertyRepository: IPropertyRepository,
+    private readonly emailService: EmailService
+  ) {}
   async execute({
     id,
     data,
@@ -62,7 +116,43 @@ export class UpdateScheduledVisitUseCase implements UseCase<
       entity.scheduledTime = data.scheduledTime;
     if (data.status !== undefined) entity.status = data.status;
     if (data.notes !== undefined) entity.notes = data.notes ?? null;
-    return this.repository.update(entity);
+    
+    const updated = await this.repository.update(entity);
+
+    if (data.status !== undefined) {
+      const statusMap: Record<string, string> = {
+        confirmed: 'Confirmada',
+        completed: 'Concluída',
+        cancelled: 'Cancelada',
+        rejected: 'Rejeitada'
+      };
+      
+      const ptStatus = statusMap[data.status] || data.status;
+      
+      await this.createNotificationUseCase.execute({
+        userId: entity.userId,
+        type: NotificationType.VISIT_STATUS_UPDATED,
+        title: 'Atualização de Visita',
+        message: `O status da sua visita para o dia ${updated.scheduledDate.toLocaleDateString('pt-PT')} às ${updated.scheduledTime} foi alterado para: ${ptStatus}.`,
+        link: '/minhas-visitas'
+      });
+      
+      const client = await this.userRepository.findById(entity.userId);
+      const property = await this.propertyRepository.findById(entity.propertyId);
+      
+      if (client && property) {
+        this.emailService.sendVisitStatusUpdate(
+          client.email,
+          client.name,
+          ptStatus,
+          property.title,
+          updated.scheduledDate.toLocaleDateString('pt-PT'),
+          updated.scheduledTime
+        ).catch(console.error);
+      }
+    }
+
+    return updated;
   }
 }
 
@@ -119,5 +209,31 @@ export class FindScheduledVisitByIdUseCase implements UseCase<
     const entity = await this.repository.findById(id);
     if (!entity) throw new BadRequestException('Scheduled visit not found');
     return entity;
+  }
+}
+
+@Injectable()
+export class CheckInVisitUseCase implements UseCase<{ id: string; userId: string }, ScheduledVisitEntity> {
+  constructor(
+    private readonly repository: IScheduledVisitRepository,
+    private readonly propertyRepository: IPropertyRepository
+  ) {}
+
+  async execute(request: { id: string; userId: string }): Promise<ScheduledVisitEntity> {
+    const visit = await this.repository.findById(request.id);
+    if (!visit) throw new BadRequestException('Scheduled visit not found');
+
+    const property = await this.propertyRepository.findById(visit.propertyId);
+    if (!property) throw new BadRequestException('Property not found');
+
+    const isClient = visit.userId === request.userId;
+    
+    if (isClient) {
+      visit.clientArrivedAt = new Date();
+    } else {
+      visit.agentArrivedAt = new Date();
+    }
+
+    return await this.repository.update(visit);
   }
 }

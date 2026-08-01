@@ -27,6 +27,7 @@ export class CreateUserUseCase implements UseCase<
       ...request,
       avatar: request.avatar || DEFAULT_USER_AVATAR,
       password: hashPassword,
+      adminRole: request.adminRole || 'NONE',
     });
     return this.repository.create(entity);
   }

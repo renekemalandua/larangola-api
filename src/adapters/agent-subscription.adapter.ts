@@ -17,6 +17,7 @@ export class AgentSubscriptionAdapter {
         status: raw.status as SubscriptionStatus,
         startDate: raw.startDate,
         endDate: raw.endDate ?? null,
+        highlightsUsed: raw.highlightsUsed,
         createdAt: raw.createdAt,
         updatedAt: raw.updatedAt,
       },
@@ -32,6 +33,7 @@ export class AgentSubscriptionAdapter {
       status: entity.status as SubscriptionStatusPrisma,
       startDate: entity.startDate,
       endDate: entity.endDate,
+      highlightsUsed: entity.highlightsUsed,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
     };
@@ -45,6 +47,7 @@ export class AgentSubscriptionAdapter {
       status: entity.status,
       startDate: entity.startDate,
       endDate: entity.endDate,
+      highlightsUsed: entity.highlightsUsed,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
     };

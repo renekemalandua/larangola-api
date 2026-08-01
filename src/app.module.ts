@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { ProviderModule } from './shared';
+import { JwtAuthGuard } from './shared/guards/jwt-auth.guard';
+import { AdminGuard } from './shared/guards/admin.guard';
 
 // Controllers
 import { AuthController } from './controllers/auth.controller';
@@ -20,6 +22,12 @@ import { ChatController } from './controllers/chat.controller';
 import { MessageController } from './controllers/message.controller';
 import { UserVerificationController } from './controllers/user-verification.controller';
 import { PropertyRequestController } from './controllers/property-request.controller';
+import { AdminController } from './controllers/admin.controller';
+import { AdminEmailController } from './controllers/admin-email.controller';
+import { PaymentController } from './controllers/payment.controller';
+import { PropertyAuditRequestController } from './controllers/property-audit-request.controller';
+import { CommissionController } from './controllers/commission.controller';
+import { NotificationController } from './controllers/notification.controller';
 
 // Repositories
 import { IPropertyCategoryRepository } from './repositories/IPropertyCategoryRepository';
@@ -42,6 +50,8 @@ import { IPropertyInterestRepository } from './repositories/IPropertyInterestRep
 import { PrismaPropertyInterestRepository } from './repositories/implementation/PrismaPropertyInterestRepository';
 import { IClosedDealRepository } from './repositories/IClosedDealRepository';
 import { PrismaClosedDealRepository } from './repositories/implementation/PrismaClosedDealRepository';
+import { INotificationRepository } from './repositories/INotificationRepository';
+import { PrismaNotificationRepository } from './repositories/implementation/PrismaNotificationRepository';
 import { IAgentPlanRepository } from './repositories/IAgentPlanRepository';
 import { PrismaAgentPlanRepository } from './repositories/implementation/PrismaAgentPlanRepository';
 import { IAgentSubscriptionRepository } from './repositories/IAgentSubscriptionRepository';
@@ -54,11 +64,19 @@ import { IUserVerificationRepository } from './repositories/IUserVerificationRep
 import { PrismaUserVerificationRepository } from './repositories/implementation/PrismaUserVerificationRepository';
 import { IPropertyRequestRepository } from './repositories/IPropertyRequestRepository';
 import { PrismaPropertyRequestRepository } from './repositories/implementation/PrismaPropertyRequestRepository';
+import { IPaymentRepository } from './repositories/IPaymentRepository';
+import { PaymentPrismaRepository } from './repositories/implementation/PaymentPrismaRepository';
+import { IPropertyAuditRequestRepository } from './repositories/IPropertyAuditRequestRepository';
+import { PrismaPropertyAuditRequestRepository } from './repositories/implementation/PrismaPropertyAuditRequestRepository';
 
 // Use Cases - Auth
 import {
   AuthLoginUseCase,
   AuthRegisterUseCase,
+  AuthForgotPasswordUseCase,
+  AuthVerifyOtpUseCase,
+  AuthResetPasswordUseCase,
+  AuthChangePasswordUseCase,
 } from './usecases/auth.usecases';
 
 // Use Cases - PropertyCategory
@@ -89,6 +107,9 @@ import {
   ListPropertiesByAgentUseCase,
   ListPropertiesByCategoryUseCase,
   FindPropertyByIdUseCase,
+  RequestPublicationUseCase,
+  ListMyPropertiesUseCase,
+  HighlightPropertyUseCase,
 } from './usecases/property.usecases';
 
 // Use Cases - Listing (Removed)
@@ -111,6 +132,7 @@ import {
   FindAgentByIdUseCase,
   FindAgentByUserIdUseCase,
 } from './usecases/agent.usecases';
+import { GetAgentDashboardStatsUseCase } from './usecases/agent-dashboard-stats.usecases';
 
 // Use Cases - Roommate
 import {
@@ -131,6 +153,7 @@ import {
   ListScheduledVisitsByPropertyUseCase,
   ListScheduledVisitsByUserUseCase,
   FindScheduledVisitByIdUseCase,
+  CheckInVisitUseCase,
 } from './usecases/scheduled-visit.usecases';
 
 // Use Cases - Review
@@ -142,6 +165,8 @@ import {
   ListReviewsByPropertyUseCase,
   ListReviewsByToUserUseCase,
   FindReviewByIdUseCase,
+  GetReviewStatsUseCase,
+  ListMyReviewsUseCase
 } from './usecases/review.usecases';
 
 // Use Cases - PropertyInterest
@@ -167,6 +192,13 @@ import {
   FindClosedDealByIdUseCase,
 } from './usecases/closed-deal.usecases';
 
+// Use Cases - Commission
+import {
+  CloseDealAndCalculateCommissionUseCase,
+  GetCommissionStatsUseCase,
+  GetCommissionHistoryUseCase,
+} from './usecases/commission.usecases';
+
 // Use Cases - AgentPlan
 import {
   CreateAgentPlanUseCase,
@@ -184,6 +216,7 @@ import {
   ListAgentSubscriptionsUseCase,
   ListAgentSubscriptionsByAgentUseCase,
   FindAgentSubscriptionByIdUseCase,
+  AssignAgentSubscriptionUseCase,
 } from './usecases/agent-subscription.usecases';
 
 // Use Cases - Chat
@@ -224,6 +257,55 @@ import {
   DeletePropertyRequestUseCase,
 } from './usecases/property-request.usecases';
 
+// Use Cases - Notification
+import {
+  CreateNotificationUseCase,
+  GetUserNotificationsUseCase,
+  MarkNotificationAsReadUseCase,
+  MarkAllNotificationsAsReadUseCase,
+} from './usecases/notification.usecases';
+
+// Use Cases - Admin
+import {
+  GetDashboardStatsUseCase,
+  ListAdminPropertiesUseCase,
+  ListPendingPropertiesUseCase,
+  ApprovePropertyUseCase,
+  RejectPropertyUseCase,
+  AdminCreateAgentUseCase,
+  VerifyAgentUseCase,
+  ListPendingAgentsUseCase,
+  ListAdminPaymentsUseCase,
+  GetAdminPaymentUseCase,
+  VerifyPaymentUseCase,
+  RejectPaymentUseCase,
+  ListPendingVerificationsUseCase,
+  ApproveVerificationUseCase,
+  RejectVerificationUseCase,
+} from './usecases/admin.usecases';
+import { AdminBroadcastEmailUseCase } from './usecases/admin-email.usecases';
+
+// Use Cases - Payment
+import {
+  CreateSubscriptionPaymentUseCase,
+  UploadPaymentProofUseCase,
+  ListMyPaymentsUseCase,
+} from './usecases/payment.usecases';
+
+// Use Cases - PropertyAuditRequest
+import {
+  CreatePropertyAuditRequestUseCase,
+  GetPropertyAuditRequestUseCase,
+  ListPendingPropertyAuditRequestsUseCase,
+  ListMyValidationsUseCase,
+  ListMyPropertyAuditRequestsUseCase,
+  ClaimPropertyAuditRequestUseCase,
+  ApprovePropertyAuditRequestUseCase,
+  RejectPropertyAuditRequestUseCase,
+  CancelPropertyAuditRequestUseCase,
+} from './usecases/property-audit-request.usecases';
+import { PropertyAuditCronService } from './usecases/property-audit-cron.service';
+
 @Module({
   imports: [ProviderModule],
   controllers: [
@@ -245,6 +327,12 @@ import {
     MessageController,
     UserVerificationController,
     PropertyRequestController,
+    AdminController,
+    AdminEmailController,
+    PaymentController,
+    PropertyAuditRequestController,
+    CommissionController,
+    NotificationController,
   ],
   providers: [
     // Repositories
@@ -283,10 +371,23 @@ import {
       provide: IPropertyRequestRepository,
       useClass: PrismaPropertyRequestRepository,
     },
+    { provide: IPaymentRepository, useClass: PaymentPrismaRepository },
+    {
+      provide: IPropertyAuditRequestRepository,
+      useClass: PrismaPropertyAuditRequestRepository,
+    },
+    {
+      provide: 'INotificationRepository',
+      useClass: PrismaNotificationRepository,
+    },
 
     // Use Cases - Auth
     AuthLoginUseCase,
     AuthRegisterUseCase,
+    AuthForgotPasswordUseCase,
+    AuthVerifyOtpUseCase,
+    AuthResetPasswordUseCase,
+    AuthChangePasswordUseCase,
 
     // Use Cases - PropertyCategory
     CreatePropertyCategoryUseCase,
@@ -311,6 +412,9 @@ import {
     ListPropertiesByAgentUseCase,
     ListPropertiesByCategoryUseCase,
     FindPropertyByIdUseCase,
+    RequestPublicationUseCase,
+    ListMyPropertiesUseCase,
+    HighlightPropertyUseCase,
 
     // Use Cases - Listing (Removed)
     // CreateListingUseCase,
@@ -328,6 +432,7 @@ import {
     ListAgentsUseCase,
     FindAgentByIdUseCase,
     FindAgentByUserIdUseCase,
+    GetAgentDashboardStatsUseCase,
 
     // Use Cases - Roommate
     CreateRoommateUseCase,
@@ -345,6 +450,7 @@ import {
     ListScheduledVisitsByPropertyUseCase,
     ListScheduledVisitsByUserUseCase,
     FindScheduledVisitByIdUseCase,
+    CheckInVisitUseCase,
 
     // Use Cases - Review
     CreateReviewUseCase,
@@ -354,6 +460,8 @@ import {
     ListReviewsByPropertyUseCase,
     ListReviewsByToUserUseCase,
     FindReviewByIdUseCase,
+    GetReviewStatsUseCase,
+    ListMyReviewsUseCase,
 
     // Use Cases - PropertyInterest
     CreatePropertyInterestUseCase,
@@ -374,6 +482,11 @@ import {
     ListClosedDealsByClientUseCase,
     FindClosedDealByIdUseCase,
 
+    // Use Cases - Commission
+    CloseDealAndCalculateCommissionUseCase,
+    GetCommissionStatsUseCase,
+    GetCommissionHistoryUseCase,
+
     // Use Cases - AgentPlan
     CreateAgentPlanUseCase,
     UpdateAgentPlanUseCase,
@@ -388,6 +501,7 @@ import {
     ListAgentSubscriptionsUseCase,
     ListAgentSubscriptionsByAgentUseCase,
     FindAgentSubscriptionByIdUseCase,
+    AssignAgentSubscriptionUseCase,
 
     // Use Cases - Chat
     CreateChatUseCase,
@@ -419,12 +533,58 @@ import {
     FindPropertyRequestByIdUseCase,
     UpdatePropertyRequestUseCase,
     DeletePropertyRequestUseCase,
+
+    // Use Cases - Admin
+    GetDashboardStatsUseCase,
+    ListAdminPropertiesUseCase,
+    ListPendingPropertiesUseCase,
+    ApprovePropertyUseCase,
+    RejectPropertyUseCase,
+    AdminCreateAgentUseCase,
+    VerifyAgentUseCase,
+    ListPendingAgentsUseCase,
+    ListAdminPaymentsUseCase,
+    GetAdminPaymentUseCase,
+    VerifyPaymentUseCase,
+    RejectPaymentUseCase,
+    ListPendingVerificationsUseCase,
+    ApproveVerificationUseCase,
+    RejectVerificationUseCase,
+    AdminBroadcastEmailUseCase,
+
+    // Use Cases - Payment
+    CreateSubscriptionPaymentUseCase,
+    UploadPaymentProofUseCase,
+    ListMyPaymentsUseCase,
+
+    // Use Cases - PropertyAuditRequest
+    CreatePropertyAuditRequestUseCase,
+    GetPropertyAuditRequestUseCase,
+    ListPendingPropertyAuditRequestsUseCase,
+    ListMyPropertyAuditRequestsUseCase,
+    ListMyValidationsUseCase,
+    ClaimPropertyAuditRequestUseCase,
+    ApprovePropertyAuditRequestUseCase,
+    RejectPropertyAuditRequestUseCase,
+    CancelPropertyAuditRequestUseCase,
+    PropertyAuditCronService,
+
+    // Guards
+    JwtAuthGuard,
+    AdminGuard,
+
+    // Use Cases - Notification
+    CreateNotificationUseCase,
+    GetUserNotificationsUseCase,
+    MarkNotificationAsReadUseCase,
+    MarkAllNotificationsAsReadUseCase,
   ],
   exports: [
     FindPropertyCategoryByIdUseCase,
     FindPropertyByIdUseCase,
     FindUserByIdUseCase,
     // FindListingByIdUseCase, // Removed
+    CreateNotificationUseCase,
   ],
 })
 export class AppModule {}

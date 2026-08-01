@@ -1,42 +1,56 @@
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 // ============================================
 // User Base Table
 // ============================================
 
-model User {
-    id        String   @id @default(uuid())
-    email     String   @unique
-    phone     String   @unique
-    password  String
-    name      String
-    avatar    String?
-    isActive  Boolean  @default(true)
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+enum AdminRole {
+  NONE
+  AUDITOR
+  ADMIN
+}
 
-    // Relations
-    agent               Agent?
-    roommate            Roommate?
-    // properties          Property[]         @relation("UserProperties") // Removed as Property links to Agent now
-    // listings            Listing[] // Removed
-    reviewsGiven        Review[]           @relation("ReviewFromUser")
-    reviewsReceived     Review[]           @relation("ReviewToUser")
-    chatsAsUser1        Chat[]             @relation("ChatUser1")
-    chatsAsUser2        Chat[]             @relation("ChatUser2")
-    messages            Message[]
-    scheduledVisits     ScheduledVisit[]
-    closedDealsAsClient ClosedDeal[]       @relation("ClosedDealClient")
-    propertyInterests   PropertyInterest[]
-    verification        UserVerification?
-    propertyRequests    PropertyRequest[]
+model User {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  phone     String    @unique
+  password  String
+  name      String
+  avatar    String?
+  isActive  Boolean   @default(true)
+  adminRole AdminRole @default(NONE)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Password Reset OTP
+  resetOtpCode    String?
+  resetOtpExpiresAt DateTime?
+
+  // Relations
+  agent               Agent?
+  roommate            Roommate?
+  // properties          Property[]         @relation("UserProperties") // Removed as Property links to Agent now
+  // listings            Listing[] // Removed
+  reviewsGiven        Review[]               @relation("ReviewFromUser")
+  reviewsReceived     Review[]               @relation("ReviewToUser")
+  chatsAsUser1        Chat[]                 @relation("ChatUser1")
+  chatsAsUser2        Chat[]                 @relation("ChatUser2")
+  messages            Message[]
+  scheduledVisits     ScheduledVisit[]
+  closedDealsAsClient ClosedDeal[]           @relation("ClosedDealClient")
+  propertyInterests   PropertyInterest[]
+  verification        UserVerification?
+  propertyRequests    PropertyRequest[]
+  propertyAudits      PropertyAuditRequest[]
+  payments            Payment[]
+  notifications       Notification[]
 }
 
 // ============================================
@@ -44,64 +58,78 @@ model User {
 // ============================================
 
 model PropertyCategory {
-    id          String   @id @default(uuid())
-    name        String
-    description String?
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-    properties Property[]
+  properties Property[]
 }
 
 enum PropertyStatus {
-    draft
-    published
-    finished
-    canceled
+  draft
+  pending_approval
+  published
+  rejected
+  finished
+  canceled
 }
 
 model Property {
-    id           String   @id @default(uuid())
-    agentId      String   // Replaces ownerId, links directly to Agent
-    categoryId   String
-    title        String
-    description  String?
-    address      String?
-    city         String?
-    state        String?
-    country      String   @default("Angola")
-    latitude     Float?
-    longitude    Float?
-    bedrooms     Int?
-    bathrooms    Int?
-    area         Float? // in m²
-    propertyType String // apartment, house, studio, room
-    amenities    Json? // array of amenities
-    images       Json? // array of image URLs
-    
-    // Listing Fields (Merged)
-    listingType  ListingType?
-    price        Float?
-    currency     String        @default("AOA")
-    status       PropertyStatus @default(draft)
-    
-    createdAt    DateTime @default(now())
-    updatedAt    DateTime @updatedAt
+  id           String  @id @default(uuid())
+  agentId      String // Replaces ownerId, links directly to Agent
+  categoryId   String
+  title        String
+  description  String?
+  address      String?
+  city         String?
+  state        String?
+  country      String  @default("Angola")
+  latitude     Float?
+  longitude    Float?
+  bedrooms     Int?
+  bathrooms    Int?
+  area         Float? // in m²
+  propertyType String // apartment, house, studio, room
+  amenities    Json? // array of amenities
+  images       Json? // array of image URLs
+  rules        Json? // array of house rules
 
-    agent             Agent            @relation(fields: [agentId], references: [id])
-    category          PropertyCategory @relation(fields: [categoryId], references: [id])
-    
-    // Relations moved from Listing
-    scheduledVisits   ScheduledVisit[]
-    propertyInterests PropertyInterest[]
-    closedDeals       ClosedDeal[]
-    reviews           Review[]         @relation("PropertyReview")
-    messages          Message[]
+  // Listing Fields (Merged)
+  listingType ListingType?
+  price       Float?
+  currency    String         @default("AOA")
+  status      PropertyStatus @default(draft)
+  statusUpdatedAt DateTime?
+
+  // Approval Fields
+  submittedForApprovalAt DateTime?
+  rejectionReason        String?
+  reviewedBy             String?
+  reviewedAt             DateTime?
+
+  // Highlight Fields
+  isHighlighted    Boolean   @default(false)
+  highlightedUntil DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  agent    Agent            @relation(fields: [agentId], references: [id])
+  category PropertyCategory @relation(fields: [categoryId], references: [id])
+
+  // Relations moved from Listing
+  scheduledVisits   ScheduledVisit[]
+  propertyInterests PropertyInterest[]
+  closedDeals       ClosedDeal[]
+  reviews           Review[]           @relation("PropertyReview")
+  messages          Message[]
 }
 
 enum ListingType {
-    rent
-    buy
+  rent
+  buy
 }
 
 // Listing model removed
@@ -111,51 +139,91 @@ enum ListingType {
 // ============================================
 
 model Agent {
-    id                  String   @id @default(uuid())
-    userId              String   @unique
-    profession          String?
-    company             String?
-    location            String?
-    bio                 String?
-    description         String? // Agent-specific description
-    isVerified          Boolean  @default(false)
-    responseRate        Int? // percentage
-    averageResponseTime String? // e.g., "2 horas"
-    propertiesCount     Int      @default(0)
-    averageRating       Float    @default(0)
-    createdAt           DateTime @default(now())
-    updatedAt           DateTime @updatedAt
+  id                  String   @id @default(uuid())
+  userId              String   @unique
+  profession          String?
+  company             String?
+  location            String?
+  bio                 String?
+  description         String? // Agent-specific description
+  isVerified          Boolean  @default(false)
+  responseRate        Int? // percentage
+  averageResponseTime String? // e.g., "2 horas"
+  propertiesCount     Int      @default(0)
+  averageRating       Float    @default(0)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 
-    user          User                @relation(fields: [userId], references: [id])
-    subscriptions AgentSubscription[]
-    properties    Property[] // Relation to properties owned by agent
-    closedDeals   ClosedDeal[]        @relation("ClosedDealAgent")
+  user                  User                   @relation(fields: [userId], references: [id])
+  subscriptions         AgentSubscription[]
+  properties            Property[] // Relation to properties owned by agent
+  closedDeals           ClosedDeal[]           @relation("ClosedDealAgent")
+  claimedPropertyAudits PropertyAuditRequest[]
 }
 
 model Roommate {
-    id                  String    @id @default(uuid())
-    userId              String    @unique
-    age                 Int?
-    profession          String?
-    company             String?
-    location            String?
-    budget              Float?
-    moveInDate          DateTime?
-    bio                 String?
-    isVerified          Boolean   @default(false)
-    responseRate        Int? // percentage
-    averageResponseTime String? // e.g., "2 horas"
-    rating              Float? // average rating
-    lookingForRoommate  Boolean   @default(false)
-    preferences         Json? // { smoking, pets, guests, quietHours, cleaning }
-    lifestyle           Json? // { workSchedule, socialLevel, partyFrequency }
-    interests           Json? // array of interests
-    languages           Json? // array of languages
-    joinDate            DateTime  @default(now())
-    createdAt           DateTime  @default(now())
-    updatedAt           DateTime  @updatedAt
+  id                  String    @id @default(uuid())
+  userId              String    @unique
+  age                 Int?
+  profession          String?
+  company             String?
+  location            String?
+  budget              Float?
+  moveInDate          DateTime?
+  bio                 String?
+  isVerified          Boolean   @default(false)
+  responseRate        Int? // percentage
+  averageResponseTime String? // e.g., "2 horas"
+  rating              Float? // average rating
+  lookingForRoommate  Boolean   @default(false)
+  preferences         Json? // { smoking, pets, guests, quietHours, cleaning }
+  lifestyle           Json? // { workSchedule, socialLevel, partyFrequency }
+  interests           Json? // array of interests
+  languages           Json? // array of languages
+  joinDate            DateTime  @default(now())
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 
-    user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+}
+
+// ============================================
+// Audits
+// ============================================
+
+enum AuditStatus {
+  PENDING
+  VALIDATING
+  APPROVED
+  REJECTED
+  CANCELED
+}
+
+model PropertyAuditRequest {
+  id               String      @id @default(uuid())
+  userId           String
+  title            String
+  description      String?
+  address          String?
+  city             String?
+  state            String?
+  bedrooms         Int?
+  bathrooms        Int?
+  area             Float?
+  price            Float?
+  currency         String      @default("AOA")
+  propertyType     String
+  listingType      String
+  images           Json?
+  status           AuditStatus @default(PENDING)
+  notes            String? // Admin notes
+  claimedByAgentId String?
+  claimedAt        DateTime?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  user         User   @relation(fields: [userId], references: [id])
+  claimedAgent Agent? @relation(fields: [claimedByAgentId], references: [id])
 }
 
 // ============================================
@@ -163,54 +231,56 @@ model Roommate {
 // ============================================
 
 enum VisitStatus {
-    pending
-    confirmed
-    completed
-    cancelled
+  pending
+  confirmed
+  completed
+  cancelled
 }
 
 model ScheduledVisit {
-    id            String      @id @default(uuid())
-    propertyId    String
-    userId        String // client who scheduled
-    scheduledDate DateTime
-    scheduledTime String // HH:mm format
-    status        VisitStatus @default(pending)
-    notes         String?
-    createdAt     DateTime    @default(now())
-    updatedAt     DateTime    @updatedAt
+  id            String      @id @default(uuid())
+  propertyId    String
+  userId        String // client who scheduled
+  scheduledDate DateTime
+  scheduledTime String // HH:mm format
+  status        VisitStatus @default(pending)
+  notes         String?
+  clientArrivedAt DateTime?
+  agentArrivedAt  DateTime?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
 
-    property Property @relation(fields: [propertyId], references: [id])
-    user     User     @relation(fields: [userId], references: [id])
+  property Property @relation(fields: [propertyId], references: [id])
+  user     User     @relation(fields: [userId], references: [id])
 }
 
 enum ReviewRating {
-    ONE
-    TWO
-    THREE
-    FOUR
-    FIVE
+  ONE
+  TWO
+  THREE
+  FOUR
+  FIVE
 }
 
 enum ReviewRole {
-    AGENT
-    ROOMMATE
+  AGENT
+  ROOMMATE
 }
 
 model Review {
-    id         String   @id @default(uuid())
-    propertyId String?
-    fromUserId String // user who wrote the review
-    toUserId   String // user being reviewed (agent or roommate)
-    role       ReviewRole // role being reviewed
-    rating     Int // 1-5
-    comment    String?
-    createdAt  DateTime @default(now())
-    updatedAt  DateTime @updatedAt
+  id         String     @id @default(uuid())
+  propertyId String?
+  fromUserId String // user who wrote the review
+  toUserId   String // user being reviewed (agent or roommate)
+  role       ReviewRole // role being reviewed
+  rating     Int // 1-5
+  comment    String?
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
 
-    property Property? @relation("PropertyReview", fields: [propertyId], references: [id])
-    fromUser User      @relation("ReviewFromUser", fields: [fromUserId], references: [id])
-    toUser   User      @relation("ReviewToUser", fields: [toUserId], references: [id])
+  property Property? @relation("PropertyReview", fields: [propertyId], references: [id])
+  fromUser User      @relation("ReviewFromUser", fields: [fromUserId], references: [id])
+  toUser   User      @relation("ReviewToUser", fields: [toUserId], references: [id])
 }
 
 // ============================================
@@ -218,36 +288,36 @@ model Review {
 // ============================================
 
 model Chat {
-    id               String    @id @default(uuid())
-    user1Id          String
-    user2Id          String
-    lastMessage      String?
-    lastMessageTime  DateTime?
-    unreadCountUser1 Int       @default(0)
-    unreadCountUser2 Int       @default(0)
-    isBlocked        Boolean   @default(false)
-    createdAt        DateTime  @default(now())
-    updatedAt        DateTime  @updatedAt
+  id               String    @id @default(uuid())
+  user1Id          String
+  user2Id          String
+  lastMessage      String?
+  lastMessageTime  DateTime?
+  unreadCountUser1 Int       @default(0)
+  unreadCountUser2 Int       @default(0)
+  isBlocked        Boolean   @default(false)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
-    user1    User      @relation("ChatUser1", fields: [user1Id], references: [id])
-    user2    User      @relation("ChatUser2", fields: [user2Id], references: [id])
-    messages Message[]
+  user1    User      @relation("ChatUser1", fields: [user1Id], references: [id])
+  user2    User      @relation("ChatUser2", fields: [user2Id], references: [id])
+  messages Message[]
 
-    @@unique([user1Id, user2Id])
+  @@unique([user1Id, user2Id])
 }
 
 model Message {
-    id        String   @id @default(uuid())
-    chatId    String
-    senderId  String
-    text      String
-    isRead    Boolean  @default(false)
-    createdAt DateTime @default(now())
+  id        String   @id @default(uuid())
+  chatId    String
+  senderId  String
+  text      String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
 
-    chat   Chat @relation(fields: [chatId], references: [id])
-    sender User @relation(fields: [senderId], references: [id])
-    propertyId String?
-    property   Property? @relation(fields: [propertyId], references: [id])
+  chat       Chat      @relation(fields: [chatId], references: [id])
+  sender     User      @relation(fields: [senderId], references: [id])
+  propertyId String?
+  property   Property? @relation(fields: [propertyId], references: [id])
 }
 
 // ============================================
@@ -255,25 +325,25 @@ model Message {
 // ============================================
 
 enum ClosedDealStatus {
-    completed
-    pending_payment
+  completed
+  pending_payment
 }
 
 model ClosedDeal {
-    id               String           @id @default(uuid())
-    propertyId       String
-    agentId          String
-    clientId         String
-    commissionAmount Float
-    commissionRate   Float // percentage
-    status           ClosedDealStatus @default(pending_payment)
-    closedDate       DateTime
-    createdAt        DateTime         @default(now())
-    updatedAt        DateTime         @updatedAt
+  id               String           @id @default(uuid())
+  propertyId       String
+  agentId          String
+  clientId         String?
+  commissionAmount Float
+  commissionRate   Float // percentage
+  status           ClosedDealStatus @default(pending_payment)
+  closedDate       DateTime
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
 
-    property Property @relation(fields: [propertyId], references: [id])
-    agent    Agent    @relation("ClosedDealAgent", fields: [agentId], references: [id])
-    client   User     @relation("ClosedDealClient", fields: [clientId], references: [id])
+  property Property @relation(fields: [propertyId], references: [id])
+  agent    Agent    @relation("ClosedDealAgent", fields: [agentId], references: [id])
+  client   User?    @relation("ClosedDealClient", fields: [clientId], references: [id])
 }
 
 // ============================================
@@ -281,46 +351,47 @@ model ClosedDeal {
 // ============================================
 
 enum PlanType {
-    basic
-    premium
-    professional
-    enterprise
+  basic
+  premium
+  professional
+  enterprise
 }
 
 model AgentPlan {
-    id          String   @id @default(uuid())
-    type        PlanType @unique
-    name        String
-    price       Float    @default(0)
-    pricePeriod String? // "month" or "year"
-    description String?
-    features    Json? // array of features
-    isPopular   Boolean  @default(false)
-    badge       String?
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
+  id          String   @id @default(uuid())
+  type        PlanType @unique
+  name        String
+  price       Float    @default(0)
+  pricePeriod String? // "month" or "year"
+  description String?
+  features    Json? // array of features
+  isPopular   Boolean  @default(false)
+  badge       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-    subscriptions AgentSubscription[]
+  subscriptions AgentSubscription[]
 }
 
 enum SubscriptionStatus {
-    active
-    cancelled
-    expired
+  active
+  cancelled
+  expired
 }
 
 model AgentSubscription {
-    id        String             @id @default(uuid())
-    agentId   String
-    planId    String
-    status    SubscriptionStatus @default(active)
-    startDate DateTime
-    endDate   DateTime?
-    createdAt DateTime           @default(now())
-    updatedAt DateTime           @updatedAt
+  id             String             @id @default(uuid())
+  agentId        String
+  planId         String
+  status         SubscriptionStatus @default(active)
+  startDate      DateTime
+  endDate        DateTime?
+  highlightsUsed Int                @default(0) // Tracks highlights used in the current billing cycle
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
 
-    agent Agent     @relation(fields: [agentId], references: [id])
-    plan  AgentPlan @relation(fields: [planId], references: [id])
+  agent Agent     @relation(fields: [agentId], references: [id])
+  plan  AgentPlan @relation(fields: [planId], references: [id])
 }
 
 // ============================================
@@ -328,15 +399,15 @@ model AgentSubscription {
 // ============================================
 
 model PropertyInterest {
-    id         String   @id @default(uuid())
-    propertyId String
-    userId     String
-    message    String?
-    createdAt  DateTime @default(now())
-    updatedAt  DateTime @updatedAt
+  id         String   @id @default(uuid())
+  propertyId String
+  userId     String
+  message    String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-    property Property @relation(fields: [propertyId], references: [id])
-    user     User     @relation(fields: [userId], references: [id])
+  property Property @relation(fields: [propertyId], references: [id])
+  user     User     @relation(fields: [userId], references: [id])
 }
 
 // ============================================
@@ -344,44 +415,50 @@ model PropertyInterest {
 // ============================================
 
 enum VerificationStepStatus {
-    PENDING
-    APPROVED
-    REJECTED
+  PENDING
+  APPROVED
+  REJECTED
 }
 
 enum DocumentType {
-    ID
-    PASSPORT
-    DRIVER_LICENSE
+  ID
+  PASSPORT
+  DRIVER_LICENSE
 }
 
 model UserVerification {
-    id String @id @default(uuid())
+  id String @id @default(uuid())
 
-    userId String @unique
-    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    documentType   DocumentType
-    documentNumber String
-    nif            String?
+  currentStep Int    @default(1)
+  status      String @default("DRAFT") // DRAFT, PENDING, APPROVED, REJECTED
 
-    documentFrontUrl String
-    documentBackUrl  String
+  phone            String?
+  zonesOfOperation Json? // array of strings
 
-    selfieUrl String
-    videoUrl  String
+  documentType   DocumentType?
+  documentNumber String?
+  nif            String?
 
-    step1Status     VerificationStepStatus @default(PENDING)
-    step1ReviewedAt DateTime?
-    step1ReviewedBy String?
+  documentFrontUrl String?
+  documentBackUrl  String?
 
-    step2Status     VerificationStepStatus?
-    step2ReviewedAt DateTime?
-    step2ReviewedBy String?
-    step2Notes      String?
+  selfieUrl String?
+  videoUrl  String?
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  step1Status     VerificationStepStatus @default(PENDING)
+  step1ReviewedAt DateTime?
+  step1ReviewedBy String?
+
+  step2Status     VerificationStepStatus?
+  step2ReviewedAt DateTime?
+  step2ReviewedBy String?
+  step2Notes      String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // ============================================
@@ -389,25 +466,87 @@ model UserVerification {
 // ============================================
 
 enum PropertyRequestStatus {
-    ACTIVE
-    PAUSED
-    CLOSED
+  ACTIVE
+  PAUSED
+  CLOSED
 }
 
 model PropertyRequest {
-    id           String                @id @default(uuid())
-    userId       String
-    title        String
-    description  String?
-    location     String
-    propertyType String
-    minPrice     Float?
-    maxPrice     Float?
-    bedrooms     Int?
-    bathrooms    Int?
-    status       PropertyRequestStatus @default(ACTIVE)
-    createdAt    DateTime              @default(now())
-    updatedAt    DateTime              @updatedAt
+  id           String                @id @default(uuid())
+  userId       String
+  title        String
+  description  String?
+  location     String
+  propertyType String
+  minPrice     Float?
+  maxPrice     Float?
+  bedrooms     Int?
+  bathrooms    Int?
+  status       PropertyRequestStatus @default(ACTIVE)
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
 
-    user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+}
+
+// ============================================
+// Payment Tables
+// ============================================
+
+enum PaymentType {
+  subscription
+  commission
+}
+
+enum PaymentStatus {
+  pending
+  paid
+  rejected
+}
+
+model Payment {
+  id              String        @id @default(uuid())
+  userId          String
+  type            PaymentType
+  amount          Float
+  status          PaymentStatus @default(pending)
+  reference       String // Removed @unique to allow Radar to detect duplicates
+  method          String        @default("manual")
+  proofImageUrl   String?
+  rejectionReason String?
+  verifiedBy      String? // Admin id
+  relatedId       String? // ID da subscrição ou negócio
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+// ============================================
+// Notification Tables
+// ============================================
+
+enum NotificationType {
+  NEW_LEAD
+  NEW_MESSAGE
+  VISIT_REQUESTED
+  VISIT_STATUS_UPDATED
+  REVIEW_RECEIVED
+  ACCOUNT_VERIFIED
+  PROPERTY_APPROVED
+  SYSTEM_ALERT
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  type      NotificationType
+  title     String
+  message   String
+  read      Boolean          @default(false)
+  link      String?
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

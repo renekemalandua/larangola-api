@@ -12,10 +12,13 @@ export class UserAdapter {
         name: raw.name,
         avatar: (raw as any).avatar ?? null,
         isActive: (raw as any).isActive,
+        adminRole: (raw as any).adminRole ?? 'NONE',
         agent: (raw as any).agent,
         roommate: (raw as any).roommate,
         createdAt: (raw as any).createdAt,
         updatedAt: (raw as any).updatedAt,
+        resetOtpCode: (raw as any).resetOtpCode,
+        resetOtpExpiresAt: (raw as any).resetOtpExpiresAt,
       },
       new IdValueObject((raw as any).id)
     );
@@ -30,8 +33,11 @@ export class UserAdapter {
       name: entity.name,
       avatar: entity.avatar,
       isActive: entity.isActive,
+      adminRole: entity.adminRole as any,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
+      resetOtpCode: entity.resetOtpCode,
+      resetOtpExpiresAt: entity.resetOtpExpiresAt,
     };
   }
 
@@ -43,6 +49,7 @@ export class UserAdapter {
       name: entity.name,
       avatar: entity.avatar,
       isActive: entity.isActive,
+      adminRole: entity.adminRole,
       agent: entity.agent,
       roommate: entity.roommate,
       createdAt: entity.createdAt,

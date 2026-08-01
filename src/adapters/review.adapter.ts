@@ -33,7 +33,7 @@ export class ReviewAdapter {
     };
   }
 
-  static toHttp(entity: ReviewEntity): any {
+  static toHttp(entity: any): any {
     return {
       id: entity.id,
       propertyId: entity.propertyId,
@@ -44,6 +44,11 @@ export class ReviewAdapter {
       comment: entity.comment,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
+      fromUser: entity.fromUser ? {
+        id: entity.fromUser.id,
+        name: entity.fromUser.name,
+        avatar: entity.fromUser.avatar,
+      } : null,
     };
   }
 }

@@ -9,6 +9,8 @@ import {
   Put,
   Res,
   Query,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
 import {
   ApiOperation,
@@ -16,6 +18,7 @@ import {
   ApiResponse,
   ApiTags,
   ApiQuery,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { HttpErrorResponseDTO } from '../shared';
 import {
@@ -26,12 +29,15 @@ import {
   ListReviewsByPropertyUseCase,
   ListReviewsByToUserUseCase,
   FindReviewByIdUseCase,
+  GetReviewStatsUseCase,
+  ListMyReviewsUseCase,
 } from '../usecases/review.usecases';
 import {
   CreateReviewRequestDTO,
   UpdateReviewRequestDTO,
 } from '../dto/review.dto';
 import { ReviewAdapter } from '../adapters/review.adapter';
+import { JwtAuthGuard } from '../shared/guards/jwt-auth.guard';
 
 @ApiTags('Reviews')
 @Controller('reviews')
@@ -43,7 +49,9 @@ export class ReviewController {
     private readonly listUseCase: ListReviewsUseCase,
     private readonly listByPropertyUseCase: ListReviewsByPropertyUseCase,
     private readonly listByToUserUseCase: ListReviewsByToUserUseCase,
-    private readonly findByIdUseCase: FindReviewByIdUseCase
+    private readonly findByIdUseCase: FindReviewByIdUseCase,
+    private readonly getStatsUseCase: GetReviewStatsUseCase,
+    private readonly listMyReviewsUseCase: ListMyReviewsUseCase
   ) {}
 
   @Post('create')
@@ -161,6 +169,34 @@ export class ReviewController {
         status: true,
         data: { message: 'Review deleted successfully' },
       });
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  @Get('agent/stats')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get current agent review stats' })
+  @ApiResponse({ status: 200 })
+  async getStats(@Req() req, @Res() response) {
+    try {
+      const data = await this.getStatsUseCase.execute(req.user.id);
+      return response.status(200).json({ status: true, data });
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  @Get('agent/my-reviews')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'List detailed reviews for current agent' })
+  @ApiResponse({ status: 200 })
+  async getMyReviews(@Req() req, @Res() response) {
+    try {
+      const data = await this.listMyReviewsUseCase.execute(req.user.id);
+      return response.status(200).json({ status: true, data });
     } catch (error) {
       throw new BadRequestException(error.message);
     }

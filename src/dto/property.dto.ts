@@ -10,13 +10,13 @@ import {
 import { Type } from 'class-transformer';
 import { ListingType, PropertyStatus } from '../entities/property.entity';
 
-export class CreatePropertyRequestDTO {
+export class CreatePropertyDTO {
   @ApiProperty({ example: 'uuid-of-agent' })
   @IsUUID()
   agentId: string;
 
   @ApiProperty({ example: 'uuid-of-category' })
-  @IsUUID()
+  @IsString()
   categoryId: string;
 
   @ApiProperty({ example: 'T3 no Talatona' })
@@ -93,6 +93,11 @@ export class CreatePropertyRequestDTO {
   @IsOptional()
   images?: string[];
 
+  @ApiPropertyOptional({ example: ['Não fumar', 'Sem barulho após 22h'] })
+  @IsOptional()
+  @IsString({ each: true })
+  rules?: string[];
+
   // Merged Listing Fields (Optional for Draft)
   @ApiPropertyOptional({ example: 'rent', enum: ListingType })
   @IsOptional()
@@ -117,10 +122,10 @@ export class CreatePropertyRequestDTO {
   status?: PropertyStatus;
 }
 
-export class UpdatePropertyRequestDTO {
+export class UpdatePropertyDTO {
   @ApiPropertyOptional({ example: 'uuid-of-new-category' })
   @IsOptional()
-  @IsUUID()
+  @IsString()
   categoryId?: string;
 
   @ApiPropertyOptional({ example: 'Novo título' })
@@ -200,6 +205,11 @@ export class UpdatePropertyRequestDTO {
   @IsOptional()
   images?: string[];
 
+  @ApiPropertyOptional({ example: ['Não fumar'] })
+  @IsOptional()
+  @IsString({ each: true })
+  rules?: string[];
+
   @ApiPropertyOptional({ example: 'rent', enum: ListingType })
   @IsOptional()
   @IsEnum(ListingType)
@@ -221,4 +231,17 @@ export class UpdatePropertyRequestDTO {
   @IsOptional()
   @IsEnum(PropertyStatus)
   status?: PropertyStatus;
+
+  // Approval Fields
+  @ApiPropertyOptional({ example: 'Preço acima do mercado' })
+  @IsOptional()
+  @IsString()
+  rejectionReason?: string;
+}
+
+
+export class RequestPublicationDTO {
+  @ApiProperty({ example: 'uuid-do-imovel' })
+  @IsUUID()
+  propertyId: string;
 }

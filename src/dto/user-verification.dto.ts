@@ -1,15 +1,42 @@
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import { IsEnum, IsOptional, IsString, IsUrl, IsUUID } from 'class-validator';
+import { Type, Transform } from 'class-transformer';
 import { DocumentType, VerificationStepStatus } from '@prisma/client';
 
 export class SubmitVerificationRequestDTO {
-  @ApiProperty({ enum: DocumentType })
-  @IsEnum(DocumentType)
-  documentType: DocumentType;
+  @ApiPropertyOptional({ example: 1 })
+  @IsOptional()
+  @Type(() => Number)
+  currentStep?: number;
 
-  @ApiProperty({ example: '123456789' })
+  @ApiPropertyOptional({ example: 'DRAFT' })
+  @IsOptional()
   @IsString()
-  documentNumber: string;
+  status?: string;
+
+  @ApiPropertyOptional({ example: '920000000' })
+  @IsOptional()
+  @IsString()
+  phone?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (value === undefined || value === null) return value;
+    if (Array.isArray(value)) return value;
+    return [value];
+  })
+  zonesOfOperation?: any;
+
+  @ApiPropertyOptional({ enum: DocumentType })
+  @IsOptional()
+  @IsEnum(DocumentType)
+  documentType?: DocumentType;
+
+  @ApiPropertyOptional({ example: '123456789' })
+  @IsOptional()
+  @IsString()
+  documentNumber?: string;
 
   @ApiPropertyOptional({ example: '999999999' })
   @IsOptional()

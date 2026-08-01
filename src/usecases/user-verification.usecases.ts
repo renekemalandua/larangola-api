@@ -14,7 +14,8 @@ import {
   ReviewVerificationStepRequestDTO,
   UpdateVerificationRequestDTO,
 } from '../dto/user-verification.dto';
-import { VerificationStepStatus } from '@prisma/client';
+import { VerificationStepStatus, NotificationType } from '@prisma/client';
+import { CreateNotificationUseCase } from './notification.usecases';
 
 import { IUploadService } from '../shared/services/IUploadService';
 
@@ -127,13 +128,33 @@ export class UpdateVerificationUseCase implements UseCase<
     data: UpdateVerificationRequestDTO;
     files?: { [key: string]: Express.Multer.File[] };
   }): Promise<UserVerificationEntity> {
-    const verification = await this.repository.findByUserId(userId);
-    if (!verification)
-      throw new NotFoundException('Verification request not found.');
-
-    if (data.documentType) verification.documentType = data.documentType;
-    if (data.documentNumber) verification.documentNumber = data.documentNumber;
-    if (data.nif) verification.nif = data.nif;
+    let verification = await this.repository.findByUserId(userId);
+    
+    if (!verification) {
+      verification = UserVerificationEntity.create({
+        userId,
+        currentStep: data.currentStep ?? 1,
+        status: data.status ?? 'DRAFT',
+        phone: data.phone ?? null,
+        zonesOfOperation: data.zonesOfOperation ?? null,
+        documentType: data.documentType ?? null,
+        documentNumber: data.documentNumber ?? null,
+        nif: data.nif ?? null,
+        documentFrontUrl: null,
+        documentBackUrl: null,
+        selfieUrl: null,
+        videoUrl: null,
+        step1Status: VerificationStepStatus.PENDING,
+      });
+    } else {
+      if (data.currentStep) verification.currentStep = data.currentStep;
+      if (data.status) verification.status = data.status;
+      if (data.phone) verification.phone = data.phone;
+      if (data.zonesOfOperation) verification.zonesOfOperation = data.zonesOfOperation;
+      if (data.documentType) verification.documentType = data.documentType;
+      if (data.documentNumber) verification.documentNumber = data.documentNumber;
+      if (data.nif) verification.nif = data.nif;
+    }
 
     if (files) {
       if (files.documentFront?.[0]) {
@@ -162,13 +183,20 @@ export class UpdateVerificationUseCase implements UseCase<
       }
     }
 
-    // Reset status to PENDING if data changed?
-    // Usually updates require re-verification.
-    verification.step1Status = VerificationStepStatus.PENDING;
-    if (verification.step2Status) {
-      verification.step2Status = VerificationStepStatus.PENDING;
+    const isNew = !verification.id || verification.id.includes('-'); // Rough check, repository should handle it
+    
+    // If it's the final submit, make sure status is PENDING
+    if (verification.status === 'PENDING') {
+        verification.step1Status = VerificationStepStatus.PENDING;
+        if (verification.step2Status) {
+            verification.step2Status = VerificationStepStatus.PENDING;
+        }
     }
 
+    if (!await this.repository.findByUserId(userId)) {
+        return this.repository.create(verification);
+    }
+    
     return this.repository.update(verification);
   }
 }
@@ -181,7 +209,8 @@ export class ReviewVerificationUseCase implements UseCase<
   constructor(
     private readonly repository: IUserVerificationRepository,
     private readonly agentRepository: IAgentRepository,
-    private readonly roommateRepository: IRoommateRepository
+    private readonly roommateRepository: IRoommateRepository,
+    private readonly createNotificationUseCase: CreateNotificationUseCase
   ) {}
 
   async execute({
@@ -251,6 +280,16 @@ export class ReviewVerificationUseCase implements UseCase<
       if (agent.isVerified !== isVerified) {
         agent.isVerified = isVerified;
         await this.agentRepository.update(agent);
+        
+        if (isVerified) {
+          await this.createNotificationUseCase.execute({
+            userId,
+            type: NotificationType.ACCOUNT_VERIFIED,
+            title: 'Conta Verificada',
+            message: 'Parabéns! A sua conta foi verificada com sucesso. O seu selo de agente já está visível.',
+            link: '/perfil'
+          });
+        }
       }
     }
   }

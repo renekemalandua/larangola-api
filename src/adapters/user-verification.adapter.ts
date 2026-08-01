@@ -7,6 +7,10 @@ export class UserVerificationAdapter {
     return UserVerificationEntity.create(
       {
         userId: raw.userId,
+        currentStep: (raw as any).currentStep,
+        status: (raw as any).status,
+        phone: (raw as any).phone,
+        zonesOfOperation: (raw as any).zonesOfOperation,
         documentType: raw.documentType,
         documentNumber: raw.documentNumber,
         nif: raw.nif,
@@ -32,6 +36,10 @@ export class UserVerificationAdapter {
     return {
       id: entity.id,
       userId: entity.userId,
+      currentStep: entity.currentStep,
+      status: entity.status,
+      phone: entity.phone,
+      zonesOfOperation: entity.zonesOfOperation || undefined,
       documentType: entity.documentType,
       documentNumber: entity.documentNumber,
       nif: entity.nif,
@@ -55,6 +63,10 @@ export class UserVerificationAdapter {
     return {
       id: entity.id,
       userId: entity.userId,
+      currentStep: entity.currentStep,
+      status: entity.status,
+      phone: entity.phone,
+      zonesOfOperation: entity.zonesOfOperation,
       documentType: entity.documentType,
       documentNumber: entity.documentNumber,
       nif: entity.nif,
@@ -71,6 +83,7 @@ export class UserVerificationAdapter {
       step2Notes: entity.step2Notes,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
+      user: (entity as any)._user,
     };
   }
 }

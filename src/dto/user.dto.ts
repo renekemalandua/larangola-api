@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEmail, IsOptional, IsString, IsBoolean } from 'class-validator';
+import { IsEmail, IsOptional, IsString, IsBoolean, IsNumber, IsEnum } from 'class-validator';
+import { AdminRole } from '@prisma/client';
 
 export class CreateUserRequestDTO {
   @ApiProperty({ example: 'user@example.com' })
@@ -22,6 +23,11 @@ export class CreateUserRequestDTO {
   @IsOptional()
   @IsString()
   avatar?: string;
+
+  @ApiPropertyOptional({ example: 'ADMIN', enum: ['NONE', 'AUDITOR', 'ADMIN'] })
+  @IsOptional()
+  @IsEnum(['NONE', 'AUDITOR', 'ADMIN'])
+  adminRole?: 'NONE' | 'AUDITOR' | 'ADMIN';
 }
 
 export class UpdateUserRequestDTO {
@@ -54,4 +60,14 @@ export class UpdateUserRequestDTO {
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;
+}
+
+export class AssignPlanRequestDTO {
+  @ApiProperty({ example: 'plan-uuid' })
+  @IsString()
+  planId: string;
+
+  @ApiProperty({ example: 30 })
+  @IsNumber()
+  durationInDays: number;
 }

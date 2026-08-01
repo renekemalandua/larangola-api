@@ -9,12 +9,13 @@ export class JwtService implements IJwtService {
   async encrypt(data: IJwtProps): Promise<string> {
     return await this.jwtService.sign(data.payload, { secret: data.secret });
   }
-  async verify(token: string, secret: string): Promise<string> {
+  async verify(token: string, secret: string): Promise<any> {
     const decoded = await this.jwtService.verify(token, { secret });
     if (typeof decoded !== 'object' || decoded === null) {
       throw new BadRequestException('invalid decoded token format');
     }
-    const payload: string = decoded.payload;
-    return payload;
+    // The token payload fields are at the root level (not nested under .payload)
+    // Return the full decoded object so guards can access id, email, role, etc.
+    return decoded;
   }
 }

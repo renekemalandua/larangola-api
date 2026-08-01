@@ -8,45 +8,91 @@ import { UserAdapter } from '../../adapters/user.adapter';
 export class PrismaUserRepository implements IUserRepository {
   constructor(private readonly prisma: PrismaService) {}
 
+  private mapAgentActivePlan(row: any) {
+    if (row && row.agent && row.agent.subscriptions) {
+      const activeSub = row.agent.subscriptions.find((sub: any) => sub.status === 'active');
+      if (activeSub && activeSub.plan) {
+        row.agent.activePlan = activeSub.plan;
+      }
+    }
+    return row;
+  }
+
   async create(data: UserEntity): Promise<UserEntity> {
     const raw = UserAdapter.toPrisma(data) as any;
     const created = await this.prisma.user.create({
       data: raw,
-      include: { agent: true, roommate: true },
+      include: { 
+        agent: { include: { subscriptions: { include: { plan: true } } } }, 
+        roommate: true 
+      },
     });
-    return UserAdapter.toDomain(created);
+    return UserAdapter.toDomain(this.mapAgentActivePlan(created));
   }
 
   async list(): Promise<UserEntity[]> {
     const rows = await this.prisma.user.findMany({
       orderBy: { updatedAt: 'desc' },
-      include: { agent: true, roommate: true },
+      include: { 
+        agent: { include: { subscriptions: { include: { plan: true } } } }, 
+        roommate: true 
+      },
     });
-    return rows.map(UserAdapter.toDomain);
+    return rows.map((row) => UserAdapter.toDomain(this.mapAgentActivePlan(row)));
   }
 
   async findById(id: string): Promise<UserEntity | null> {
     const row = await this.prisma.user.findUnique({
       where: { id },
-      include: { agent: true, roommate: true },
+      include: { 
+        agent: { 
+          include: { 
+            subscriptions: { include: { plan: true } },
+            properties: {
+              take: 5,
+              orderBy: { createdAt: 'desc' },
+              include: { category: true }
+            },
+            _count: {
+              select: { properties: true }
+            }
+          } 
+        }, 
+        roommate: true 
+      },
     });
-    return row ? UserAdapter.toDomain(row) : null;
+
+    if (row && row.agent) {
+      const leadsCount = await this.prisma.propertyInterest.count({
+        where: { property: { agentId: row.agent.id } }
+      });
+      (row.agent as any).realPropertiesCount = row.agent._count.properties;
+      (row.agent as any).leadsCount = leadsCount;
+    }
+
+    return row ? UserAdapter.toDomain(this.mapAgentActivePlan(row)) : null;
   }
 
   async findByEmail(email: string): Promise<UserEntity | null> {
     const row = await this.prisma.user.findUnique({
       where: { email },
-      include: { agent: true, roommate: true },
+      include: { 
+        agent: { include: { subscriptions: { include: { plan: true } } } }, 
+        roommate: true 
+      },
     });
-    return row ? UserAdapter.toDomain(row) : null;
+    return row ? UserAdapter.toDomain(this.mapAgentActivePlan(row)) : null;
   }
 
   async findByPhone(phone: string): Promise<UserEntity | null> {
     const row = await this.prisma.user.findUnique({
       where: { phone },
-      include: { agent: true, roommate: true },
+      include: { 
+        agent: { include: { subscriptions: { include: { plan: true } } } }, 
+        roommate: true 
+      },
     });
-    return row ? UserAdapter.toDomain(row) : null;
+    return row ? UserAdapter.toDomain(this.mapAgentActivePlan(row)) : null;
   }
 
   async update(data: UserEntity): Promise<UserEntity> {
@@ -58,14 +104,21 @@ export class PrismaUserRepository implements IUserRepository {
     const updated = await this.prisma.user.update({
       where: { id: data.id },
       data: raw,
-      include: { agent: true, roommate: true },
+      include: { 
+        agent: { include: { subscriptions: { include: { plan: true } } } }, 
+        roommate: true 
+      },
     });
-    return UserAdapter.toDomain(updated);
+    return UserAdapter.toDomain(this.mapAgentActivePlan(updated));
   }
 
   async delete(id: string): Promise<void> {
     const exists = await this.prisma.user.findUnique({ where: { id } });
     if (!exists) throw new NotFoundException('User not found');
     await this.prisma.user.delete({ where: { id } });
+  }
+
+  async count(): Promise<number> {
+    return this.prisma.user.count();
   }
 }

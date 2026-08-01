@@ -9,7 +9,8 @@ import {
 
 import { IAgentRepository } from '../repositories/IAgentRepository';
 import { IRoommateRepository } from '../repositories/IRoommateRepository';
-import { ReviewRole } from '@prisma/client';
+import { ReviewRole, NotificationType } from '@prisma/client';
+import { CreateNotificationUseCase } from './notification.usecases';
 
 @Injectable()
 export class CreateReviewUseCase implements UseCase<
@@ -19,7 +20,8 @@ export class CreateReviewUseCase implements UseCase<
   constructor(
     private readonly repository: IReviewRepository,
     private readonly agentRepository: IAgentRepository,
-    private readonly roommateRepository: IRoommateRepository
+    private readonly roommateRepository: IRoommateRepository,
+    private readonly createNotificationUseCase: CreateNotificationUseCase
   ) {}
 
   async execute(request: CreateReviewRequestDTO): Promise<ReviewEntity> {
@@ -40,6 +42,14 @@ export class CreateReviewUseCase implements UseCase<
     const created = await this.repository.create(entity);
 
     await this.updateUserRating(request.toUserId, request.role);
+
+    await this.createNotificationUseCase.execute({
+      userId: request.toUserId,
+      type: NotificationType.REVIEW_RECEIVED,
+      title: 'Nova Avaliação',
+      message: `Recebeu uma nova avaliação de ${request.rating} estrelas no seu perfil.`,
+      link: '/perfil'
+    });
 
     return created;
   }
@@ -212,5 +222,64 @@ export class FindReviewByIdUseCase implements UseCase<
     const entity = await this.repository.findById(id);
     if (!entity) throw new BadRequestException('Review not found');
     return entity;
+  }
+}
+
+export interface ReviewStatsResponse {
+  averageRating: number;
+  totalReviews: number;
+  distribution: {
+    '5': number;
+    '4': number;
+    '3': number;
+    '2': number;
+    '1': number;
+  };
+}
+
+@Injectable()
+export class GetReviewStatsUseCase implements UseCase<string, ReviewStatsResponse> {
+  constructor(private readonly repository: IReviewRepository) {}
+
+  async execute(userId: string): Promise<ReviewStatsResponse> {
+    const reviews = await this.repository.findByUserIdAndRole(userId, ReviewRole.AGENT);
+    
+    let totalScore = 0;
+    const distribution = { '5': 0, '4': 0, '3': 0, '2': 0, '1': 0 };
+
+    for (const review of reviews) {
+      totalScore += review.rating;
+      if (review.rating >= 1 && review.rating <= 5) {
+        distribution[review.rating.toString() as keyof typeof distribution]++;
+      }
+    }
+
+    const totalReviews = reviews.length;
+    const averageRating = totalReviews > 0 ? Number((totalScore / totalReviews).toFixed(1)) : 0;
+
+    return {
+      averageRating,
+      totalReviews,
+      distribution
+    };
+  }
+}
+
+@Injectable()
+export class ListMyReviewsUseCase implements UseCase<string, any[]> {
+  constructor(private readonly repository: IReviewRepository) {}
+
+  async execute(userId: string): Promise<any[]> {
+    const reviews = await this.repository.findByUserIdAndRole(userId, ReviewRole.AGENT);
+    
+    // Map to a clean presentation format for the frontend
+    return reviews.map((review: any) => ({
+      id: review.id,
+      rating: review.rating,
+      comment: review.comment,
+      createdAt: review.createdAt,
+      clientName: review.fromUser?.name || 'Cliente',
+      clientAvatar: review.fromUser?.profilePictureUrl || null
+    }));
   }
 }

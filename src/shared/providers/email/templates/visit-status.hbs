@@ -1,0 +1,15 @@
+<p>Olá <strong>{{name}}</strong>,</p>
+
+{{#if isConfirmed}}
+  <p>A sua visita ao imóvel <strong>{{propertyTitle}}</strong> marcada para o dia <strong>{{date}}</strong> às <strong>{{time}}</strong> foi confirmada! 🎉</p>
+  <p>Por favor, aceda à sua conta para conversar com o agente, acertar os detalhes finais e garantir que tudo corre bem.</p>
+{{else}}
+  <p>O status da sua visita ao imóvel <strong>{{propertyTitle}}</strong> agendada para {{date}} às {{time}} foi atualizado para:</p>
+  <p style="text-align: center; margin: 24px 0;">
+    <span style="background-color: {{statusColor}}15; color: {{statusColor}}; padding: 8px 16px; border-radius: 999px; font-weight: bold; text-transform: uppercase; font-size: 14px;">
+      {{newStatus}}
+    </span>
+  </p>
+{{/if}}
+
+<p>Pode ver mais detalhes acedendo à sua conta.</p>
