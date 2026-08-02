@@ -5,50 +5,50 @@ const LUANDA_ZONES = [
     grupo: 1,
     nome: "Centro histórico e baixa de Luanda",
     municipios: ["Luanda", "Ingombota", "Maianga", "Rangel"],
-    prices: [800000, 1500000, 2500000, 150000000, 300000000],
+    prices: [15000, 25000, 45000, 80000, 150000, 300000, 600000],
     types: ['apartment', 'studio']
   },
   {
     grupo: 2,
     nome: "Zona sul e expansão moderna",
     municipios: ["Belas", "Talatona", "Kilamba", "Samba"],
-    prices: [1200000, 3500000, 5000000, 450000000, 800000000],
+    prices: [18000, 35000, 60000, 95000, 180000, 450000, 850000],
     types: ['house', 'apartment']
   },
   {
     grupo: 3,
     nome: "Eixo norte urbano",
     municipios: ["Sambizanga", "Cazenga", "Hoji Ya Henda", "Ngola Kiluanje"],
-    prices: [150000, 300000, 500000, 45000000, 60000000],
+    prices: [10000, 15000, 30000, 45000, 80000, 150000, 250000],
     types: ['house', 'apartment']
   },
   {
     grupo: 4,
     nome: "Eixo leste e norte de expansão",
     municipios: ["Viana", "Mulenvos", "Cacuaco"],
-    prices: [120000, 200000, 400000, 35000000, 50000000],
+    prices: [8000, 12000, 25000, 40000, 75000, 120000, 210000],
     types: ['house', 'land']
   },
   {
     grupo: 5,
     nome: "Municípios mais afastados",
     municipios: ["Icolo e Bengo", "Quiçama"],
-    prices: [80000, 150000, 300000, 25000000, 40000000],
+    prices: [5000, 9000, 18000, 35000, 60000, 90000, 150000],
     types: ['house', 'land']
   }
 ];
 
 const PHOTOS = [
-  'https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1600607687931-cebf0746e48e?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1600573472591-ee6b68d14c68?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?auto=format&fit=crop&w=800&q=80'
+  'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1600607687931-cebf0746e48e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1600573472591-ee6b68d14c68?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1518780664697-55e3ad937233?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1568605114967-8130f3a36994?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
 ];
 
 export async function seedProperties(
