@@ -4,9 +4,10 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import cloudinary from './cloudinary.config';
+import { IUploadService } from '../../services/IUploadService';
 
 @Injectable()
-export class UploadService {
+export class CloudinaryUploadService implements IUploadService {
   async uploadImage(
     folder: string,
     file: Express.Multer.File

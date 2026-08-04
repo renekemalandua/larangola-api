@@ -16,7 +16,6 @@ import {
 } from '../dto/user-verification.dto';
 import { VerificationStepStatus, NotificationType } from '@prisma/client';
 import { CreateNotificationUseCase } from './notification.usecases';
-
 import { IUploadService } from '../shared/services/IUploadService';
 
 @Injectable()
