@@ -23,7 +23,7 @@ import {
   ApiConsumes,
 } from '@nestjs/swagger';
 import { HttpErrorResponseDTO } from '../shared';
-import { UploadService } from '../shared/providers/upload/upload.service';
+import { IUploadService } from '../shared/services/IUploadService';
 import {
   CreatePropertyUseCase,
   DeletePropertyUseCase,
@@ -57,7 +57,7 @@ export class PropertyController {
     private readonly requestPublicationUseCase: RequestPublicationUseCase,
     private readonly listMyPropertiesUseCase: ListMyPropertiesUseCase,
     private readonly highlightPropertyUseCase: HighlightPropertyUseCase,
-    private readonly uploadService: UploadService
+    private readonly uploadService: IUploadService
   ) {}
 
   @Post('create')

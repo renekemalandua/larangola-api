@@ -9,7 +9,9 @@ RUN apt-get update -y && apt-get install -y openssl
 COPY package*.json ./
 COPY prisma ./prisma
 
-RUN npm install
+# Utilizar BuildKit Cache Mount para evitar o download completo repetitivo
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --prefer-offline
 
 COPY . .
 

@@ -22,6 +22,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      network: host
     image: renekemalandua/larangola-nest-api:latest
     container_name: larangola-api
     ports:

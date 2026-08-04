@@ -20,7 +20,7 @@ import {
   ApiConsumes,
 } from '@nestjs/swagger';
 import { HttpErrorResponseDTO } from '../shared';
-import { UploadService } from '../shared/providers/upload/upload.service';
+import { IUploadService } from '../shared/services/IUploadService';
 import {
   CreateUserUseCase,
   UpdateUserUseCase,
@@ -44,7 +44,7 @@ export class UserController {
     private readonly findByIdUseCase: FindUserByIdUseCase,
     private readonly findByEmailUseCase: FindUserByEmailUseCase,
     private readonly assignSubscriptionUseCase: AssignAgentSubscriptionUseCase,
-    private readonly uploadService: UploadService
+    private readonly uploadService: IUploadService
   ) {}
 
   @Post('create')

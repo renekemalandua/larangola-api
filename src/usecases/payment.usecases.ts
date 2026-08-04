@@ -3,7 +3,7 @@ import { UseCase } from '../shared';
 import { PaymentEntity, PaymentType } from '../entities/payment.entity';
 import { IPaymentRepository } from '../repositories/IPaymentRepository';
 import { IAgentPlanRepository } from '../repositories/IAgentPlanRepository';
-import { UploadService } from '../shared/providers/upload/upload.service';
+import { IUploadService } from '../shared/services/IUploadService';
 
 @Injectable()
 export class CreateSubscriptionPaymentUseCase
@@ -48,7 +48,7 @@ export class UploadPaymentProofUseCase
 {
   constructor(
     private readonly paymentRepository: IPaymentRepository,
-    private readonly uploadService: UploadService
+    private readonly uploadService: IUploadService
   ) {}
 
   async execute({

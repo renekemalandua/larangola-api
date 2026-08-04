@@ -13,14 +13,14 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { UploadService } from './upload.service';
+import { IUploadService } from '../../services/IUploadService';
 import { UploadPDFDTO } from './upload.dto';
 import { HttpErrorResponseDTO } from '../../dto/http-error-response.dto';
 
 @ApiTags('Uploads')
 @Controller('Uploads')
 export class UploadController {
-  constructor(private readonly uploadService: UploadService) {}
+  constructor(private readonly uploadService: IUploadService) {}
 
   @Post('pdf')
   @UseInterceptors(FileInterceptor('file'))
