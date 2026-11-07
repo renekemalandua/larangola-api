@@ -14,6 +14,7 @@ export class PrismaPropertyRepository implements IPropertyRepository {
         user: true,
       },
     },
+    workspaceDetails: true,
     _count: {
       select: {
         scheduledVisits: true,
@@ -37,8 +38,34 @@ export class PrismaPropertyRepository implements IPropertyRepository {
 
   async create(data: PropertyEntity): Promise<PropertyEntity> {
     const raw = PropertyAdapter.toPrisma(data) as any;
+    const workspaceData = (data as any).workspaceDetails;
+
+    const createPayload: any = {
+      ...raw,
+    };
+
+    if (workspaceData) {
+      createPayload.workspaceDetails = {
+        create: {
+          workspaceType: workspaceData.workspaceType,
+          pricingType: workspaceData.pricingType ?? 'BOTH',
+          pricePerHour: workspaceData.pricePerHour ? Number(workspaceData.pricePerHour) : null,
+          pricePerDay: workspaceData.pricePerDay ? Number(workspaceData.pricePerDay) : null,
+          capacitySeats: Number(workspaceData.capacitySeats || 1),
+          minBookingHours: Number(workspaceData.minBookingHours || 1),
+          hasHighSpeedWifi: workspaceData.hasHighSpeedWifi !== undefined ? !!workspaceData.hasHighSpeedWifi : true,
+          hasGenerator: workspaceData.hasGenerator !== undefined ? !!workspaceData.hasGenerator : true,
+          hasProjector: !!workspaceData.hasProjector,
+          hasWhiteboard: !!workspaceData.hasWhiteboard,
+          hasAirConditioning: workspaceData.hasAirConditioning !== undefined ? !!workspaceData.hasAirConditioning : true,
+          hasCoffeeBreak: !!workspaceData.hasCoffeeBreak,
+          hasParking: !!workspaceData.hasParking,
+        },
+      };
+    }
+
     const created = await this.prisma.property.create({
-      data: raw,
+      data: createPayload,
       include: this.agentInclude
     });
     return this.enrichProperty(created);
@@ -111,12 +138,56 @@ export class PrismaPropertyRepository implements IPropertyRepository {
   async update(data: PropertyEntity): Promise<PropertyEntity> {
     const exists = await this.prisma.property.findUnique({
       where: { id: data.id },
+      include: { workspaceDetails: true },
     });
     if (!exists) throw new NotFoundException('Property not found');
     const raw = PropertyAdapter.toPrisma(data) as any;
+    const workspaceData = (data as any).workspaceDetails;
+
+    const updatePayload: any = {
+      ...raw,
+    };
+
+    if (workspaceData) {
+      updatePayload.workspaceDetails = {
+        upsert: {
+          create: {
+            workspaceType: workspaceData.workspaceType,
+            pricingType: workspaceData.pricingType ?? 'BOTH',
+            pricePerHour: workspaceData.pricePerHour ? Number(workspaceData.pricePerHour) : null,
+            pricePerDay: workspaceData.pricePerDay ? Number(workspaceData.pricePerDay) : null,
+            capacitySeats: Number(workspaceData.capacitySeats || 1),
+            minBookingHours: Number(workspaceData.minBookingHours || 1),
+            hasHighSpeedWifi: workspaceData.hasHighSpeedWifi !== undefined ? !!workspaceData.hasHighSpeedWifi : true,
+            hasGenerator: workspaceData.hasGenerator !== undefined ? !!workspaceData.hasGenerator : true,
+            hasProjector: !!workspaceData.hasProjector,
+            hasWhiteboard: !!workspaceData.hasWhiteboard,
+            hasAirConditioning: workspaceData.hasAirConditioning !== undefined ? !!workspaceData.hasAirConditioning : true,
+            hasCoffeeBreak: !!workspaceData.hasCoffeeBreak,
+            hasParking: !!workspaceData.hasParking,
+          },
+          update: {
+            workspaceType: workspaceData.workspaceType,
+            pricingType: workspaceData.pricingType ?? 'BOTH',
+            pricePerHour: workspaceData.pricePerHour ? Number(workspaceData.pricePerHour) : null,
+            pricePerDay: workspaceData.pricePerDay ? Number(workspaceData.pricePerDay) : null,
+            capacitySeats: Number(workspaceData.capacitySeats || 1),
+            minBookingHours: Number(workspaceData.minBookingHours || 1),
+            hasHighSpeedWifi: workspaceData.hasHighSpeedWifi !== undefined ? !!workspaceData.hasHighSpeedWifi : true,
+            hasGenerator: workspaceData.hasGenerator !== undefined ? !!workspaceData.hasGenerator : true,
+            hasProjector: !!workspaceData.hasProjector,
+            hasWhiteboard: !!workspaceData.hasWhiteboard,
+            hasAirConditioning: workspaceData.hasAirConditioning !== undefined ? !!workspaceData.hasAirConditioning : true,
+            hasCoffeeBreak: !!workspaceData.hasCoffeeBreak,
+            hasParking: !!workspaceData.hasParking,
+          },
+        },
+      };
+    }
+
     const updated = await this.prisma.property.update({
       where: { id: data.id },
-      data: raw,
+      data: updatePayload,
       include: this.agentInclude,
     });
     return this.enrichProperty(updated);
@@ -137,6 +208,56 @@ export class PrismaPropertyRepository implements IPropertyRepository {
       ],
       include: this.agentInclude,
     });
+    return rows.map((row) => this.enrichProperty(row));
+  }
+
+  async listWorkspaces(filters?: any): Promise<PropertyEntity[]> {
+    const where: any = {
+      workspaceDetails: { isNot: null },
+      status: 'published',
+    };
+
+    if (filters?.workspaceType) {
+      where.workspaceDetails = {
+        ...where.workspaceDetails,
+        workspaceType: filters.workspaceType,
+      };
+    }
+
+    if (filters?.city) {
+      where.city = { contains: filters.city, mode: 'insensitive' };
+    }
+
+    if (filters?.minCapacity) {
+      where.workspaceDetails = {
+        ...where.workspaceDetails,
+        capacitySeats: { gte: Number(filters.minCapacity) },
+      };
+    }
+
+    if (filters?.maxPricePerHour) {
+      where.workspaceDetails = {
+        ...where.workspaceDetails,
+        pricePerHour: { lte: Number(filters.maxPricePerHour) },
+      };
+    }
+
+    if (filters?.maxPricePerDay) {
+      where.workspaceDetails = {
+        ...where.workspaceDetails,
+        pricePerDay: { lte: Number(filters.maxPricePerDay) },
+      };
+    }
+
+    const rows = await this.prisma.property.findMany({
+      where,
+      orderBy: [
+        { isHighlighted: 'desc' },
+        { createdAt: 'desc' }
+      ],
+      include: this.agentInclude,
+    });
+
     return rows.map((row) => this.enrichProperty(row));
   }
 

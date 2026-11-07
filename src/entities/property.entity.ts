@@ -54,6 +54,9 @@ interface IPropertyProps {
 
   // Virtual/Computed Fields
   interactionCount: number | null;
+
+  // Workspace details
+  workspaceDetails?: any | null;
 }
 
 export class PropertyEntity extends AggregateRoot<IPropertyProps> {
@@ -127,9 +130,19 @@ export class PropertyEntity extends AggregateRoot<IPropertyProps> {
         createdAt: props.createdAt ?? new Date(),
         updatedAt: props.updatedAt ?? new Date(),
         interactionCount: props.interactionCount ?? null,
+        workspaceDetails: props.workspaceDetails ?? null,
       },
       id
     );
+  }
+
+  public get workspaceDetails(): any | null {
+    return this.props.workspaceDetails ?? null;
+  }
+
+  public set workspaceDetails(v: any | null) {
+    this.props.workspaceDetails = v;
+    this.touch();
   }
 
   protected touch(): void {

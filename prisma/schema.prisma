@@ -125,6 +125,42 @@ model Property {
   closedDeals       ClosedDeal[]
   reviews           Review[]           @relation("PropertyReview")
   messages          Message[]
+  workspaceDetails  WorkspaceDetails?
+}
+
+enum WorkspaceType {
+  MEETING_ROOM
+  PRIVATE_OFFICE
+  COWORKING_DESK
+  EVENT_SPACE
+}
+
+enum WorkspacePricingType {
+  PER_HOUR
+  PER_DAY
+  BOTH
+}
+
+model WorkspaceDetails {
+  id                 String               @id @default(uuid())
+  propertyId         String               @unique
+  workspaceType      WorkspaceType
+  pricingType        WorkspacePricingType @default(BOTH)
+  pricePerHour       Float?
+  pricePerDay        Float?
+  capacitySeats      Int
+  minBookingHours    Int                  @default(1)
+  hasHighSpeedWifi   Boolean              @default(true)
+  hasGenerator       Boolean              @default(true)
+  hasProjector       Boolean              @default(false)
+  hasWhiteboard      Boolean              @default(false)
+  hasAirConditioning Boolean              @default(true)
+  hasCoffeeBreak     Boolean              @default(false)
+  hasParking         Boolean              @default(false)
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 }
 
 enum ListingType {

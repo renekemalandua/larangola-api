@@ -13,6 +13,7 @@ import {
   UploadedFiles,
   Request,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import {
@@ -21,6 +22,7 @@ import {
   ApiResponse,
   ApiTags,
   ApiConsumes,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { HttpErrorResponseDTO } from '../shared';
 import { IUploadService } from '../shared/services/IUploadService';
@@ -35,6 +37,7 @@ import {
   RequestPublicationUseCase,
   ListMyPropertiesUseCase,
   HighlightPropertyUseCase,
+  ListWorkspacesUseCase,
 } from '../usecases/property.usecases';
 import { JwtAuthGuard } from '../shared/guards/jwt-auth.guard';
 import {
@@ -57,6 +60,7 @@ export class PropertyController {
     private readonly requestPublicationUseCase: RequestPublicationUseCase,
     private readonly listMyPropertiesUseCase: ListMyPropertiesUseCase,
     private readonly highlightPropertyUseCase: HighlightPropertyUseCase,
+    private readonly listWorkspacesUseCase: ListWorkspacesUseCase,
     private readonly uploadService: IUploadService
   ) {}
 
@@ -123,6 +127,15 @@ export class PropertyController {
         }
       }
 
+      // If workspaceDetails comes as a JSON string via multipart/form-data, parse it
+      if (typeof (body as any).workspaceDetails === 'string') {
+        try {
+          body.workspaceDetails = JSON.parse((body as any).workspaceDetails);
+        } catch (e) {
+          console.warn('[PropertyController] Failed to parse workspaceDetails JSON:', e);
+        }
+      }
+
       console.log('[PropertyController] Calling CreatePropertyUseCase...');
       const entity = await this.createUseCase.execute(body);
       console.log(
@@ -145,6 +158,25 @@ export class PropertyController {
   async list(@Res() response) {
     try {
       const entities = await this.listUseCase.execute();
+      const data = entities.map((e) => PropertyAdapter.toHttp(e));
+      return response.status(200).json({ status: true, data });
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  @Get('workspaces')
+  @ApiOperation({ summary: 'List all Workspaces (Offices, Meeting Rooms, etc.)' })
+  @ApiQuery({ name: 'workspaceType', required: false })
+  @ApiQuery({ name: 'city', required: false })
+  @ApiQuery({ name: 'minCapacity', required: false })
+  @ApiQuery({ name: 'maxPricePerHour', required: false })
+  @ApiQuery({ name: 'maxPricePerDay', required: false })
+  @ApiResponse({ status: 200 })
+  @ApiResponse({ status: 400, type: HttpErrorResponseDTO })
+  async listWorkspaces(@Query() query: any, @Res() response) {
+    try {
+      const entities = await this.listWorkspacesUseCase.execute(query);
       const data = entities.map((e) => PropertyAdapter.toHttp(e));
       return response.status(200).json({ status: true, data });
     } catch (error) {
@@ -238,6 +270,15 @@ export class PropertyController {
         );
         body.images = imageUrls;
       }
+
+      if (typeof (body as any).workspaceDetails === 'string') {
+        try {
+          body.workspaceDetails = JSON.parse((body as any).workspaceDetails);
+        } catch (e) {
+          console.warn('[PropertyController] Failed to parse workspaceDetails JSON:', e);
+        }
+      }
+
       const entity = await this.updateUseCase.execute({ id, data: body });
       const data = PropertyAdapter.toHttp(entity);
       return response.status(200).json({ status: true, data });

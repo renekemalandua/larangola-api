@@ -154,6 +154,10 @@ export class UpdatePropertyUseCase implements UseCase<
       entity.status = data.status;
     }
 
+    if (data.workspaceDetails !== undefined) {
+      entity.workspaceDetails = data.workspaceDetails;
+    }
+
     return this.repository.update(entity);
   }
 }
@@ -411,5 +415,13 @@ export class HighlightPropertyUseCase implements UseCase<
     property.highlightedUntil = expiration;
 
     return this.repository.update(property);
+  }
+}
+
+@Injectable()
+export class ListWorkspacesUseCase implements UseCase<any, PropertyEntity[]> {
+  constructor(private readonly repository: IPropertyRepository) {}
+  async execute(filters?: any): Promise<PropertyEntity[]> {
+    return this.repository.listWorkspaces(filters);
   }
 }

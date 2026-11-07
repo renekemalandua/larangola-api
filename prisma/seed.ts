@@ -6,6 +6,7 @@ import { seedProperties } from './seeds/properties.seed';
 import { seedPayments } from './seeds/payments.seed';
 import { seedReviews } from './seeds/reviews.seed';
 import { seedPropertyAudits } from './seeds/property-audits.seed';
+import { seedWorkspaces } from './seeds/workspaces.seed';
 
 const prisma = new PrismaClient();
 
@@ -23,12 +24,15 @@ async function main() {
     // 3. Dependent entities (Properties & Payments)
     await seedProperties(prisma, admin.id, agent, catHouse.id, catApt.id);
     
+    // 4. Workspaces for pitch/presentation
+    await seedWorkspaces(prisma, agent, catApt.id);
+    
     await seedPayments(prisma, agent.id, premiumPlan.price, premiumPlan.id);
 
-    // 4. Auxiliary entities (Reviews)
+    // 5. Auxiliary entities (Reviews)
     await seedReviews(prisma);
 
-    // 5. Market entities (Property Audits)
+    // 6. Market entities (Property Audits)
     await seedPropertyAudits(prisma);
 
     console.log('🌱 Seed completed successfully!');

@@ -5,10 +5,86 @@ import {
   IsOptional,
   IsString,
   IsUUID,
+  IsBoolean,
+  ValidateNested,
   Min,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ListingType, PropertyStatus } from '../entities/property.entity';
+import { WorkspaceType, WorkspacePricingType } from '../entities/workspace-details.entity';
+
+export class WorkspaceDetailsDTO {
+  @ApiProperty({ enum: WorkspaceType, example: WorkspaceType.MEETING_ROOM })
+  @IsEnum(WorkspaceType)
+  workspaceType: WorkspaceType;
+
+  @ApiPropertyOptional({ enum: WorkspacePricingType, default: WorkspacePricingType.BOTH })
+  @IsOptional()
+  @IsEnum(WorkspacePricingType)
+  pricingType?: WorkspacePricingType;
+
+  @ApiPropertyOptional({ example: 5000 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0)
+  pricePerHour?: number;
+
+  @ApiPropertyOptional({ example: 40000 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0)
+  pricePerDay?: number;
+
+  @ApiProperty({ example: 10 })
+  @Type(() => Number)
+  @IsNumber()
+  @Min(1)
+  capacitySeats: number;
+
+  @ApiPropertyOptional({ example: 1, default: 1 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(1)
+  minBookingHours?: number;
+
+  @ApiPropertyOptional({ default: true })
+  @IsOptional()
+  @IsBoolean()
+  hasHighSpeedWifi?: boolean;
+
+  @ApiPropertyOptional({ default: true })
+  @IsOptional()
+  @IsBoolean()
+  hasGenerator?: boolean;
+
+  @ApiPropertyOptional({ default: false })
+  @IsOptional()
+  @IsBoolean()
+  hasProjector?: boolean;
+
+  @ApiPropertyOptional({ default: false })
+  @IsOptional()
+  @IsBoolean()
+  hasWhiteboard?: boolean;
+
+  @ApiPropertyOptional({ default: true })
+  @IsOptional()
+  @IsBoolean()
+  hasAirConditioning?: boolean;
+
+  @ApiPropertyOptional({ default: false })
+  @IsOptional()
+  @IsBoolean()
+  hasCoffeeBreak?: boolean;
+
+  @ApiPropertyOptional({ default: false })
+  @IsOptional()
+  @IsBoolean()
+  hasParking?: boolean;
+}
 
 export class CreatePropertyDTO {
   @ApiProperty({ example: 'uuid-of-agent' })
@@ -120,6 +196,12 @@ export class CreatePropertyDTO {
   @IsOptional()
   @IsEnum(PropertyStatus)
   status?: PropertyStatus;
+
+  @ApiPropertyOptional({ type: () => WorkspaceDetailsDTO })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => WorkspaceDetailsDTO)
+  workspaceDetails?: WorkspaceDetailsDTO;
 }
 
 export class UpdatePropertyDTO {
@@ -237,6 +319,12 @@ export class UpdatePropertyDTO {
   @IsOptional()
   @IsString()
   rejectionReason?: string;
+
+  @ApiPropertyOptional({ type: () => WorkspaceDetailsDTO })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => WorkspaceDetailsDTO)
+  workspaceDetails?: WorkspaceDetailsDTO;
 }
 
 

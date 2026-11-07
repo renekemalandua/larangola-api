@@ -49,6 +49,7 @@ export class PropertyAdapter {
         createdAt: raw.createdAt,
         updatedAt: raw.updatedAt,
         interactionCount: (raw as any).interactionCount ?? null,
+        workspaceDetails: (raw as any).workspaceDetails ?? null,
       },
       new IdValueObject(raw.id)
     );
@@ -144,6 +145,7 @@ export class PropertyAdapter {
 
       statusUpdatedAt: entity.statusUpdatedAt || entity.props?.statusUpdatedAt || null,
       interactionCount: entity.interactionCount || entity.props?.interactionCount || null,
+      workspaceDetails: entity.workspaceDetails || entity.props?.workspaceDetails || null,
       createdAt: entity.createdAt || entity.props?.createdAt,
       updatedAt: entity.updatedAt || entity.props?.updatedAt,
       agent: resolvedAgent
