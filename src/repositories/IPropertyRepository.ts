@@ -10,6 +10,7 @@ export abstract class IPropertyRepository {
   abstract findById(id: string): Promise<PropertyEntity | null>;
   abstract update(data: PropertyEntity): Promise<PropertyEntity>;
   abstract delete(id: string): Promise<void>;
+  abstract listWorkspaces(filters?: any): Promise<PropertyEntity[]>;
   abstract count(): Promise<number>;
   abstract countByStatus(status: string): Promise<number>;
 }
