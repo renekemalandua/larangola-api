@@ -44,22 +44,25 @@ export class PrismaPropertyRepository implements IPropertyRepository {
       ...raw,
     };
 
-    if (workspaceData) {
+    const isWorkspace = raw.propertyType === 'workspace';
+    const hasWorkspaceData = workspaceData && (workspaceData.workspaceType || isWorkspace);
+
+    if (hasWorkspaceData) {
       createPayload.workspaceDetails = {
         create: {
-          workspaceType: workspaceData.workspaceType,
-          pricingType: workspaceData.pricingType ?? 'BOTH',
-          pricePerHour: workspaceData.pricePerHour ? Number(workspaceData.pricePerHour) : null,
-          pricePerDay: workspaceData.pricePerDay ? Number(workspaceData.pricePerDay) : null,
-          capacitySeats: Number(workspaceData.capacitySeats || 1),
-          minBookingHours: Number(workspaceData.minBookingHours || 1),
-          hasHighSpeedWifi: workspaceData.hasHighSpeedWifi !== undefined ? !!workspaceData.hasHighSpeedWifi : true,
-          hasGenerator: workspaceData.hasGenerator !== undefined ? !!workspaceData.hasGenerator : true,
-          hasProjector: !!workspaceData.hasProjector,
-          hasWhiteboard: !!workspaceData.hasWhiteboard,
-          hasAirConditioning: workspaceData.hasAirConditioning !== undefined ? !!workspaceData.hasAirConditioning : true,
-          hasCoffeeBreak: !!workspaceData.hasCoffeeBreak,
-          hasParking: !!workspaceData.hasParking,
+          workspaceType: workspaceData?.workspaceType || 'MEETING_ROOM',
+          pricingType: workspaceData?.pricingType ?? 'BOTH',
+          pricePerHour: workspaceData?.pricePerHour ? Number(workspaceData.pricePerHour) : null,
+          pricePerDay: workspaceData?.pricePerDay ? Number(workspaceData.pricePerDay) : null,
+          capacitySeats: Number(workspaceData?.capacitySeats || 1),
+          minBookingHours: Number(workspaceData?.minBookingHours || 1),
+          hasHighSpeedWifi: workspaceData?.hasHighSpeedWifi !== undefined ? !!workspaceData.hasHighSpeedWifi : true,
+          hasGenerator: workspaceData?.hasGenerator !== undefined ? !!workspaceData.hasGenerator : true,
+          hasProjector: !!workspaceData?.hasProjector,
+          hasWhiteboard: !!workspaceData?.hasWhiteboard,
+          hasAirConditioning: workspaceData?.hasAirConditioning !== undefined ? !!workspaceData.hasAirConditioning : true,
+          hasCoffeeBreak: !!workspaceData?.hasCoffeeBreak,
+          hasParking: !!workspaceData?.hasParking,
         },
       };
     }
@@ -148,38 +151,42 @@ export class PrismaPropertyRepository implements IPropertyRepository {
       ...raw,
     };
 
-    if (workspaceData) {
+    const isWorkspace = raw.propertyType === 'workspace';
+    const hasWorkspaceData = workspaceData && (workspaceData.workspaceType || isWorkspace);
+
+    if (hasWorkspaceData) {
+      const typeVal = workspaceData?.workspaceType || 'MEETING_ROOM';
       updatePayload.workspaceDetails = {
         upsert: {
           create: {
-            workspaceType: workspaceData.workspaceType,
-            pricingType: workspaceData.pricingType ?? 'BOTH',
-            pricePerHour: workspaceData.pricePerHour ? Number(workspaceData.pricePerHour) : null,
-            pricePerDay: workspaceData.pricePerDay ? Number(workspaceData.pricePerDay) : null,
-            capacitySeats: Number(workspaceData.capacitySeats || 1),
-            minBookingHours: Number(workspaceData.minBookingHours || 1),
-            hasHighSpeedWifi: workspaceData.hasHighSpeedWifi !== undefined ? !!workspaceData.hasHighSpeedWifi : true,
-            hasGenerator: workspaceData.hasGenerator !== undefined ? !!workspaceData.hasGenerator : true,
-            hasProjector: !!workspaceData.hasProjector,
-            hasWhiteboard: !!workspaceData.hasWhiteboard,
-            hasAirConditioning: workspaceData.hasAirConditioning !== undefined ? !!workspaceData.hasAirConditioning : true,
-            hasCoffeeBreak: !!workspaceData.hasCoffeeBreak,
-            hasParking: !!workspaceData.hasParking,
+            workspaceType: typeVal,
+            pricingType: workspaceData?.pricingType ?? 'BOTH',
+            pricePerHour: workspaceData?.pricePerHour ? Number(workspaceData.pricePerHour) : null,
+            pricePerDay: workspaceData?.pricePerDay ? Number(workspaceData.pricePerDay) : null,
+            capacitySeats: Number(workspaceData?.capacitySeats || 1),
+            minBookingHours: Number(workspaceData?.minBookingHours || 1),
+            hasHighSpeedWifi: workspaceData?.hasHighSpeedWifi !== undefined ? !!workspaceData.hasHighSpeedWifi : true,
+            hasGenerator: workspaceData?.hasGenerator !== undefined ? !!workspaceData.hasGenerator : true,
+            hasProjector: !!workspaceData?.hasProjector,
+            hasWhiteboard: !!workspaceData?.hasWhiteboard,
+            hasAirConditioning: workspaceData?.hasAirConditioning !== undefined ? !!workspaceData.hasAirConditioning : true,
+            hasCoffeeBreak: !!workspaceData?.hasCoffeeBreak,
+            hasParking: !!workspaceData?.hasParking,
           },
           update: {
-            workspaceType: workspaceData.workspaceType,
-            pricingType: workspaceData.pricingType ?? 'BOTH',
-            pricePerHour: workspaceData.pricePerHour ? Number(workspaceData.pricePerHour) : null,
-            pricePerDay: workspaceData.pricePerDay ? Number(workspaceData.pricePerDay) : null,
-            capacitySeats: Number(workspaceData.capacitySeats || 1),
-            minBookingHours: Number(workspaceData.minBookingHours || 1),
-            hasHighSpeedWifi: workspaceData.hasHighSpeedWifi !== undefined ? !!workspaceData.hasHighSpeedWifi : true,
-            hasGenerator: workspaceData.hasGenerator !== undefined ? !!workspaceData.hasGenerator : true,
-            hasProjector: !!workspaceData.hasProjector,
-            hasWhiteboard: !!workspaceData.hasWhiteboard,
-            hasAirConditioning: workspaceData.hasAirConditioning !== undefined ? !!workspaceData.hasAirConditioning : true,
-            hasCoffeeBreak: !!workspaceData.hasCoffeeBreak,
-            hasParking: !!workspaceData.hasParking,
+            workspaceType: typeVal,
+            pricingType: workspaceData?.pricingType ?? 'BOTH',
+            pricePerHour: workspaceData?.pricePerHour ? Number(workspaceData.pricePerHour) : null,
+            pricePerDay: workspaceData?.pricePerDay ? Number(workspaceData.pricePerDay) : null,
+            capacitySeats: Number(workspaceData?.capacitySeats || 1),
+            minBookingHours: Number(workspaceData?.minBookingHours || 1),
+            hasHighSpeedWifi: workspaceData?.hasHighSpeedWifi !== undefined ? !!workspaceData.hasHighSpeedWifi : true,
+            hasGenerator: workspaceData?.hasGenerator !== undefined ? !!workspaceData.hasGenerator : true,
+            hasProjector: !!workspaceData?.hasProjector,
+            hasWhiteboard: !!workspaceData?.hasWhiteboard,
+            hasAirConditioning: workspaceData?.hasAirConditioning !== undefined ? !!workspaceData.hasAirConditioning : true,
+            hasCoffeeBreak: !!workspaceData?.hasCoffeeBreak,
+            hasParking: !!workspaceData?.hasParking,
           },
         },
       };
