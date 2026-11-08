@@ -9,7 +9,7 @@ import {
   ValidateNested,
   Min,
 } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Type, Transform } from 'class-transformer';
 import { ListingType, PropertyStatus } from '../entities/property.entity';
 import { WorkspaceType, WorkspacePricingType } from '../entities/workspace-details.entity';
 
@@ -199,6 +199,16 @@ export class CreatePropertyDTO {
 
   @ApiPropertyOptional({ type: () => WorkspaceDetailsDTO })
   @IsOptional()
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      try {
+        return JSON.parse(value);
+      } catch {
+        return value;
+      }
+    }
+    return value;
+  })
   @ValidateNested()
   @Type(() => WorkspaceDetailsDTO)
   workspaceDetails?: WorkspaceDetailsDTO;
@@ -322,6 +332,16 @@ export class UpdatePropertyDTO {
 
   @ApiPropertyOptional({ type: () => WorkspaceDetailsDTO })
   @IsOptional()
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      try {
+        return JSON.parse(value);
+      } catch {
+        return value;
+      }
+    }
+    return value;
+  })
   @ValidateNested()
   @Type(() => WorkspaceDetailsDTO)
   workspaceDetails?: WorkspaceDetailsDTO;

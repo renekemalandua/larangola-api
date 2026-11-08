@@ -143,11 +143,11 @@ export class PropertyAdapter {
       isHighlighted: entity.isHighlighted !== undefined ? entity.isHighlighted : (entity.props?.isHighlighted || false),
       highlightedUntil: entity.highlightedUntil || entity.props?.highlightedUntil || null,
 
-      statusUpdatedAt: entity.statusUpdatedAt || entity.props?.statusUpdatedAt || null,
-      interactionCount: entity.interactionCount || entity.props?.interactionCount || null,
-      workspaceDetails: entity.workspaceDetails || entity.props?.workspaceDetails || null,
-      createdAt: entity.createdAt || entity.props?.createdAt,
-      updatedAt: entity.updatedAt || entity.props?.updatedAt,
+      statusUpdatedAt: getData('statusUpdatedAt') || null,
+      interactionCount: getData('interactionCount') || null,
+      workspaceDetails: getData('workspaceDetails') || null,
+      createdAt: getData('createdAt'),
+      updatedAt: getData('updatedAt'),
       agent: resolvedAgent
         ? {
             id: resolvedAgent.id,
