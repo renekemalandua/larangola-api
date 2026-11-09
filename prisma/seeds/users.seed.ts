@@ -81,5 +81,45 @@ export async function seedUsers(prisma: PrismaClient) {
   });
   console.log('✅ Unverified Agent user created');
 
-  return { admin, agent, client, unverifiedAgent };
+  // 5. Company (Imobiliária Larangola)
+  const passwordCompany = await bcrypt.hash('company@larangola.co.ao', 10);
+  const company = await prisma.user.upsert({
+    where: { email: 'company@larangola.co.ao' },
+    update: {
+      name: 'Imobiliaria Larangola',
+      isActive: true,
+      agent: {
+        upsert: {
+          create: {
+            profession: 'Empresa Imobiliária',
+            company: 'Imobiliaria Larangola',
+            isVerified: true,
+          },
+          update: {
+            profession: 'Empresa Imobiliária',
+            company: 'Imobiliaria Larangola',
+            isVerified: true,
+          }
+        }
+      }
+    },
+    create: {
+      email: 'company@larangola.co.ao',
+      phone: '+244920000003',
+      password: passwordCompany,
+      name: 'Imobiliaria Larangola',
+      isActive: true,
+      agent: {
+        create: {
+          profession: 'Empresa Imobiliária',
+          company: 'Imobiliaria Larangola',
+          isVerified: true,
+        }
+      }
+    },
+    include: { agent: true }
+  });
+  console.log('✅ Company user created (Imobiliaria Larangola)');
+
+  return { admin, agent, client, unverifiedAgent, company };
 }

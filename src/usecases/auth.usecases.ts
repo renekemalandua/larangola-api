@@ -110,8 +110,8 @@ export class AuthRegisterUseCase implements UseCase<
       exp: GLOBAL_CONFIG.jwtAuthExp,
     });
 
-    // Send client welcome email asynchronously ONLY if not registering directly as an agent
-    if (!request.isAgent) {
+    // Send client welcome email asynchronously ONLY if not registering directly as an agent or company
+    if (!request.isAgent && !request.isCompany && request.role !== 'agent' && request.role !== 'company') {
       this.emailService.sendClientWelcome(user.email, user.name).catch(console.error);
     }
 

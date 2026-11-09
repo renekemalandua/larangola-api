@@ -62,6 +62,24 @@ export class AuthRegisterDTO {
   @IsOptional()
   @IsBoolean()
   isAgent?: boolean;
+
+  @ApiProperty({
+    required: false,
+    description: 'Indicates if the user is registering directly as a company',
+    example: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  isCompany?: boolean;
+
+  @ApiProperty({
+    required: false,
+    description: 'User registration account type',
+    example: 'client',
+  })
+  @IsOptional()
+  @IsString()
+  role?: string;
 }
 
 export class ForgotPasswordDTO {

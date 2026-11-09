@@ -19,7 +19,7 @@ async function main() {
     const { catHouse, catApt } = await seedCategories(prisma);
 
     // 2. Base dependent entities (Users/Agents)
-    const { admin, agent } = await seedUsers(prisma);
+    const { admin, agent, company } = await seedUsers(prisma);
 
     // 3. Dependent entities (Properties & Payments)
     await seedProperties(prisma, admin.id, agent, catHouse.id, catApt.id);
