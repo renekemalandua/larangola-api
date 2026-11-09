@@ -28,7 +28,9 @@ export async function seedUsers(prisma: PrismaClient) {
   // 2. Agent
   const agent = await prisma.user.upsert({
     where: { email: 'agent@larangola.co.ao' },
-    update: {},
+    update: {
+      password: passwordAgent,
+    },
     create: {
       email: 'agent@larangola.co.ao',
       phone: '+244920000001',
@@ -49,7 +51,9 @@ export async function seedUsers(prisma: PrismaClient) {
   // 3. Client
   const client = await prisma.user.upsert({
     where: { email: 'client@larangola.co.ao' },
-    update: {},
+    update: {
+      password: passwordClient,
+    },
     create: {
       email: 'client@larangola.co.ao',
       phone: '+244930000001',
@@ -82,10 +86,11 @@ export async function seedUsers(prisma: PrismaClient) {
   console.log('✅ Unverified Agent user created');
 
   // 5. Company (Imobiliária Larangola)
-  const passwordCompany = await bcrypt.hash('company@larangola.co.ao', 10);
+  const passwordCompany = await bcrypt.hash('company123', 10);
   const company = await prisma.user.upsert({
     where: { email: 'company@larangola.co.ao' },
     update: {
+      password: passwordCompany,
       name: 'Imobiliaria Larangola',
       isActive: true,
       agent: {
