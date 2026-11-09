@@ -49,6 +49,17 @@ export class ScheduledVisitAdapter {
       ? PropertyAdapter.toHttp(property, property.agent)
       : null;
 
+    const rawUser = (entity as any).user;
+    const userData = rawUser
+      ? {
+          id: rawUser.id,
+          name: rawUser.name,
+          email: rawUser.email,
+          phone: rawUser.phone,
+          avatar: rawUser.avatar,
+        }
+      : null;
+
     return {
       id: entity.id,
       propertyId: entity.propertyId,
@@ -62,6 +73,7 @@ export class ScheduledVisitAdapter {
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
       property: propertyData,
+      user: userData,
     };
   }
 }
