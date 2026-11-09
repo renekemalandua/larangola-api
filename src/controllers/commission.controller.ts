@@ -135,11 +135,16 @@ export class CommissionController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Agent confirms deal after verifying client receipt' })
-  async agentConfirmDeal(@Req() req: any, @Param('id') dealId: string) {
+  async agentConfirmDeal(
+    @Req() req: any,
+    @Param('id') dealId: string,
+    @Body() body?: { commissionAmount?: number }
+  ) {
     if (!req.user || !req.user.id) throw new BadRequestException('Não autenticado');
     const result = await this.agentConfirmDealUseCase.execute({
       dealId,
       userId: req.user.id,
+      commissionAmount: body?.commissionAmount,
     });
     return ClosedDealAdapter.toHttp(result);
   }

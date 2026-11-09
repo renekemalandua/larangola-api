@@ -158,6 +158,7 @@ export class ClientSubmitReceiptUseCase {
 export interface AgentConfirmDealRequest {
   dealId: string;
   userId: string; // Agent user
+  commissionAmount?: number;
 }
 
 @Injectable()
@@ -183,6 +184,13 @@ export class AgentConfirmDealUseCase {
     deal.status = ClosedDealStatus.completed;
     deal.agentConfirmedAt = new Date();
     deal.closedDate = new Date();
+
+    if (request.commissionAmount !== undefined && request.commissionAmount >= 0) {
+      deal.commissionAmount = Number(request.commissionAmount);
+      if (deal.dealAmount && deal.dealAmount > 0) {
+        deal.commissionRate = Number(((deal.commissionAmount / deal.dealAmount) * 100).toFixed(2));
+      }
+    }
 
     // Calculate Platform fee (20%)
     const agreedAmount = deal.dealAmount || 0;
@@ -441,7 +449,10 @@ export class GetCommissionStatsUseCase implements UseCase<string, CommissionStat
     const totalCommission = deals.reduce((acc, t) => acc + t.commissionAmount, 0);
     const monthlyCommission = monthlyTransactions.reduce((acc, t) => acc + t.commissionAmount, 0);
 
-    const commissionRate = dealsToday >= 2 ? 2 : 0;
+    const totalDealVolume = deals.reduce((acc, t) => acc + (t.dealAmount || 0), 0);
+    const commissionRate = totalDealVolume > 0 && totalCommission > 0
+      ? Number(((totalCommission / totalDealVolume) * 100).toFixed(1))
+      : 20;
 
     // Pending fees calculation
     const pendingDeals = deals.filter(
