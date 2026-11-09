@@ -195,6 +195,7 @@ model Agent {
   properties            Property[] // Relation to properties owned by agent
   closedDeals           ClosedDeal[]           @relation("ClosedDealAgent")
   claimedPropertyAudits PropertyAuditRequest[]
+  bankAccounts          AgentBankAccount[]
 }
 
 model Roommate {
@@ -365,14 +366,70 @@ enum ClosedDealStatus {
   pending_payment
 }
 
+enum DealStage {
+  VISIT_SCHEDULED
+  VISIT_COMPLETED
+  NEGOTIATION
+  WAITING_PAYMENT
+  PAYMENT_SUBMITTED
+  DEAL_CLOSED
+  CANCELLED
+}
+
+enum PlatformFeeStatus {
+  PENDING
+  SUBMITTED
+  APPROVED
+  REJECTED
+}
+
+model AgentBankAccount {
+  id            String   @id @default(uuid())
+  agentId       String
+  bankName      String
+  iban          String
+  accountHolder String
+  isFavorite    Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  agent Agent @relation(fields: [agentId], references: [id], onDelete: Cascade)
+}
+
 model ClosedDeal {
   id               String           @id @default(uuid())
   propertyId       String
   agentId          String
   clientId         String?
+  dealType         String? // 'rent' | 'sale' | 'workspace'
+  dealAmount       Float? // total property price agreed
   commissionAmount Float
   commissionRate   Float // percentage
   status           ClosedDealStatus @default(pending_payment)
+  stage            DealStage        @default(VISIT_SCHEDULED)
+
+  // Payment coordinates provided to client
+  paymentBankName      String?
+  paymentIban          String?
+  paymentAccountHolder String?
+  isOwnerAccount       Boolean? @default(false)
+
+  // Client proof of payment
+  clientPaymentReceiptUrl  String?
+  clientPaymentReceiptNote String?
+  clientPaidAt             DateTime?
+  agentConfirmedAt         DateTime?
+
+  // Platform Commission Fee (20%)
+  platformFeeRate        Float             @default(20.0) // 20%
+  platformFeeAmount      Float             @default(0.0)
+  platformFeeStatus      PlatformFeeStatus @default(PENDING)
+  agentFeeReceiptUrl     String?
+  agentFeeSubmittedAt    DateTime?
+  adminReviewedAt        DateTime?
+  adminReviewedBy        String?
+  adminRejectionReason   String?
+
   closedDate       DateTime
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt

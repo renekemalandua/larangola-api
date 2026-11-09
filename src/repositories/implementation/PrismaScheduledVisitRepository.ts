@@ -14,10 +14,12 @@ export class PrismaScheduledVisitRepository implements IScheduledVisitRepository
       data: raw,
       include: {
         property: { include: { agent: { include: { user: true } } } },
+        user: true,
       },
     });
     const entity = ScheduledVisitAdapter.toDomain(created);
     (entity as any).property = (created as any).property;
+    (entity as any).user = (created as any).user;
     return entity;
   }
 
@@ -27,12 +29,14 @@ export class PrismaScheduledVisitRepository implements IScheduledVisitRepository
         property: {
           include: { agent: { include: { user: true } } },
         },
+        user: true,
       },
       orderBy: { updatedAt: 'desc' },
     });
     return (rows as any[]).map((row) => {
       const entity = ScheduledVisitAdapter.toDomain(row);
       (entity as any).property = row.property;
+      (entity as any).user = row.user;
       return entity;
     });
   }
@@ -44,12 +48,14 @@ export class PrismaScheduledVisitRepository implements IScheduledVisitRepository
         property: {
           include: { agent: { include: { user: true } } },
         },
+        user: true,
       },
       orderBy: { updatedAt: 'desc' },
     });
     return (rows as any[]).map((row) => {
       const entity = ScheduledVisitAdapter.toDomain(row);
       (entity as any).property = row.property;
+      (entity as any).user = row.user;
       return entity;
     });
   }
@@ -61,12 +67,14 @@ export class PrismaScheduledVisitRepository implements IScheduledVisitRepository
         property: {
           include: { agent: { include: { user: true } } },
         },
+        user: true,
       },
       orderBy: { updatedAt: 'desc' },
     });
     return (rows as any[]).map((row) => {
       const entity = ScheduledVisitAdapter.toDomain(row);
       (entity as any).property = row.property;
+      (entity as any).user = row.user;
       return entity;
     });
   }
@@ -81,11 +89,13 @@ export class PrismaScheduledVisitRepository implements IScheduledVisitRepository
         property: {
           include: { agent: { include: { user: true } } },
         },
+        user: true,
       },
     });
     if (!row) return null;
     const entity = ScheduledVisitAdapter.toDomain(row);
     (entity as any).property = (row as any).property;
+    (entity as any).user = (row as any).user;
     return entity;
   }
 
@@ -96,11 +106,13 @@ export class PrismaScheduledVisitRepository implements IScheduledVisitRepository
         property: {
           include: { agent: { include: { user: true } } },
         },
+        user: true,
       },
     });
     if (!row) return null;
     const entity = ScheduledVisitAdapter.toDomain(row);
     (entity as any).property = (row as any).property;
+    (entity as any).user = (row as any).user;
     return entity;
   }
 
@@ -115,10 +127,12 @@ export class PrismaScheduledVisitRepository implements IScheduledVisitRepository
       data: raw,
       include: {
         property: { include: { agent: { include: { user: true } } } },
+        user: true,
       },
     });
     const entity = ScheduledVisitAdapter.toDomain(row);
     (entity as any).property = (row as any).property;
+    (entity as any).user = (row as any).user;
     return entity;
   }
 

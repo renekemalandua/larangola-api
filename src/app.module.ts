@@ -48,8 +48,8 @@ import { IReviewRepository } from './repositories/IReviewRepository';
 import { PrismaReviewRepository } from './repositories/implementation/PrismaReviewRepository';
 import { IPropertyInterestRepository } from './repositories/IPropertyInterestRepository';
 import { PrismaPropertyInterestRepository } from './repositories/implementation/PrismaPropertyInterestRepository';
-import { IClosedDealRepository } from './repositories/IClosedDealRepository';
-import { PrismaClosedDealRepository } from './repositories/implementation/PrismaClosedDealRepository';
+import { IClosedDealRepository, IAgentBankAccountRepository } from './repositories/IClosedDealRepository';
+import { PrismaClosedDealRepository, PrismaAgentBankAccountRepository } from './repositories/implementation/PrismaClosedDealRepository';
 import { INotificationRepository } from './repositories/INotificationRepository';
 import { PrismaNotificationRepository } from './repositories/implementation/PrismaNotificationRepository';
 import { IAgentPlanRepository } from './repositories/IAgentPlanRepository';
@@ -193,11 +193,25 @@ import {
   FindClosedDealByIdUseCase,
 } from './usecases/closed-deal.usecases';
 
-// Use Cases - Commission
+// Use Cases - Commission & Deals
 import {
   CloseDealAndCalculateCommissionUseCase,
   GetCommissionStatsUseCase,
   GetCommissionHistoryUseCase,
+  AdvanceDealStageUseCase,
+  SendBankDetailsUseCase,
+  ClientSubmitReceiptUseCase,
+  AgentConfirmDealUseCase,
+  AgentSubmitFeeReceiptUseCase,
+  AdminReviewFeeUseCase,
+  CreateAgentBankAccountUseCase,
+  ListAgentBankAccountsUseCase,
+  SetFavoriteBankAccountUseCase,
+  DeleteAgentBankAccountUseCase,
+  ListPendingFeesUseCase,
+  GetDealDetailsUseCase,
+  AdminListAllDealsUseCase,
+  GetDealByPropertyAndClientUseCase,
 } from './usecases/commission.usecases';
 
 // Use Cases - AgentPlan
@@ -356,6 +370,7 @@ import { PropertyAuditCronService } from './usecases/property-audit-cron.service
       useClass: PrismaPropertyInterestRepository,
     },
     { provide: IClosedDealRepository, useClass: PrismaClosedDealRepository },
+    { provide: IAgentBankAccountRepository, useClass: PrismaAgentBankAccountRepository },
     { provide: IAgentPlanRepository, useClass: PrismaAgentPlanRepository },
     {
       provide: IAgentSubscriptionRepository,
@@ -484,10 +499,24 @@ import { PropertyAuditCronService } from './usecases/property-audit-cron.service
     ListClosedDealsByClientUseCase,
     FindClosedDealByIdUseCase,
 
-    // Use Cases - Commission
+    // Use Cases - Commission & Deals
     CloseDealAndCalculateCommissionUseCase,
     GetCommissionStatsUseCase,
     GetCommissionHistoryUseCase,
+    AdvanceDealStageUseCase,
+    SendBankDetailsUseCase,
+    ClientSubmitReceiptUseCase,
+    AgentConfirmDealUseCase,
+    AgentSubmitFeeReceiptUseCase,
+    AdminReviewFeeUseCase,
+    CreateAgentBankAccountUseCase,
+    ListAgentBankAccountsUseCase,
+    SetFavoriteBankAccountUseCase,
+    DeleteAgentBankAccountUseCase,
+    ListPendingFeesUseCase,
+    GetDealDetailsUseCase,
+    AdminListAllDealsUseCase,
+    GetDealByPropertyAndClientUseCase,
 
     // Use Cases - AgentPlan
     CreateAgentPlanUseCase,
